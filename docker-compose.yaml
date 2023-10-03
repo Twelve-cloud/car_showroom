@@ -1,12 +1,16 @@
 version: '3.7'
+
+x-base-service: &default-env
+  env_file:
+      - ./.env
+
 services:
   web:
+    <<: *default-env
     build:
       context: ./car_salon_activities
       dockerfile: Dockerfile
     container_name: car-salon-container
-    env_file:
-      - ./car_salon_activities/.env
     ports:
       - 8000:${DJANGO_SERVER_PORT}
     entrypoint:
@@ -19,11 +23,10 @@ services:
         condition: service_healthy
 
   db:
+    <<: *default-env
     image: postgres:14.4-alpine
     volumes:
       - ./car_salon_activities/data/db:/var/lib/postgresql/data
-    env_file:
-      - ./car_salon_activities/.env
     ports:
       - 5432:${POSTGRES_PORT}
     healthcheck:

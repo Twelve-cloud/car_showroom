@@ -26,6 +26,8 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 DEFAULT_CHARSET = 'utf8'
 
+ROOT_URLCONF = 'car_salon_activities.urls'
+
 # -------------------------- INSTALLED APPS -----------------------------------
 
 INSTALLED_APPS = [
