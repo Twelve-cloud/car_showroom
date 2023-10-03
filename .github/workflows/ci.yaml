@@ -30,10 +30,10 @@ jobs:
         run: pipenv run flake8 .
 
       - name: run black
-        run: pip env black --check .
+        run: pipenv black --check .
 
       - name: run isort
-        run: pip env isort --check-only .
+        run: pipenv isort --check-only .
 
       - name: run mypy
         run: pipenv mypy .
