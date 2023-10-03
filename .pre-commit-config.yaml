@@ -10,21 +10,21 @@ repos:
 
       - id: black
         name: black
-        entry: d car_salon_activities && pipenv run black --check .
+        entry: cd car_salon_activities && pipenv run black --check .
         language: system
         types: [python]
         pass_filenames: false
 
       - id: flake8
         name: flake8
-        entry: d car_salon_activities && pipenv run flake8 .
+        entry: cd car_salon_activities && pipenv run flake8 .
         language: system
         types: [python]
         pass_filenames: false
 
       - id: mypy
         name: mypy
-        entry: d car_salon_activities && pipenv run mypy .
+        entry: cd car_salon_activities && pipenv run mypy .
         language: system
         types: [python]
         pass_filenames: false
