@@ -10,25 +10,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# -------------------------- MAIN SETTINGS ------------------------------------
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
+DEBUG = os.getenv('DEBUG')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b6s2k^3x2po$q44xz2+kxb0)4m$rz(!s-5a9ndw&rnezqa_*+a'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ROOT_URLCONF = 'car_salon_activities.urls'
 
-ALLOWED_HOSTS = []
+DEFAULT_CHARSET = 'utf8'
 
-
-# Application definition
+# -------------------------- INSTALLED APPS -----------------------------------
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+# -------------------------- MIDDLEWARES --------------------------------------
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -49,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'car_salon_activities.urls'
+# --------------------------- TEMPLATES ---------------------------------------
 
 TEMPLATES = [
     {
@@ -67,22 +68,30 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'car_salon_activities.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+# ---------------------------- DATABASES --------------------------------------
 
 DATABASES = {
+    'master': {
+        'ENGINE': os.getenv('POSTGRES_ENGINE'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'CONN_MAX_AGE': int(os.getenv('CONN_MAX_AGE', '0')),
+    },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': os.getenv('POSTGRES_ENGINE'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'CONN_MAX_AGE': int(os.getenv('CONN_MAX_AGE', '0')),
+    },
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
+# ----------------------------PASSWORD VALIDATION -----------------------------
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -99,25 +108,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.1/topics/i18n/
+# ------------------------- LANGUAGE SETTINGS ---------------------------------
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+USE_I18N = False
 
-USE_I18N = True
+USE_L10N = False
+
+TIME_ZONE = 'UTC'
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
+# -------------------------- OTHER SETTINGS -----------------------------------
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+WSGI_APPLICATION = 'car_salon_activities.wsgi.application'

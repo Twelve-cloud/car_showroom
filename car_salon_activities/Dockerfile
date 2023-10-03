@@ -4,18 +4,16 @@ LABEL author="ilya.savin@pynest.io"
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PIPENV_VENV_IN_PROJECT=1
-ENV PIPENV_DEFAULT_PYTHON_VERSION=3.10
 
 # 2 layer
 RUN apk update && apk add bash postgresql-dev gcc g++ python3-dev musl-dev && pip install pipenv
 
 # 3 layer
 WORKDIR /code
-COPY Pipfile ./
+COPY Pipfile Pipfile.lock ./
 
 # 4 layer
-RUN pipenv install
+RUN pipenv install --system --deploy --ignore-pipfile
 
 # 5 layer
 COPY . ./
