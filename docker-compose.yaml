@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+  web:
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile
+    container_name: car-salon-container
+    env_file:
+      - ./car_salon_activities/.env
+    ports:
+      - 8000:${DJANGO_SERVER_PORT}
+    entrypoint:
+      - ./django-entrypoint.sh
+    restart: always
+  #   depends_on:
+  #     - db
+
+  # db:
+  #   image: postgres:14.4-alpine
+  #   volumes:
+  #     - ./car_salon_activities/data/db:/var/lib/postgresql/data
+  #   env_file:
+  #     - ./car_salon_activities/.env
