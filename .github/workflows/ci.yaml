@@ -27,13 +27,13 @@ jobs:
         run: pipenv install --system --deploy --ignore-pipfile
 
       - name: run flake8
-        run: run flake8 .
+        run: pipenv run flake8 .
 
       - name: run black
-        run: black --check .
+        run: pip env black --check .
 
       - name: run isort
-        run: isort --check-only .
+        run: pip env isort --check-only .
 
       - name: run mypy
-        run: mypy .
+        run: pipenv mypy .
