@@ -1,0 +1,37 @@
+version: '3.7'
+
+x-base-service: &default-env
+  env_file:
+      - ./.env
+
+services:
+  web:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile
+    container_name: car-salon-container
+    ports:
+      - 8000:${DJANGO_SERVER_PORT}
+    entrypoint:
+      - ./django-entrypoint.sh
+    restart: always
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    <<: *default-env
+    image: postgres:14.4-alpine
+    volumes:
+      - ./car_salon_activities/data/db:/var/lib/postgresql/data
+    ports:
+      - 5432:${POSTGRES_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
