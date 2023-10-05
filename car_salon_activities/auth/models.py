@@ -9,14 +9,6 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 
-@receiver(pre_save)
-def pre_save_handler(sender, instance, update_fields, **kwargs):
-    instance.full_clean()
-
-    if instance._state.adding:
-        instance.set_password(instance.password)
-
-
 class User(models.Model):
     username = models.CharField(
         max_length=32,
@@ -107,3 +99,15 @@ class User(models.Model):
 
     def get_short_name(self):
         return self.first_name.strip()
+
+
+@receiver(pre_save, sender=User)
+def pre_save_handler(sender, instance, **kwargs):
+    instance.full_clean()
+
+    if instance._state.adding:
+        instance.set_password(instance.password)
+    else:
+        old_instance = sender.objects.get(pk=instance.pk)
+        if old_instance.password != instance.password:
+            instance.set_password(instance.password)

@@ -33,6 +33,7 @@ ROOT_URLCONF = 'car_salon_activities.urls'
 INSTALLED_APPS = [
     'auth.apps.AuthConfig',
     'salon.apps.SalonConfig',
+    'rest_framework',
 ]
 
 # -------------------------- MIDDLEWARES --------------------------------------
@@ -42,24 +43,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-# --------------------------- TEMPLATES ---------------------------------------
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
 ]
 
 # ---------------------------- DATABASES --------------------------------------
@@ -98,21 +81,6 @@ TIME_ZONE = 'UTC'
 USE_TZ = True
 
 # -------------------------- OTHER SETTINGS -----------------------------------
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
 
 WSGI_APPLICATION = 'car_salon_activities.wsgi.application'
 
