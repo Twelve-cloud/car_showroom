@@ -1,13 +1,17 @@
 """
-permissions.py: File, containing custom permissions for an auth application.
+permissions.py: File, containing custom permissions for an jauth application.
 """
 
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from rest_framework import permissions
 from rest_framework.request import Request
+from jauth.models import User
 
-from auth.models import User
-from auth.viewsets import UserViewSet
+
+if TYPE_CHECKING:
+    from jauth.views import UserViewSet
 
 
 class IsUserOwner(permissions.BasePermission):

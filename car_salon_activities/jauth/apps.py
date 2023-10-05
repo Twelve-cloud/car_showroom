@@ -1,22 +1,21 @@
 """
-apps.py: Config file for an auth application.
+apps.py: Config file for an jauth application.
 """
 
 
 from typing import ClassVar
-
 from django.apps import AppConfig
 
 
-class AuthConfig(AppConfig):
+class JauthConfig(AppConfig):
     """
-    AuthConfig: Config class for an auth application.
+    JauthConfig: Config class for an jauth application.
 
     Args:
         AppConfig (_type_): Builtin config superclass.
     """
 
     default_auto_field: ClassVar[str] = 'django.db.models.BigAutoField'
-    name: ClassVar[str] = 'auth'
-    label: ClassVar[str] = 'auth'
+    name: ClassVar[str] = 'jauth'
+    label: ClassVar[str] = 'jauth'
     verbose_name: ClassVar[str] = 'JWT Authentification'

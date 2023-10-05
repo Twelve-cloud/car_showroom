@@ -1,13 +1,11 @@
 """
-serializers.py: File, containing serializers for an auth application.
+serializers.py: File, containing serializers for an jauth application.
 """
 
 
 from typing import ClassVar
-
 from rest_framework import serializers
-
-from auth.models import User
+from jauth.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):

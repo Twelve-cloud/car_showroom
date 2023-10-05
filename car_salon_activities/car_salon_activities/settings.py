@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+
 import os
-from pathlib import Path
 from typing import Optional
+from pathlib import Path
 
 
 # -------------------------- MAIN SETTINGS ------------------------------------
@@ -29,10 +30,12 @@ DEFAULT_CHARSET: str = 'utf8'
 
 ROOT_URLCONF: str = 'car_salon_activities.urls'
 
+AUTH_USER_MODEL: str = 'jauth.User'
+
 # -------------------------- INSTALLED APPS -----------------------------------
 
 INSTALLED_APPS: list = [
-    'auth.apps.AuthConfig',
+    'jauth.apps.JauthConfig',
     'salon.apps.SalonConfig',
     'rest_framework',
 ]
@@ -80,6 +83,26 @@ USE_L10N: bool = False
 TIME_ZONE: str = 'UTC'
 
 USE_TZ: bool = True
+
+# --------------------------- DRF SETTINGS ------------------------------------
+
+REST_FRAMEWORK: dict = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'UNAUTHENTICATED_USER': None,
+    'UNAUTHENTICATED_TOKEN': None,
+    'UNICODE_JSON': False,
+    'COMPACT_JSON': False,
+    'STRICT_JSON': True,
+}
 
 # -------------------------- OTHER SETTINGS -----------------------------------
 

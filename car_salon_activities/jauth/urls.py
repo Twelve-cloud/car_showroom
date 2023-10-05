@@ -1,14 +1,13 @@
 """
-urls.py: File, containing routes for an auth application.
+urls.py: File, containing routes for an jauth application.
 """
 
 
 from rest_framework.routers import SimpleRouter
+from jauth import views
 
-from auth import views
 
-
-app_name: str = 'auth'
+app_name: str = 'jauth'
 
 router: SimpleRouter = SimpleRouter()
 

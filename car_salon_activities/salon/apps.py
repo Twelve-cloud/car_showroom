@@ -4,7 +4,6 @@ apps.py: Config file for a salon application.
 
 
 from typing import ClassVar
-
 from django.apps import AppConfig
 
 

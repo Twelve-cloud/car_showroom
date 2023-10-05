@@ -1,15 +1,14 @@
 """
-models.py: File, containing models for an auth application.
+models.py: File, containing models for an jauth application.
 """
 
 
 from typing import ClassVar
-
-from django.contrib.auth.hashers import check_password, make_password
-from django.core import validators
 from django.db import models
-from django.db.models.signals import pre_save
+from django.core import validators
 from django.dispatch import receiver
+from django.db.models.signals import pre_save
+from django.contrib.auth.hashers import make_password, check_password
 
 
 class User(models.Model):
