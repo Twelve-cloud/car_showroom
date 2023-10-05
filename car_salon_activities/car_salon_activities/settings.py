@@ -12,25 +12,26 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
+from typing import Optional
 
 
 # -------------------------- MAIN SETTINGS ------------------------------------
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY: Optional[str] = os.getenv('SECRET_KEY')
 
-DEBUG = os.getenv('DEBUG')
+DEBUG: Optional[str] = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS: Optional[list] = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
-DEFAULT_CHARSET = 'utf8'
+DEFAULT_CHARSET: str = 'utf8'
 
-ROOT_URLCONF = 'car_salon_activities.urls'
+ROOT_URLCONF: str = 'car_salon_activities.urls'
 
 # -------------------------- INSTALLED APPS -----------------------------------
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list = [
     'auth.apps.AuthConfig',
     'salon.apps.SalonConfig',
     'rest_framework',
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
 
 # -------------------------- MIDDLEWARES --------------------------------------
 
-MIDDLEWARE = [
+MIDDLEWARE: list = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -47,7 +48,7 @@ MIDDLEWARE = [
 
 # ---------------------------- DATABASES --------------------------------------
 
-DATABASES = {
+DATABASES: dict = {
     'master': {
         'ENGINE': os.getenv('POSTGRES_ENGINE'),
         'NAME': os.getenv('POSTGRES_DB'),
@@ -70,18 +71,18 @@ DATABASES = {
 
 # ------------------------- LANGUAGE SETTINGS ---------------------------------
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE: str = 'en-us'
 
-USE_I18N = False
+USE_I18N: bool = False
 
-USE_L10N = False
+USE_L10N: bool = False
 
-TIME_ZONE = 'UTC'
+TIME_ZONE: str = 'UTC'
 
-USE_TZ = True
+USE_TZ: bool = True
 
 # -------------------------- OTHER SETTINGS -----------------------------------
 
-WSGI_APPLICATION = 'car_salon_activities.wsgi.application'
+WSGI_APPLICATION: str = 'car_salon_activities.wsgi.application'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'

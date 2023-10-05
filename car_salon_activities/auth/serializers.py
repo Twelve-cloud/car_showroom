@@ -1,28 +1,26 @@
+"""
+serializers.py: File, containing serializers for an auth application.
+"""
+
+
+from typing import ClassVar
+
 from rest_framework import serializers
+
 from auth.models import User
 
 
-class BasicUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'first_name',
-            'last_name',
-            'last_login',
-        )
-        read_only_fields = (
-            'username',
-            'first_name',
-            'last_name',
-            'last_login',
-        )
+class UserSerializer(serializers.ModelSerializer):
+    """
+    UserSerializer: Serializes User object to py-native types and vice versa.
 
+    Args:
+        serializers.ModelSerializer (_type_): Builtin superclass for an UserSerliazer.
+    """
 
-class FullUserSerializer(BasicUserSerializer):
     class Meta:
-        model = User
-        fields = (
+        model: ClassVar[type[User]] = User
+        fields: ClassVar[tuple] = (
             'username',
             'email',
             'password',
@@ -33,7 +31,7 @@ class FullUserSerializer(BasicUserSerializer):
             'is_active',
             'is_staff',
         )
-        read_only_fields = (
+        read_only_fields: ClassVar[tuple] = (
             'date_joined',
             'last_login',
             'is_active',

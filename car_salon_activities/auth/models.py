@@ -1,6 +1,9 @@
 """
+models.py: File, containing models for an auth application.
 """
 
+
+from typing import ClassVar
 
 from django.contrib.auth.hashers import check_password, make_password
 from django.core import validators
@@ -10,6 +13,13 @@ from django.dispatch import receiver
 
 
 class User(models.Model):
+    """
+    User: Custom User model.
+
+    Args:
+        models.Model (_type_): Builtin superclass for a custom User model.
+    """
+
     username = models.CharField(
         max_length=32,
         unique=True,
@@ -68,41 +78,50 @@ class User(models.Model):
     )
 
     class Meta:
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
-        db_table = 'User'
+        verbose_name: ClassVar[str] = 'User'
+        verbose_name_plural: ClassVar[str] = 'Users'
+        db_table: ClassVar[str] = 'User'
 
-    def get_username(self):
+    def get_username(self) -> str:
         return self.username
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_username()
 
-    def is_anonymous(self):
+    def is_anonymous(self) -> bool:
         return False
 
-    def is_authenticated(self):
+    def is_authenticated(self) -> bool:
         return True
 
-    def set_password(self, raw_password):
+    def set_password(self, raw_password: str) -> None:
         self.password = make_password(raw_password)
 
-    def check_password(self, raw_password):
-        def setter(raw_password):
+    def check_password(self, raw_password: str) -> bool:
+        def setter(raw_password: str) -> None:
             self.set_password(raw_password)
             self.save(update_fields=['password'])
 
         return check_password(raw_password, self.password, setter)
 
-    def get_full_name(self):
+    def get_full_name(self) -> str:
         return f'{self.first_name} {self.last_name}'.strip()
 
-    def get_short_name(self):
+    def get_short_name(self) -> str:
         return self.first_name.strip()
 
 
 @receiver(pre_save, sender=User)
-def pre_save_handler(sender, instance, **kwargs):
+def pre_save_handler(sender: type[User], instance: User, **kwargs: dict) -> None:
+    """
+    pre_save_handler: Function, performing before .save() is called.
+    It starts full validation of the record and encrypt password.
+
+    Args:
+        sender (type[User]): User model.
+        instance (User): Instance of the User model.
+    """
+
     instance.full_clean()
 
     if instance._state.adding:
