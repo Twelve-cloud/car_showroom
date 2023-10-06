@@ -35,3 +35,51 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active',
             'is_staff',
         )
+
+
+class AuthSerializer(serializers.Serializer):
+    """
+    SignInSerializer: Serializes email and password to py-native types and vice versa.
+
+    Args:
+        serializers.Serializer (_type_): Builtin superclass for an AuthSerliazer.
+
+    Raises:
+        serializers.ValidationError: Email is not provided.
+        serializers.ValidationError: Password is not provided.
+        serializers.ValidationError: User is not found.
+    """
+
+    email = serializers.CharField(
+        max_length=320,
+        min_length=3,
+        write_only=True,
+    )
+
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True,
+    )
+
+    def validate(self, data: dict) -> None:
+        email = data.get('email', None)
+
+        if email is None:
+            raise serializers.ValidationError(
+                'An email address is required to log in.',
+            )
+
+        password = data.get('password', None)
+
+        if password is None:
+            raise serializers.ValidationError(
+                'A password is required to log in.',
+            )
+
+        user = User.objects.get(email=email, password=password)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'A user with this email and password is not found.',
+            )

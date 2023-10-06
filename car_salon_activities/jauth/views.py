@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from jauth.models import User
 from jauth.permissions import IsUserOwner
-from jauth.serializers import UserSerializer
+from jauth.serializers import UserSerializer, AuthSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -65,3 +65,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         return super().destroy(request, *args, **kwargs)
+
+
+class
