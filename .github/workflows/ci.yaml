@@ -1,6 +1,6 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   ci:
@@ -30,11 +30,7 @@ jobs:
         run: pipenv run flake8 .
 
       - name: run black
-        uses: psf/black@stable
-        with:
-          options: "--check --verbose"
-          version: "~= 22.0"
-
+        run: pipenv run black --check .
 
       - name: run isort
         run: pipenv run isort --check-only .
