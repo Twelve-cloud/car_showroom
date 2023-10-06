@@ -12,16 +12,13 @@ jobs:
 
     steps:
       - name: clone github repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
 
       - name: install python3.10
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: '3.10'
           architecture: 'x64'
-
-      - name: install pipenv
-        run: pip install pipenv
 
       - name: create venv and install dependencies
         run: pipenv install --system --deploy --ignore-pipfile
@@ -30,10 +27,18 @@ jobs:
         run: pipenv run flake8 .
 
       - name: run black
-        run: pipenv run black --check .
+        uses: psf/black@stable
+        with:
+          version: "23.9.1"
+          src: "./car_salon_activities"
+          options: "--check --verbose"
 
       - name: run isort
-        run: pipenv run isort --check-only .
+        uses: isort/isort-action@master
+        with:
+          isortVersion: "5.12.0"
+          sortPaths: "./car_salon_activities"
+          configuration: "--check-only --verbose"
 
       - name: run mypy
         run: pipenv run mypy .
