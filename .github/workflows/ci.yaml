@@ -33,7 +33,6 @@ jobs:
         uses: psf/black@stable
         with:
           options: "--check --verbose"
-          src: "./car_salon_activities"
           version: "~= 22.0"
 
 
