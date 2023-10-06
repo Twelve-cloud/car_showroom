@@ -47,7 +47,6 @@ MIDDLEWARE: list = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'jauth.middlewares.JWTAuthentificateMiddleware',
 ]
 
 # ---------------------------- DATABASES --------------------------------------
@@ -94,7 +93,9 @@ REST_FRAMEWORK: dict = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'jauth.authentication.JWTAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
@@ -113,7 +114,7 @@ JWT_TOKEN: dict = {
     'TOKEN_TYPE': 'Bearer',
     'ENCODE_ALG': 'HS256',
     'DECODE_ALGS': ['HS256'],
-    'HEADER_NAME': 'Authorization',
+    'HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
 # -------------------------- OTHER SETTINGS -----------------------------------

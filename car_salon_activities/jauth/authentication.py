@@ -1,10 +1,12 @@
 from rest_framework import authentication
 from django.conf import settings
-from jauth.services import get_payload_by_token
+from jauth.backends import TokenBackend
 from jauth.models import User
 
 
 class JWTAuthentication(authentication.BaseAuthentication):
+    backend_class = TokenBackend
+
     def authenticate(self, request):
         header = self.get_header(request)
 
@@ -16,7 +18,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         if access_token is None:
             return None
 
-        payload = get_payload_by_token(token=access_token)
+        payload = self.backend_class.get_payload_by_token(token=access_token)
 
         if payload is None:
             return None

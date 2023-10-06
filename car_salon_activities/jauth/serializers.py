@@ -6,6 +6,7 @@ serializers.py: File, containing serializers for an jauth application.
 from typing import ClassVar
 from rest_framework import serializers
 from jauth.models import User
+from jauth.tokens import Token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,18 +38,8 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class TokenSerializer(serializers.Serializer):
-    """
-    SignInSerializer: Serializes email and password to py-native types and vice versa.
-
-    Args:
-        serializers.Serializer (_type_): Builtin superclass for an AuthSerliazer.
-
-    Raises:
-        serializers.ValidationError: Email is not provided.
-        serializers.ValidationError: Password is not provided.
-        serializers.ValidationError: User is not found.
-    """
+class AccessTokenSerializer(serializers.Serializer):
+    token_class = Token
 
     email = serializers.CharField(
         max_length=320,
@@ -94,4 +85,48 @@ class TokenSerializer(serializers.Serializer):
                 'Account is deactivated.',
             )
 
-        return {'id': user.id}
+        token = self.token_class.for_user(user)
+
+        return {
+            'refresh': token.refresh_token,
+            'access': token.access_token,
+        }
+
+
+class RefreshTokenSerializer(serializers.Serializer):
+    token_class = Token
+
+    refresh = serializers.CharField(
+        max_length=128,
+        min_length=32,
+        write_only=True,
+    )
+
+    def validate(self, data):
+        refresh_token = data.get('refresh', None)
+
+        if refresh_token is None:
+            raise serializers.ValidationError(
+                'Refresh token is required.',
+            )
+
+        is_verified = self.token_class.verify_token(token=refresh_token)
+
+        if not is_verified:
+            raise serializers.ValidationError(
+                'Refresh token is expired.',
+            )
+
+        user = self.token_class.get_user_by_token(token=refresh_token)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'Refresh token is incorrect.',
+            )
+
+        token = self.token_class.for_user(user)
+
+        return {
+            'refresh': token.refresh_token,
+            'access': token.access_token,
+        }
