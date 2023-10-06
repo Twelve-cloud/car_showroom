@@ -20,25 +20,20 @@ jobs:
           python-version: '3.10'
           architecture: 'x64'
 
+      - name: install pipenv
+        run: pip install pipenv
+
       - name: create venv and install dependencies
         run: pipenv install --system --deploy --ignore-pipfile
 
       - name: run flake8
-        run: pipenv run flake8 .
+        run: pipenv run flake8 --verbose .
 
       - name: run black
-        uses: psf/black@stable
-        with:
-          version: "23.9.1"
-          src: "./car_salon_activities"
-          options: "--check --verbose"
+        run: pipenv run black --check --verbose .
 
       - name: run isort
-        uses: isort/isort-action@master
-        with:
-          isortVersion: "5.12.0"
-          sortPaths: "./car_salon_activities"
-          configuration: "--check-only --verbose"
+        run: pipenv run isort --check-only --verbose .
 
       - name: run mypy
-        run: pipenv run mypy .
+        run: pipenv run mypy --verbose .
