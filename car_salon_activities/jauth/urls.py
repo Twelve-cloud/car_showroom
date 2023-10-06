@@ -12,5 +12,6 @@ app_name: str = 'jauth'
 router: SimpleRouter = SimpleRouter()
 
 router.register(prefix='users', viewset=views.UserViewSet, basename='user')
+router.register(prefix='token', viewset=views.TokenViewSet, basename='token')
 
 urlpatterns: list = router.urls

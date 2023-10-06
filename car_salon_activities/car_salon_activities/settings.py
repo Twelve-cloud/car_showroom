@@ -47,6 +47,7 @@ MIDDLEWARE: list = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'jauth.middlewares.JWTAuthentificateMiddleware',
 ]
 
 # ---------------------------- DATABASES --------------------------------------
@@ -102,6 +103,17 @@ REST_FRAMEWORK: dict = {
     'UNICODE_JSON': False,
     'COMPACT_JSON': False,
     'STRICT_JSON': True,
+}
+
+# -------------------------- JWT SETTINGS -------------------------------------
+
+JWT_TOKEN: dict = {
+    'ACCESS_TOKEN_LIFETIME_MINUTES': 15,
+    'REFRESH_TOKEN_LIFETIME_DAYS': 30,
+    'TOKEN_TYPE': 'Bearer',
+    'ENCODE_ALG': 'HS256',
+    'DECODE_ALGS': ['HS256'],
+    'HEADER_NAME': 'Authorization',
 }
 
 # -------------------------- OTHER SETTINGS -----------------------------------

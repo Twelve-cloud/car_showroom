@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class AuthSerializer(serializers.Serializer):
+class TokenSerializer(serializers.Serializer):
     """
     SignInSerializer: Serializes email and password to py-native types and vice versa.
 
@@ -67,19 +67,31 @@ class AuthSerializer(serializers.Serializer):
 
         if email is None:
             raise serializers.ValidationError(
-                'An email address is required to log in.',
+                'An email address is required.',
             )
 
         password = data.get('password', None)
 
         if password is None:
             raise serializers.ValidationError(
-                'A password is required to log in.',
+                'A password is required.',
             )
 
-        user = User.objects.get(email=email, password=password)
+        user = User.objects.filter(email=email).first()
 
         if user is None:
             raise serializers.ValidationError(
-                'A user with this email and password is not found.',
+                'A user with this email is not found.',
             )
+
+        if not user.check_password(password):
+            raise serializers.ValidationError(
+                'Password is not correct.'
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                'Account is deactivated.',
+            )
+
+        return {'id': user.id}

@@ -3,14 +3,17 @@ views.py: File, containing views for an jauth application.
 """
 
 
-from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from jauth.services import generate_token_pair, get_payload_by_token
+from jauth.serializers import UserSerializer, TokenSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django.db.models.query import QuerySet
 from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from jauth.models import User
 from jauth.permissions import IsUserOwner
-from jauth.serializers import UserSerializer, AuthSerializer
+from rest_framework import viewsets
+from rest_framework import status
+from jauth.models import User
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -67,4 +70,34 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-class
+class TokenViewSet(viewsets.GenericViewSet):
+    serializer_class = TokenSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tokens = generate_token_pair(user_id=serializer.validated_data['id'])
+        return Response(tokens, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def refresh(self, request, *args, **kwargs):
+        refresh_token = request.data.get('refresh', None)
+
+        if refresh_token is None:
+            return Response(
+                data={'Refresh Token': 'Not specified'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        payload = get_payload_by_token(token=refresh_token)
+
+        if payload is None:
+            return Response(
+                data={'Refresh Token': 'Expired'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = User.objects.get(pk=payload.get('sub'))
+        tokens = generate_token_pair(user_id=user.id)
+
+        return Response(tokens, status=status.HTTP_200_OK)
