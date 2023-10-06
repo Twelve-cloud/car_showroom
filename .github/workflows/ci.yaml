@@ -30,7 +30,12 @@ jobs:
         run: pipenv run flake8 .
 
       - name: run black
-        run: pipenv run black --check .
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "./car_salon_activities"
+          version: "~= 22.0"
+
 
       - name: run isort
         run: pipenv run isort --check-only .
