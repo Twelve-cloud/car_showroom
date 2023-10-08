@@ -1,3 +1,7 @@
+"""
+"""
+
+
 from datetime import datetime, timedelta
 from django.conf import settings
 from typing import Optional
@@ -5,6 +9,9 @@ import jwt
 
 
 class TokenBackend:
+    token_error = jwt.PyJWTError
+    token_expired_error = jwt.ExpiredSignatureError
+
     @classmethod
     def generate_token(cls, *, type: str, user_id: int) -> str:
         match type:

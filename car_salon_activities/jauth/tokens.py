@@ -1,3 +1,7 @@
+"""
+"""
+
+
 from jauth.backends import TokenBackend
 from jauth.models import User
 
@@ -5,31 +9,21 @@ from jauth.models import User
 class Token:
     backend_class = TokenBackend
 
-    def __init__(self, refresh_token, access_token):
-        self.refresh_token = refresh_token
-        self.access_token = access_token
+    def __init__(self, *, token, type):
+        self.token = token
+        self.type = type
 
     @classmethod
     def for_user(cls, user):
         access_token = cls.backend_class.generate_token(type='access', user_id=user.id)
         refresh_token = cls.backend_class.generate_token(type='refresh', user_id=user.id)
-        return cls(refresh_token, access_token)
+        return cls(token=access_token, type='access'), cls(token=refresh_token, type='refresh')
 
-    @classmethod
-    def verify_token(cls, token):
-        try:
-            cls.backend_class.get_payload_by_token(token=token)
-            return True
-        except Exception:
-            return False
+    def verify_token(self):
+        pass
 
-    @classmethod
-    def get_user_by_token(cls, token):
-        payload = cls.backend_class.get_payload_by_token(token=token)
+    def check_exp_date(self):
+        pass
 
-        if payload is None:
-            return None
-
-        user = User.objects.filter(id=payload['sub']).first()
-
-        return user
+    def get_user_by_token(self):
+        pass

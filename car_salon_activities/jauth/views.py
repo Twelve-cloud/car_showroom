@@ -3,16 +3,16 @@ views.py: File, containing views for an jauth application.
 """
 
 
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from typing import ClassVar
+from rest_framework import status, viewsets
 from django.db.models.query import QuerySet
 from rest_framework.request import Request
-from jauth.permissions import IsUserOwner
-from rest_framework import viewsets
-from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from jauth.models import User
+from jauth.permissions import IsUserOwner
+from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -32,9 +32,9 @@ class UserViewSet(viewsets.ModelViewSet):
         viewsets.ModelViewSet (_type_): Builtin superclass for an UserViewSet.
     """
 
-    queryset: QuerySet[User] = User.objects.all()
-    serializer_class: type[UserSerializer] = UserSerializer
-    permission_map: dict = {
+    queryset: ClassVar[QuerySet[User]] = User.objects.all()
+    serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
+    permission_map: ClassVar[dict] = {
         'create': [
             ~IsAuthenticated | IsAdminUser,
         ],
@@ -70,16 +70,29 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class TokenViewSet(viewsets.GenericViewSet):
-    permission_classes = [~IsAuthenticated]
-    serializer_class = AccessTokenSerializer
+    """
+    TokenViewSet: Hadling token creation.
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+    Args:
+        viewsets.GenericViewSet (_type_): Builtin superclass for an TokenViewSet.
+    """
+
+    permission_classes: ClassVar[list] = [~IsAuthenticated]
+    serializer_map: ClassVar[dict] = {
+        'create': AccessTokenSerializer,
+        'refresh': RefreshTokenSerializer,
+    }
+
+    def get_serializer_class(self) -> AccessTokenSerializer | RefreshTokenSerializer:
+        return self.serializer_map.get(self.action, None)
+
+    def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], serializer_class=RefreshTokenSerializer)
-    def refresh(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+    @action(detail=False, methods=['post'])
+    def refresh(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
