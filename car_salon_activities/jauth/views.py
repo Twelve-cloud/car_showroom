@@ -1,5 +1,5 @@
 """
-views.py: File, containing views for an jauth application.
+views.py: File, containing views for a jauth application.
 """
 
 
@@ -17,7 +17,7 @@ from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshToke
 
 class UserViewSet(viewsets.ModelViewSet):
     """
-    UserViewSet: Handling every action for an User resource.
+    UserViewSet: Handling every action for a User resource.
     Maps HTTP methods to actions:
         HEAD -> list
         HEAD -> retrieve
@@ -29,7 +29,7 @@ class UserViewSet(viewsets.ModelViewSet):
         DELETE -> destroy
 
     Args:
-        viewsets.ModelViewSet (_type_): Builtin superclass for an UserViewSet.
+        viewsets.ModelViewSet (_type_): Builtin superclass for a UserViewSet.
     """
 
     queryset: ClassVar[QuerySet[User]] = User.objects.all()

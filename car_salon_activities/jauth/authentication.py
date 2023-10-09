@@ -1,5 +1,5 @@
 """
-authentification.py: File, containing implementation of JWT authentication for an jauth app.
+authentification.py: File, containing implementation of JWT authentication for a jauth app.
 """
 
 
@@ -23,11 +23,13 @@ class JWTAuthentication(authentication.BaseAuthentication):
         AuthenticationFailed: Raises when token structure is not correct.
         AuthenticationFailed: Raises when token type is not correct.
         AuthenticationFailed: Raises when token is expired.
+        AuthenticationFailed: Raises when token is invalid.
         AuthenticationFailed: Raises when token is not correct.
     """
 
     token_class: ClassVar[type[Token]] = Token
     www_authenticate_realm: ClassVar[str] = 'api'
+    www_authenticate_error: ClassVar[str] = 'invalid_token'
 
     def authenticate(self, request: Request) -> tuple[User, Token]:
         header = self.get_header(request)
@@ -38,7 +40,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         token_type, access_token = self.get_token(header)
 
         if token_type is None or access_token is None:
-            raise AuthenticationFailed('Token structure is incorrect.')
+            raise AuthenticationFailed('Token structure is not correct.')
 
         is_correct = self.check_if_token_type_is_correct(token_type)
 
@@ -47,10 +49,14 @@ class JWTAuthentication(authentication.BaseAuthentication):
 
         token = self.token_class(token=access_token, type='access')
 
-        is_expired = token.check_exp_date()
+        is_verified = token.verify()
 
-        if is_expired is True:
-            raise AuthenticationFailed('Token is expired.')
+        if not is_verified:
+            if token.expired:
+                raise AuthenticationFailed('Token is expired.')
+
+            if token.invalid:
+                raise AuthenticationFailed('Token is invalid.')
 
         user = token.get_user_by_token()
 
@@ -60,7 +66,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         return user, token
 
     def authenticate_header(self, request: Request) -> str:
-        return f'JWT realm={self.www_authenticate_realm}'
+        return f'Bearer="{self.www_authenticate_error}" realm="{self.www_authenticate_realm}"'
 
     def get_header(self, request: Request) -> str:
         header = request.META.get(settings.JWT_TOKEN['HEADER_NAME'], None)

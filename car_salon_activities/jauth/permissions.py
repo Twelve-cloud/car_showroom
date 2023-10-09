@@ -1,5 +1,5 @@
 """
-permissions.py: File, containing custom permissions for an jauth application.
+permissions.py: File, containing custom permissions for a jauth application.
 """
 
 
@@ -19,7 +19,7 @@ class IsUserOwner(permissions.BasePermission):
     IsUserOwner: Custom permission that checks whether user owns an account.
 
     Args:
-        permissions (_type_): Builtin superclass for an IsUserOwner permission.
+        permissions.BasePermission (_type_): Builtin superclass for an IsUserOwner permission.
     """
 
     def has_object_permission(self, request: Request, view: UserViewSet, user: User) -> bool:

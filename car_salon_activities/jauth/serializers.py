@@ -1,9 +1,9 @@
 """
-serializers.py: File, containing serializers for an jauth application.
+serializers.py: File, containing serializers for a jauth application.
 """
 
 
-from typing import ClassVar
+from typing import ClassVar, Optional
 from rest_framework import serializers
 from jauth.models import User
 from jauth.tokens import Token
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     UserSerializer: Serializes User object to py-native types and vice versa.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for an UserSerliazer.
+        serializers.ModelSerializer (_type_): Builtin superclass for a UserSerliazer.
     """
 
     class Meta:
@@ -39,7 +39,21 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AccessTokenSerializer(serializers.Serializer):
-    token_class = Token
+    """
+    AccessTokenSerializer: Serializes token form to py-native types and vice versa.
+
+    Args:
+        serializers.Serializer (_type_): Builtin superclass for an AccessTokenSerializer.
+
+    Raises:
+        serializers.ValidationError: Raises when email adress is not specified.
+        serializers.ValidationError: Raises when password is not specified.
+        serializers.ValidationError: Raises when spicified email adress is not found.
+        serializers.ValidationError: Raises when spicified password is not correct.
+        serializers.ValidationError: Raises when account is deactivated.
+    """
+
+    token_class: ClassVar[type[Token]] = Token
 
     email = serializers.CharField(
         max_length=320,
@@ -53,22 +67,22 @@ class AccessTokenSerializer(serializers.Serializer):
         write_only=True,
     )
 
-    def validate(self, data: dict) -> None:
-        email = data.get('email', None)
+    def validate(self, data: dict) -> dict:
+        email: Optional[str] = data.get('email', None)
 
         if email is None:
             raise serializers.ValidationError(
                 'An email address is required.',
             )
 
-        password = data.get('password', None)
+        password: Optional[str] = data.get('password', None)
 
         if password is None:
             raise serializers.ValidationError(
                 'A password is required.',
             )
 
-        user = User.objects.filter(email=email).first()
+        user: Optional[User] = User.objects.filter(email=email).first()
 
         if user is None:
             raise serializers.ValidationError(
@@ -77,7 +91,7 @@ class AccessTokenSerializer(serializers.Serializer):
 
         if not user.check_password(password):
             raise serializers.ValidationError(
-                'Password is not correct.'
+                'Password is not correct.',
             )
 
         if not user.is_active:
@@ -85,16 +99,29 @@ class AccessTokenSerializer(serializers.Serializer):
                 'Account is deactivated.',
             )
 
-        token = self.token_class.for_user(user)
+        access_token, refresh_token = self.token_class.for_user(user)
 
         return {
-            'refresh': token.refresh_token,
-            'access': token.access_token,
+            'access': access_token.token,
+            'refresh': refresh_token.token,
         }
 
 
 class RefreshTokenSerializer(serializers.Serializer):
-    token_class = Token
+    """
+    RefreshTokenSerializer: Serializes refresh-token form to py-native types and vice versa.
+
+    Args:
+        serializers.Serializer (_type_): Builtin superclass for an RefreshTokenSerializer.
+
+    Raises:
+        serializers.ValidationError: Raises when refresh token is not specified.
+        serializers.ValidationError: Raises when refresh token is expired.
+        serializers.ValidationError: Raises when refresh token is invalid.
+        serializers.ValidationError: Raises when refresh token is not correct.
+    """
+
+    token_class: ClassVar[type[Token]] = Token
 
     refresh = serializers.CharField(
         max_length=128,
@@ -102,31 +129,39 @@ class RefreshTokenSerializer(serializers.Serializer):
         write_only=True,
     )
 
-    def validate(self, data):
-        refresh_token = data.get('refresh', None)
+    def validate(self, data: dict) -> dict:
+        user_refresh_token: Optional[str] = data.get('refresh', None)
 
-        if refresh_token is None:
+        if user_refresh_token is None:
             raise serializers.ValidationError(
                 'Refresh token is required.',
             )
 
-        is_verified = self.token_class.verify_token(token=refresh_token)
+        token: Token = self.token_class(token=user_refresh_token, type='refresh')
+
+        is_verified = token.verify()
 
         if not is_verified:
-            raise serializers.ValidationError(
-                'Refresh token is expired.',
-            )
+            if token.expired:
+                raise serializers.ValidationError(
+                    'Token is expired.',
+                )
 
-        user = self.token_class.get_user_by_token(token=refresh_token)
+            if token.invalid:
+                raise serializers.ValidationError(
+                    'Token is invalid.',
+                )
+
+        user: Optional[User] = token.get_user_by_token()
 
         if user is None:
             raise serializers.ValidationError(
-                'Refresh token is incorrect.',
+                'Token is not correct.',
             )
 
-        token = self.token_class.for_user(user)
+        access_token, refresh_token = self.token_class.for_user(user)
 
         return {
-            'refresh': token.refresh_token,
-            'access': token.access_token,
+            'access': access_token.token,
+            'refresh': refresh_token.token,
         }

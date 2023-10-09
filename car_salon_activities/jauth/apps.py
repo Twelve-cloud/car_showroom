@@ -1,5 +1,5 @@
 """
-apps.py: Config file for an jauth application.
+apps.py: Config file for a jauth application.
 """
 
 
@@ -9,7 +9,7 @@ from django.apps import AppConfig
 
 class JauthConfig(AppConfig):
     """
-    JauthConfig: Config class for an jauth application.
+    JauthConfig: Config class for a jauth application.
 
     Args:
         AppConfig (_type_): Builtin config superclass.

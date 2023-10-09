@@ -1,5 +1,5 @@
 """
-models.py: File, containing models for an jauth application.
+models.py: File, containing models for a jauth application.
 """
 
 

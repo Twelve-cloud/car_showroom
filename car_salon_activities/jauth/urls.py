@@ -1,5 +1,5 @@
 """
-urls.py: File, containing routes for an jauth application.
+urls.py: File, containing routes for a jauth application.
 """
 
 
