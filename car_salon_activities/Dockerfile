@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # 2 layer
-RUN apk update && apk add bash postgresql-dev gcc g++ python3-dev musl-dev && pip install pipenv
+RUN apk update && apk add bash curl postgresql-dev gcc g++ python3-dev musl-dev && pip install pipenv
 
 # 3 layer
 WORKDIR /code
@@ -19,5 +19,5 @@ RUN pipenv install --system --deploy --ignore-pipfile
 COPY . ./
 
 # 6 layer
-RUN chmod +x django-entrypoint.sh
+RUN chmod +x django-entrypoint.sh && chmod +x celery-entrypoint.sh && chmod +x celerybeat-entrypoint.sh
 EXPOSE 8000

@@ -5,28 +5,35 @@ x-base-service: &default-env
       - ./.env
 
 services:
-  web:
+  django:
     <<: *default-env
     build:
       context: ./car_salon_activities
       dockerfile: Dockerfile
-    container_name: car-salon-container
-    ports:
-      - 8000:${DJANGO_SERVER_PORT}
     entrypoint:
       - ./django-entrypoint.sh
-    restart: always
+    hostname: django
+    ports:
+      - 8000:${DJANGO_SERVER_PORT}
+    healthcheck:
+      test: curl ${DJANGO_SERVER_HOST}:${DJANGO_SERVER_PORT}/api/v1/auth/users/
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      back:
+        ipv4_address: 192.168.10.2
     links:
-      - db
+      - postgres
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
+    restart: always
 
-  db:
+  postgres:
     <<: *default-env
     image: postgres:14.4-alpine
-    volumes:
-      - ./car_salon_activities/data/db:/var/lib/postgresql/data
+    hostname: postgres
     ports:
       - 5432:${POSTGRES_PORT}
     healthcheck:
@@ -34,4 +41,101 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      back:
+        ipv4_address: 192.168.10.3
+    volumes:
+      - ./car_salon_activities/data/postgres:/var/lib/postgresql/data
     restart: always
+
+  rabbitmq:
+    <<: *default-env
+    image: rabbitmq:3.8-alpine
+    hostname: rabbitmq
+    ports:
+      - 15672:${RABBITMQ_PORT}
+      - 5672:${AMQP_RABBITMQ_PORT}
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      back:
+        ipv4_address: 192.168.10.4
+    restart: always
+
+  redis:
+    <<: *default-env
+    image: redis:7.2.1-alpine3.18
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    hostname: redis
+    ports:
+      - 6379:${REDIS_PORT}
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      back:
+        ipv4_address: 192.168.10.5
+    volumes:
+      - ./car_salon_activities/data/redis:/root/redis
+    restart: always
+
+  celery:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile
+    entrypoint:
+      - ./celery-entrypoint.sh
+    hostname: celery
+    networks:
+      back:
+        ipv4_address: 192.168.10.6
+    links:
+      - postgres
+      - rabbitmq
+      - redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  celerybeat:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile
+    entrypoint:
+      - ./celerybeat-entrypoint.sh
+    hostname: celerybeat
+    networks:
+      back:
+        ipv4_address: 192.168.10.7
+    links:
+      - postgres
+      - rabbitmq
+      - redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+networks:
+  back:
+    driver: bridge
+    internal: true
+    ipam:
+     config:
+       - subnet: 192.168.10.0/24
