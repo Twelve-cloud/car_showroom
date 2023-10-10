@@ -16,7 +16,7 @@ services:
     ports:
       - 8000:${DJANGO_SERVER_PORT}
     healthcheck:
-      test: curl ${DJANGO_SERVER_HOST}:${DJANGO_SERVER_PORT}/api/v1/auth/users/
+      test: curl localhost:${DJANGO_SERVER_PORT}/api/v1/auth/users/
       interval: 10s
       timeout: 5s
       retries: 10
@@ -50,7 +50,7 @@ services:
 
   rabbitmq:
     <<: *default-env
-    image: rabbitmq:3.8-alpine
+    image: rabbitmq:3.10.7-management-alpine
     hostname: rabbitmq
     ports:
       - 15672:${RABBITMQ_PORT}
@@ -63,6 +63,8 @@ services:
     networks:
       back:
         ipv4_address: 192.168.10.4
+    volumes:
+      - ./car_salon_activities/data/rabbitmq:/var/lib/rabbitmq
     restart: always
 
   redis:
@@ -135,7 +137,7 @@ services:
 networks:
   back:
     driver: bridge
-    internal: true
+    internal: false
     ipam:
      config:
        - subnet: 192.168.10.0/24

@@ -125,7 +125,7 @@ EMAIL_HOST: Optional[str] = os.getenv('EMAIL_HOST')
 EMAIL_PORT: Optional[str] = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER: Optional[str] = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD: Optional[str] = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS: bool = False
+EMAIL_USE_TLS: bool = True
 EMAIL_USE_SSL: bool = False
 EMAIL_USE_LOCALTIME: bool = False
 EMAIL_TIMEOUT: None = None
@@ -146,7 +146,7 @@ REDIS: dict = {
     'PROTOCOL': 'redis',
     'HOST': os.getenv('REDIS_HOST'),
     'PORT': os.getenv('REDIS_PORT'),
-    'PASSWORD': os.getenv('REDIS_PASS'),
+    'PASS': os.getenv('REDIS_PASSWORD'),
     'DB_NUMBER': os.getenv('REDIS_DB_NUMBER'),
 }
 
@@ -166,7 +166,7 @@ CELERY_BROKER_CONNECTION_MAX_RETRIES: int = 200
 CELERY_BROKER_USE_SSL: bool = False
 
 CELERY_RESULT_BACKEND: str = (
-    f"{REDIS['PROTOCOL']}://:{REDIS['PASSWORD']}@"
+    f"{REDIS['PROTOCOL']}://:{REDIS['PASS']}@"
     f"{REDIS['HOST']}:{REDIS['PORT']}/{REDIS['DB_NUMBER']}"
 )
 
