@@ -5,4 +5,4 @@ delete: docker-compose.yaml
 	sudo docker compose down
 
 docs:
-	cd car_salon_activities && cd docs && make html && sphinx-build -M coverage . coverage
+	cd car_salon_activities/docs && make html
