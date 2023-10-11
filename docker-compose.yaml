@@ -16,7 +16,7 @@ services:
     ports:
       - 8000:${DJANGO_SERVER_PORT}
     healthcheck:
-      test: curl localhost:${DJANGO_SERVER_PORT}/api/v1/auth/users/
+      test: ["CMD-SHELL", "curl localhost:${DJANGO_SERVER_PORT}/api/v1/auth/users/"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -56,7 +56,7 @@ services:
       - 15672:${RABBITMQ_PORT}
       - 5672:${AMQP_RABBITMQ_PORT}
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -75,7 +75,7 @@ services:
     ports:
       - 6379:${REDIS_PORT}
     healthcheck:
-      test: ["CMD", "redis-cli","ping"]
+      test: ["CMD-SHELL", "redis-cli ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -94,6 +94,11 @@ services:
     entrypoint:
       - ./celery-entrypoint.sh
     hostname: celery
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A car_salon_activities inspect ping --destination worker1@celery"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       back:
         ipv4_address: 192.168.10.6
@@ -110,14 +115,19 @@ services:
         condition: service_healthy
     restart: always
 
-  celerybeat:
+  beat:
     <<: *default-env
     build:
       context: ./car_salon_activities
       dockerfile: Dockerfile
     entrypoint:
-      - ./celerybeat-entrypoint.sh
-    hostname: celerybeat
+      - ./beat-entrypoint.sh
+    hostname: beat
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep celery"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       back:
         ipv4_address: 192.168.10.7
@@ -131,6 +141,34 @@ services:
       rabbitmq:
         condition: service_healthy
       redis:
+        condition: service_healthy
+    restart: always
+
+  flower:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile
+    entrypoint:
+      - ./flower-entrypoint.sh
+    hostname: flower
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost:${FLOWER_PORT}/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - 5555:${FLOWER_PORT}
+    networks:
+      back:
+        ipv4_address: 192.168.10.8
+    links:
+      - celery
+      - beat
+    depends_on:
+      celery:
+        condition: service_healthy
+      beat:
         condition: service_healthy
     restart: always
 

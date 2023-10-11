@@ -147,7 +147,7 @@ REDIS: dict = {
     'HOST': os.getenv('REDIS_HOST'),
     'PORT': os.getenv('REDIS_PORT'),
     'PASS': os.getenv('REDIS_PASSWORD'),
-    'DB_NUMBER': os.getenv('REDIS_DB_NUMBER'),
+    'DATABASE_NUMBER': os.getenv('REDIS_DB_NUMBER'),
 }
 
 # ------------------------- CELERY SETTINGS ------------------------------------
@@ -167,7 +167,7 @@ CELERY_BROKER_USE_SSL: bool = False
 
 CELERY_RESULT_BACKEND: str = (
     f"{REDIS['PROTOCOL']}://:{REDIS['PASS']}@"
-    f"{REDIS['HOST']}:{REDIS['PORT']}/{REDIS['DB_NUMBER']}"
+    f"{REDIS['HOST']}:{REDIS['PORT']}/{REDIS['DATABASE_NUMBER']}"
 )
 
 CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS: dict = {'visibility_timeout': 3600}
