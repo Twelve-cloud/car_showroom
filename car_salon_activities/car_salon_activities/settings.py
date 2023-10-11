@@ -38,6 +38,7 @@ INSTALLED_APPS: list = [
     'jauth.apps.JauthConfig',
     'salon.apps.SalonConfig',
     'rest_framework',
+    'sslserver',
 ]
 
 # -------------------------- MIDDLEWARES --------------------------------------
