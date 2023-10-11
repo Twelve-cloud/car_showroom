@@ -82,21 +82,66 @@ class User(models.Model):
         db_table: ClassVar[str] = 'User'
 
     def get_username(self) -> str:
+        """
+        get_username: Returns User's username.
+
+        Returns:
+            str: Username of User instance.
+        """
+
         return self.username
 
     def __str__(self) -> str:
+        """
+        __str__: Returns User's username.
+
+        Returns:
+            str: Username of User instance.
+        """
+
         return self.get_username()
 
     def is_anonymous(self) -> bool:
+        """
+        is_anonymous: Checks if User is Anonymous.
+
+        Returns:
+            bool: Everytime False,  because if user is anon then request user is None.
+        """
+
         return False
 
     def is_authenticated(self) -> bool:
+        """
+        is_authenticated: Checks if User if authenticated.
+
+        Returns:
+            bool: Everytime True, because if user is not authenticated then request user is None.
+        """
+
         return True
 
     def set_password(self, raw_password: str) -> None:
+        """
+        set_password: Encrypts password and set it to user's password field.
+
+        Args:
+            raw_password (str): Not encrypted password.
+        """
+
         self.password = make_password(raw_password)
 
     def check_password(self, raw_password: str) -> bool:
+        """
+        check_password: Checks if password if correct.
+
+        Args:
+            raw_password (str): Specified password.
+
+        Returns:
+            bool: True or False.
+        """
+
         def setter(raw_password: str) -> None:
             self.set_password(raw_password)
             self.save(update_fields=['password'])
@@ -104,9 +149,23 @@ class User(models.Model):
         return check_password(raw_password, self.password, setter)
 
     def get_full_name(self) -> str:
+        """
+        get_full_name: Returns full name of the user.
+
+        Returns:
+            str: Full name of the user.
+        """
+
         return f'{self.first_name} {self.last_name}'.strip()
 
     def get_short_name(self) -> str:
+        """
+        get_short_name: Returns short name of the user.
+
+        Returns:
+            str: Short name of the user.
+        """
+
         return self.first_name.strip()
 
 

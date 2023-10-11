@@ -68,6 +68,23 @@ class AccessTokenSerializer(serializers.Serializer):
     )
 
     def validate(self, data: dict) -> dict:
+        """
+        validate: Validates request data.
+
+        Args:
+            data (dict): Incoming data.
+
+        Raises:
+            serializers.ValidationError: Raises when email adress is not specified.
+            serializers.ValidationError: Raises when password is not specified.
+            serializers.ValidationError: Raises when spicified email adress is not found.
+            serializers.ValidationError: Raises when spicified password is not correct.
+            serializers.ValidationError: Raises when account is deactivated.
+
+        Returns:
+            dict: Dict with new access token and refresh token.
+        """
+
         email: Optional[str] = data.get('email', None)
 
         if email is None:
@@ -130,6 +147,22 @@ class RefreshTokenSerializer(serializers.Serializer):
     )
 
     def validate(self, data: dict) -> dict:
+        """
+        validate: Validates request data.
+
+        Args:
+            data (dict): Incoming data.
+
+        Raises:
+            serializers.ValidationError: Raises when refresh token is not specified.
+            serializers.ValidationError: Raises when refresh token is expired.
+            serializers.ValidationError: Raises when refresh token is invalid.
+            serializers.ValidationError: Raises when refresh token is not correct.
+
+        Returns:
+            dict: Dict with new access token and refresh token.
+        """
+
         user_refresh_token: Optional[str] = data.get('refresh', None)
 
         if user_refresh_token is None:

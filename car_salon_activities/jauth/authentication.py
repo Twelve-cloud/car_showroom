@@ -32,6 +32,23 @@ class JWTAuthentication(authentication.BaseAuthentication):
     www_authenticate_error: ClassVar[str] = 'invalid_token'
 
     def authenticate(self, request: Request) -> tuple[User, Token]:
+        """
+        authenticate: Provides authentication of request.
+
+        Args:
+            request (Request): Request instance.
+
+        Raises:
+            AuthenticationFailed: Raises when token structure is not correct.
+            AuthenticationFailed: Raises when token type is not correct.
+            AuthenticationFailed: Raises when token is expired.
+            AuthenticationFailed: Raises when token is invalid.
+            AuthenticationFailed: Raises when token is not correct.
+
+        Returns:
+            tuple[User, Token]: Tuple with access token and refresh token.
+        """
+
         header = self.get_header(request)
 
         if header is None:
@@ -66,13 +83,43 @@ class JWTAuthentication(authentication.BaseAuthentication):
         return user, token
 
     def authenticate_header(self, request: Request) -> str:
+        """
+        authenticate_header: Returns value of WWW-Authenticate header.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            str: String that specify how to authenticate.
+        """
+
         return f'Bearer="{self.www_authenticate_error}" realm="{self.www_authenticate_realm}"'
 
     def get_header(self, request: Request) -> str:
+        """
+        get_header: Returns value of Authorization header.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            str: Value of Authorization header.
+        """
+
         header = request.META.get(settings.JWT_TOKEN['HEADER_NAME'], None)
         return header
 
     def get_token(self, header: str) -> tuple[Optional[str], Optional[str]]:
+        """
+        get_token: Returns access token type and access token value.
+
+        Args:
+            header (str): Value of Authorization header.
+
+        Returns:
+            tuple[Optional[str], Optional[str]]: Token type and token value.
+        """
+
         try:
             token_type, access_token = header.split()
             return token_type, access_token
@@ -80,4 +127,14 @@ class JWTAuthentication(authentication.BaseAuthentication):
             return None, None
 
     def check_if_token_type_is_correct(self, token_type: str) -> bool:
+        """
+        check_if_token_type_is_correct: Checks if token type is correct according to settings.
+
+        Args:
+            token_type (str): Type of the token.
+
+        Returns:
+            bool: Value that shows if token type is correct.
+        """
+
         return False if token_type != settings.JWT_TOKEN['TOKEN_TYPE'] else True

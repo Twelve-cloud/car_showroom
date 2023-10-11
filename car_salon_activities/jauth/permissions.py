@@ -23,4 +23,16 @@ class IsUserOwner(permissions.BasePermission):
     """
 
     def has_object_permission(self, request: Request, view: UserViewSet, user: User) -> bool:
+        """
+        has_object_permission: Checks if user that sends request has permissions on user resource.
+
+        Args:
+            request (Request): Request insance.
+            view (UserViewSet): Viewset instance.
+            user (User): User instance.
+
+        Returns:
+            bool: Value that show if user has permission on object.
+        """
+
         return request.user == user

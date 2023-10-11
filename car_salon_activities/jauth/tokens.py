@@ -17,6 +17,13 @@ class Token:
     backend_class: ClassVar[type[TokenBackend]] = TokenBackend
 
     def __init__(self, *, token: str, type: str) -> None:
+        """
+        __init__: Instantiates Token instance.
+        Args:
+            token (str): Token value.
+            type (str): Token type.
+        """
+
         self.token: str = token
         self.type: str = type
         self.expired: bool = False
@@ -24,11 +31,31 @@ class Token:
 
     @classmethod
     def for_user(cls, user: User) -> tuple[Token, Token]:
+        """
+        for_user: Generates and returns new pair of token: access and refresh.
+
+        Args:
+            user (User): User instance.
+
+        Returns:
+            tuple[Token, Token]: New pair of token: access and refresh.
+        """
+
         access_token = cls.backend_class.generate_token(type='access', user_id=user.id)
         refresh_token = cls.backend_class.generate_token(type='refresh', user_id=user.id)
         return cls(token=access_token, type='access'), cls(token=refresh_token, type='refresh')
 
     def get_user_by_token(self) -> User:
+        """
+        get_user_by_token: Returns user according to token.
+
+        Raises:
+            Exception: Raises when verify method is not called.
+
+        Returns:
+            User: User instance.
+        """
+
         if not hasattr(self, '_payload'):
             raise Exception('You must call verify before any action with token.')
 
@@ -42,6 +69,13 @@ class Token:
         return user
 
     def verify(self) -> Optional[bool]:
+        """
+        verify: Verifies if token is valid.
+
+        Returns:
+            Optional[bool]: True if valid False if invalid.
+        """
+
         try:
             self._payload: dict = self.backend_class.get_payload_by_token(token=self.token)
             return True

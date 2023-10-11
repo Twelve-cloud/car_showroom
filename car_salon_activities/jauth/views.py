@@ -84,15 +84,43 @@ class TokenViewSet(viewsets.GenericViewSet):
     }
 
     def get_serializer_class(self) -> AccessTokenSerializer | RefreshTokenSerializer:
+        """
+        get_serializer_class: Returns proper serializer class according to an action.
+
+        Returns:
+            AccessTokenSerializer | RefreshTokenSerializer: Serializer class.
+        """
+
         return self.serializer_map.get(self.action, None)
 
     def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        """
+        create: Creates new pair of token: access and refresh.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: Response instance.
+        """
+
         serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def refresh(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        """
+        refresh: Creates new pair of token: access and refresh when access token is expired.
+
+        Args:
+            request (Request): Request instance.
+
+
+        Returns:
+            Response: Response instance.
+        """
+
         serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
