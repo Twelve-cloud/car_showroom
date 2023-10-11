@@ -191,7 +191,7 @@ if DEBUG:
     ]
 
     DEBUG_TOOLBAR_CONFIG: dict = {
-        'SHOW_TOOLBAR_CALLBACK': lambda _request: True
+        'SHOW_TOOLBAR_CALLBACK': lambda _request: True,
     }
 
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] += [
