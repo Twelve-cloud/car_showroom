@@ -20,7 +20,6 @@ def send_mail_to_verify_account(email: str, link: str) -> None:
             f'<p><a href="{link}">Click to verify account</a></p>'
         )
     )
-    print('here')
 
 
 @shared_task

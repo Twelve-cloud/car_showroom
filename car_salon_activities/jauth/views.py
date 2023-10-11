@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from jauth.models import User
 from jauth.permissions import IsUserOwner
 from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
-from jauth.services import create_and_send_verification_link
+from jauth.services import send_verification_link, confirm_email
 from rest_framework.reverse import reverse
 
 
@@ -47,10 +47,10 @@ class UserViewSet(viewsets.ModelViewSet):
             IsAuthenticated,
         ],
         'update': [
-            IsAuthenticated & IsUserOwner,
+            IsAuthenticated,
         ],
         'partial_update': [
-            IsAuthenticated & IsUserOwner,
+            IsAuthenticated,
         ],
         'destroy': [
             IsAuthenticated & (IsUserOwner | IsAdminUser),
@@ -62,31 +62,34 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
-        link = reverse('jauth:user-verify-email', request=request)
-        create_and_send_verification_link(link, request.data['email'])
+        link = reverse('jauth:user-email-confirmation', request=request)
+        send_verification_link(link, request.data['email'])
         return super().create(request, *args, **kwargs)
 
     def update(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        if 'password' or 'email' in request.data:
+            link = reverse('jauth:user-email-confirmation', request=request)
+            send_verification_link(link, request.user.email)
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods='get')
-    def verify_email(self, request):
-        print('here')
-        # user_token = request.query_params.get('token', None)
-        # payload = get_payload_by_token(user_token)
+    def email_confirmation(self, request):
+        user_token = request.query_params.get('token', None)
+        is_confirmed = confirm_email(user_token)
 
-        # if payload is None:
-        #     return Response(
-        #         data={'Error': 'Verify link'},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
+        if not is_confirmed:
+            return Response(
+                {'Verification status': 'Verified'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # email = payload.get('sub')
-        # verify_user(email)
-        # return Response(status=HTTP_200_OK)
+        return Response(
+            {'Verification status': 'Verified'},
+            status=status.HTTP_200_OK,
+        )
 
 
 class TokenViewSet(viewsets.GenericViewSet):
