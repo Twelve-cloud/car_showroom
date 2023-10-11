@@ -16,8 +16,15 @@ Including another URLconf
 
 
 from django.urls import path, include
+from django.conf import settings
 
 
 urlpatterns: list = [
     path('api/v1/auth/', include('jauth.urls')),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]

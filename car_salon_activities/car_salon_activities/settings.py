@@ -81,7 +81,7 @@ USE_I18N: bool = False
 
 USE_L10N: bool = False
 
-TIME_ZONE: str = 'Europe/Minsk'
+TIME_ZONE: str = 'UTC'
 
 USE_TZ: bool = True
 
@@ -154,7 +154,7 @@ REDIS: dict = {
 # ------------------------- CELERY SETTINGS ------------------------------------
 
 CELERY_ENABLE_UTC: bool = True
-CELERY_TIMEZONE: str = 'Europe/Minsk'
+CELERY_TIMEZONE: str = 'UTC'
 
 CELERY_BROKER_URL: str = (
     f"{RABBITMQ['PROTOCOL']}://{RABBITMQ['USER']}:"
@@ -178,6 +178,39 @@ CELERY_REDIS_BACKEND_USE_SSL: bool = False
 
 CELERY_BEAT_SCHEDULE: dict = {}
 
+# ---------------------- DJANGO DEBUG TOOLBAR SETTINGS -------------------------
+
+if DEBUG:
+    INSTALLED_APPS += [
+        "django.contrib.staticfiles",
+        "debug_toolbar",
+    ]
+
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
+
+    DEBUG_TOOLBAR_CONFIG: dict = {
+        'SHOW_TOOLBAR_CALLBACK': lambda _request: True
+    }
+
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] += [
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+
+    REST_FRAMEWORK['DEFAULT_PARSER_CLASSES'] += [
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ]
+
+    TEMPLATES: list = [
+        {
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "APP_DIRS": True,
+        }
+    ]
+
+    STATIC_URL: str = "static/"
 # -------------------------- OTHER SETTINGS ------------------------------------
 
 WSGI_APPLICATION: str = 'car_salon_activities.wsgi.application'
