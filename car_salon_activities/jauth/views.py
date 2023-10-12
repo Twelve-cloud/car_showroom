@@ -6,10 +6,12 @@ views.py: File, containing views for a jauth application.
 from typing import ClassVar
 from rest_framework import status, viewsets
 from django.db.models.query import QuerySet
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 from jauth.models import User
 from jauth.permissions import IsUserOwner
 from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
@@ -34,6 +36,29 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset: ClassVar[QuerySet[User]] = User.objects.all()
     serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
+    filter_backends: list = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+    filterset_fields: list = [
+        'email',
+        'username',
+        'first_name',
+        'last_name',
+    ]
+    search_fields: list = [
+        'email',
+        'username',
+        'first_name',
+        'last_name',
+    ]
+    ordering_fields: list = [
+        'email',
+        'username',
+        'first_name',
+        'last_name',
+    ]
     permission_map: ClassVar[dict] = {
         'create': [
             ~IsAuthenticated | IsAdminUser,

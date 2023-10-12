@@ -4,6 +4,7 @@ models.py: File, containing models for a jauth application.
 
 
 from typing import ClassVar
+from datetime import datetime
 from django.db import models
 from django.core import validators
 from django.dispatch import receiver
@@ -58,6 +59,11 @@ class User(models.Model):
     date_joined = models.DateTimeField(
         auto_now_add=True,
         verbose_name='date joined',
+    )
+
+    last_updated = models.DateTimeField(
+        auto_now=True,
+        verbose_name='last updated',
     )
 
     last_login = models.DateTimeField(
@@ -167,6 +173,14 @@ class User(models.Model):
         """
 
         return self.first_name.strip()
+
+    def set_last_login(self) -> None:
+        """
+        set_last_login: Sets last login date and time.
+        """
+
+        self.last_login = datetime.now()
+        self.save(update_fields=['last_login'])
 
 
 @receiver(pre_save, sender=User)

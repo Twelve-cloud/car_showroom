@@ -43,6 +43,7 @@ LOCAL_APPS: list = [
 
 THIRD_PARTY_APPS: list = [
     'rest_framework',
+    'django_filters',
     'sslserver',
 ]
 
@@ -106,6 +107,9 @@ REST_FRAMEWORK: dict = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
     'UNAUTHENTICATED_USER': None,
     'UNAUTHENTICATED_TOKEN': None,

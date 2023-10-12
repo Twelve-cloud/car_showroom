@@ -26,12 +26,14 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'date_joined',
+            'last_updated',
             'last_login',
             'is_active',
             'is_staff',
         )
         read_only_fields: ClassVar[tuple] = (
             'date_joined',
+            'last_updated',
             'last_login',
             'is_active',
             'is_staff',
@@ -116,6 +118,8 @@ class AccessTokenSerializer(serializers.Serializer):
                 'Account is deactivated.',
             )
 
+        user.set_last_login()
+
         access_token, refresh_token = self.token_class.for_user(user)
 
         return {
@@ -191,6 +195,8 @@ class RefreshTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'Token is not correct.',
             )
+
+        user.set_last_login()
 
         access_token, refresh_token = self.token_class.for_user(user)
 
