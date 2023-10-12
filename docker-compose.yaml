@@ -174,8 +174,8 @@ services:
 
   sphinx:
     build:
-      context: ./car_salon_activities/docs
-      dockerfile: Dockerfile
+      context: ./car_salon_activities/
+      dockerfile: Dockerfile-sphinx
     hostname: sphinx
     ports:
       - 7777:${NGINX_PORT}
