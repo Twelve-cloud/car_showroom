@@ -16,7 +16,7 @@ services:
     ports:
       - 8000:${DJANGO_SERVER_PORT}
     healthcheck:
-      test: ["CMD-SHELL", "curl localhost:${DJANGO_SERVER_PORT}/api/v1/auth/users/"]
+      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_SERVER_PORT}/api/v1/auth/users/"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -152,13 +152,13 @@ services:
     entrypoint:
       - ./flower-entrypoint.sh
     hostname: flower
+    ports:
+      - 5555:${FLOWER_PORT}
     healthcheck:
       test: ["CMD-SHELL", "curl localhost:${FLOWER_PORT}/"]
       interval: 10s
       timeout: 5s
       retries: 10
-    ports:
-      - 5555:${FLOWER_PORT}
     networks:
       back:
         ipv4_address: 192.168.10.8
@@ -170,6 +170,23 @@ services:
         condition: service_healthy
       beat:
         condition: service_healthy
+    restart: always
+
+  sphinx:
+    build:
+      context: ./car_salon_activities/docs
+      dockerfile: Dockerfile
+    hostname: sphinx
+    ports:
+      - 7777:${NGINX_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost:${NGINX_PORT}/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      back:
+        ipv4_address: 192.168.10.9
     restart: always
 
 networks:
