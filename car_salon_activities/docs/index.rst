@@ -9,6 +9,7 @@ Welcome to Car Salon's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
    modules
 
 
