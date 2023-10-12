@@ -13,7 +13,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-project = 'car_salon_activities'
+project = 'Car Salon'
 copyright = '2023, IS'
 author = 'IS'
 release = '0.1.0'
@@ -22,7 +22,6 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
-
 
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 

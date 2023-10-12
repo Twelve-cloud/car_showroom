@@ -19,5 +19,8 @@ RUN pipenv install --system --deploy --ignore-pipfile
 COPY . ./
 
 # 6 layer
+RUN sphinx-apidoc -o docs .
+
+# 7 layer
 RUN sphinx-build -M html ./docs /usr/share/nginx/
 EXPOSE 7777
