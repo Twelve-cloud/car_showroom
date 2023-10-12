@@ -7,9 +7,9 @@ import os
 from celery import Celery
 
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'car_salon_activities.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app: type[Celery] = Celery('car_salon_activities')
+app: type[Celery] = Celery('config')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 

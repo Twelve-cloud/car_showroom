@@ -28,18 +28,25 @@ ALLOWED_HOSTS: Optional[list] = os.getenv('ALLOWED_HOSTS', 'localhost').split(',
 
 DEFAULT_CHARSET: str = 'utf8'
 
-ROOT_URLCONF: str = 'car_salon_activities.urls'
+ROOT_URLCONF: str = 'config.urls'
 
 AUTH_USER_MODEL: str = 'jauth.User'
 
 # -------------------------- INSTALLED APPS -----------------------------------
 
-INSTALLED_APPS: list = [
+DJANGO_APPS: list = []
+
+LOCAL_APPS: list = [
     'jauth.apps.JauthConfig',
     'salon.apps.SalonConfig',
+]
+
+THIRD_PARTY_APPS: list = [
     'rest_framework',
     'sslserver',
 ]
+
+INSTALLED_APPS: list = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 # -------------------------- MIDDLEWARES --------------------------------------
 
@@ -213,6 +220,6 @@ if DEBUG:
     STATIC_URL: str = "static/"
 # -------------------------- OTHER SETTINGS ------------------------------------
 
-WSGI_APPLICATION: str = 'car_salon_activities.wsgi.application'
+WSGI_APPLICATION: str = 'config.wsgi.application'
 
 DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'

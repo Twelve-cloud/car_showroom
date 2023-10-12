@@ -95,7 +95,7 @@ services:
       - ./celery-entrypoint.sh
     hostname: celery
     healthcheck:
-      test: ["CMD-SHELL", "celery -A car_salon_activities inspect ping --destination worker1@celery"]
+      test: ["CMD-SHELL", "celery -A config inspect ping --destination worker1@celery"]
       interval: 10s
       timeout: 5s
       retries: 10
