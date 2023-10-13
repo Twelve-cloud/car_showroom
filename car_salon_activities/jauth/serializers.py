@@ -30,6 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
             'last_login',
             'is_active',
             'is_staff',
+            'is_verified',
         )
         read_only_fields: ClassVar[tuple] = (
             'date_joined',
@@ -37,6 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
             'last_login',
             'is_active',
             'is_staff',
+            'is_verified',
         )
 
 
@@ -81,7 +83,7 @@ class AccessTokenSerializer(serializers.Serializer):
             serializers.ValidationError: Raises when password is not specified.
             serializers.ValidationError: Raises when spicified email adress is not found.
             serializers.ValidationError: Raises when spicified password is not correct.
-            serializers.ValidationError: Raises when account is deactivated.
+            serializers.ValidationError: Raises when account is not verified.
 
         Returns:
             dict: Dict with new access token and refresh token.
@@ -113,10 +115,13 @@ class AccessTokenSerializer(serializers.Serializer):
                 'Password is not correct.',
             )
 
-        if not user.is_active:
+        if not user.is_active and not user.is_verified:
             raise serializers.ValidationError(
-                'Account is deactivated.',
+                'Account is not virified.',
             )
+
+        if not user.is_active and user.is_verified:
+            user.set_active()
 
         user.set_last_login()
 

@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from jauth.models import User
+from jauth.services import UserService
 from jauth.permissions import IsUserOwner
 from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
@@ -34,6 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
         viewsets.ModelViewSet (_type_): Builtin superclass for a UserViewSet.
     """
 
+    service: UserService = UserService()
     queryset: ClassVar[QuerySet[User]] = User.objects.all()
     serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
     filter_backends: list = [
@@ -70,28 +72,83 @@ class UserViewSet(viewsets.ModelViewSet):
             IsAuthenticated,
         ],
         'update': [
-            IsAuthenticated,
+            IsAuthenticated & IsUserOwner,
         ],
         'partial_update': [
-            IsAuthenticated,
+            IsAuthenticated & IsUserOwner,
         ],
         'destroy': [
             IsAuthenticated & (IsUserOwner | IsAdminUser),
         ],
+        'verify_email': [
+            ~IsAuthenticated,
+        ],
     }
 
     def get_permissions(self) -> list:
+        """
+        get_permissions: Returns apropriate permission classes according to action.
+
+        Returns:
+            list: Permission classes.
+        """
+
         self.permission_classes = self.permission_map.get(self.action, [])
         return super().get_permissions()
 
     def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
-        return super().create(request, *args, **kwargs)
+        """
+        create: Creates user account and sends verification link to user's email address.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: Everytime HTTP 201 Response.
+        """
+
+        response = super().create(request, *args, **kwargs)
+        self.service.send_verification_link(response.data.get('email'))
+        return response
 
     def update(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
-        return super().destroy(request, *args, **kwargs)
+        """
+        destroy: Instead of deleting from database this method set user's is_active field to False.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: Everytime HTTP 204 Response.
+        """
+
+        self.service.set_user_as_inactive(self.get_object())
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['post'], detail=False)
+    def verify_email(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        """
+        verify_email: Checks verification token and if it is correct verifies user.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: HTTP 400 if token is not valid otherwise HTTP 200 Response.
+        """
+
+        verification_token = request.data.get('token', None)
+        user = self.service.get_user_by_token(verification_token)
+
+        if user is None:
+            return Response({'Error': 'Bad link'}, status=status.HTTP_400_BAD_REQUEST)
+
+        self.service.set_user_as_active(user)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class TokenViewSet(viewsets.GenericViewSet):

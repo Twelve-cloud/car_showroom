@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from typing import Optional
 from pathlib import Path
+from celery.schedules import crontab
 
 
 # -------------------------- MAIN SETTINGS ------------------------------------
@@ -121,7 +122,7 @@ REST_FRAMEWORK: dict = {
 # -------------------------- JWT SETTINGS -------------------------------------
 
 JWT_TOKEN: dict = {
-    'ACCESS_TOKEN_LIFETIME_MINUTES': 15,
+    'ACCESS_TOKEN_LIFETIME_MINUTES': 1500,
     'REFRESH_TOKEN_LIFETIME_DAYS': 30,
     'TOKEN_TYPE': 'Bearer',
     'ENCODE_ALG': 'HS256',
@@ -187,7 +188,12 @@ CELERY_RESULT_CACHE_MAX: bool = False
 CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL: None = None
 CELERY_REDIS_BACKEND_USE_SSL: bool = False
 
-CELERY_BEAT_SCHEDULE: dict = {}
+CELERY_BEAT_SCHEDULE: dict = {
+    'clear-every-year': {
+        'task': 'jauth.tasks.clear_database_from_waste_accounts',
+        'schedule': crontab(minute=0, hour=0),
+    }
+}
 
 # ---------------------- DJANGO DEBUG TOOLBAR SETTINGS -------------------------
 

@@ -82,6 +82,11 @@ class User(models.Model):
         verbose_name='is staff',
     )
 
+    is_verified = models.BooleanField(
+        default=False,
+        verbose_name='is verified',
+    )
+
     class Meta:
         verbose_name: ClassVar[str] = 'User'
         verbose_name_plural: ClassVar[str] = 'Users'
@@ -181,6 +186,13 @@ class User(models.Model):
 
         self.last_login = datetime.now()
         self.save(update_fields=['last_login'])
+
+    def set_active(self) -> None:
+        """
+        set_is_active: Sets user's is_active field to True.
+        """
+        self.is_active = True
+        self.save(update_fields=['is_active'])
 
 
 @receiver(pre_save, sender=User)
