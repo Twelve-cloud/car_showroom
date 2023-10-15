@@ -16,7 +16,7 @@ services:
     ports:
       - 8000:${DJANGO_SERVER_PORT}
     healthcheck:
-      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_SERVER_PORT}/api/v1/auth/users/"]
+      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_SERVER_PORT}/auth/users/"]
       interval: 10s
       timeout: 5s
       retries: 10

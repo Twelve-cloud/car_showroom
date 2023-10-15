@@ -4,7 +4,7 @@ sevices.py: File, containing services for a jauth application.
 
 
 from typing import ClassVar, Optional
-from django.conf import FRONTEND_URL
+from django.conf import settings
 from jauth.tasks import send_confirmation_mail
 from jauth.models import User
 from jauth.tokens import Token
@@ -28,7 +28,9 @@ class UserService:
 
         user: User = self.model_class.objects.get(email=email)
         confirmation_token, _ = self.token_class.for_user(user)
-        confirmation_link: str = FRONTEND_URL + '/confirm-email/' + confirmation_token.token
+        confirmation_link: str = (
+            settings.FRONTEND_URL + '/confirm-email/' + confirmation_token.token
+        )
         send_confirmation_mail.delay(email, confirmation_link)
 
     def send_reset_password_link(self, email: str) -> None:
@@ -41,7 +43,9 @@ class UserService:
 
         user: User = self.model_class.objects.get(email=email)
         confirmation_token, _ = self.token_class.for_user(user)
-        confirmation_link: str = FRONTEND_URL + '/reset-password/' + confirmation_token.token
+        confirmation_link: str = (
+            settings.FRONTEND_URL + '/reset-password/' + confirmation_token.token
+        )
         send_confirmation_mail.delay(email, confirmation_link)
 
     def get_user_by_token(self, confirmation_token: str) -> Optional[User]:

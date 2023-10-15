@@ -5,6 +5,7 @@ views.py: File, containing views for a jauth application.
 
 from typing import ClassVar, Optional
 from rest_framework import status, viewsets
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models.query import QuerySet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
@@ -13,6 +14,19 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from jauth.models import User
+from jauth.swagger import (
+    user_list_schema_extenstion,
+    user_update_schema_extension,
+    user_create_schema_extenstion,
+    token_create_schema_extenstion,
+    user_destroy_schema_extenstion,
+    token_refresh_schema_extenstion,
+    user_retrieve_schema_extenstion,
+    user_confirm_email_schema_extenstion,
+    user_partial_update_schema_extenstion,
+    user_reset_password_schema_extenstion,
+    user_reset_password_confirm_schema_extenstion,
+)
 from jauth.services import UserService
 from jauth.permissions import IsUserOwner
 from jauth.serializers import (
@@ -23,6 +37,18 @@ from jauth.serializers import (
 )
 
 
+@extend_schema(tags=['User'])
+@extend_schema_view(
+    list=extend_schema(**user_list_schema_extenstion),
+    update=extend_schema(**user_update_schema_extension),
+    create=extend_schema(**user_create_schema_extenstion),
+    destroy=extend_schema(**user_destroy_schema_extenstion),
+    retrieve=extend_schema(**user_retrieve_schema_extenstion),
+    confirm_email=extend_schema(**user_confirm_email_schema_extenstion),
+    partial_update=extend_schema(**user_partial_update_schema_extenstion),
+    reset_password=extend_schema(**user_reset_password_schema_extenstion),
+    reset_password_confirm=extend_schema(**user_reset_password_confirm_schema_extenstion),
+)
 class UserViewSet(viewsets.ModelViewSet):
     """
     UserViewSet: Handling every action for a User resource.
@@ -43,29 +69,34 @@ class UserViewSet(viewsets.ModelViewSet):
     service: UserService = UserService()
     queryset: ClassVar[QuerySet[User]] = User.objects.all()
     serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
+
     filter_backends: list = [
         DjangoFilterBackend,
         SearchFilter,
         OrderingFilter,
     ]
+
     filterset_fields: list = [
         'email',
         'username',
         'first_name',
         'last_name',
     ]
+
     search_fields: list = [
         'email',
         'username',
         'first_name',
         'last_name',
     ]
+
     ordering_fields: list = [
         'email',
         'username',
         'first_name',
         'last_name',
     ]
+
     permission_map: ClassVar[dict] = {
         'create': [
             ~IsAuthenticated | IsAdminUser,
@@ -198,8 +229,8 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
     @action(
-        methods=['patch'],
         detail=False,
+        methods=['patch'],
         serializer_class=ResetPasswordSerializer,
         url_path=r'reset_password_confirm/(?P<token>[\S-]+)',
     )
@@ -227,6 +258,11 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(tags=['Token'])
+@extend_schema_view(
+    create=extend_schema(**token_create_schema_extenstion),
+    refresh=extend_schema(**token_refresh_schema_extenstion),
+)
 class TokenViewSet(viewsets.GenericViewSet):
     """
     TokenViewSet: Hadling token creation.

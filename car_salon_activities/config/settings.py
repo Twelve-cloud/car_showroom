@@ -46,6 +46,7 @@ THIRD_PARTY_APPS: list = [
     'rest_framework',
     'django_filters',
     'sslserver',
+    'drf_spectacular',
 ]
 
 INSTALLED_APPS: list = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -112,11 +113,21 @@ REST_FRAMEWORK: dict = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'UNAUTHENTICATED_USER': None,
     'UNAUTHENTICATED_TOKEN': None,
     'UNICODE_JSON': False,
     'COMPACT_JSON': False,
     'STRICT_JSON': True,
+}
+
+# ------------------------ SPECTACULAR SETTINGS -------------------------------
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Can Salon Activities API',
+    'DESCRIPTION': 'Modeling work of Car Showroom',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 # -------------------------- JWT SETTINGS -------------------------------------
