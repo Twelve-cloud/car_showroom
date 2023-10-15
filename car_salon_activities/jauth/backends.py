@@ -44,9 +44,9 @@ class TokenBackend:
             case _:
                 raise ValueError('Unexpected type of token: must be access or refresh')
 
-        expiry_token_date = datetime.now() + lifetime
+        expiry_token_date: datetime = datetime.now() + lifetime
 
-        payload = {
+        payload: dict[str, int] = {
             'sub': user_id,
             'exp': int(expiry_token_date.strftime('%s')),
         }
@@ -65,5 +65,5 @@ class TokenBackend:
             dict: Payload.
         """
 
-        payload = decode(token, settings.SECRET_KEY, settings.JWT_TOKEN['DECODE_ALGS'])
+        payload: dict = decode(token, settings.SECRET_KEY, settings.JWT_TOKEN['DECODE_ALGS'])
         return payload

@@ -233,3 +233,5 @@ if DEBUG:
 WSGI_APPLICATION: str = 'config.wsgi.application'
 
 DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'
+
+FRONTEND_URL: Optional[str] = os.getenv('FRONTEND_URL')

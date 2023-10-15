@@ -41,8 +41,8 @@ class Token:
             tuple[Token, Token]: New pair of token: access and refresh.
         """
 
-        access_token = cls.backend_class.generate_token(type='access', user_id=user.id)
-        refresh_token = cls.backend_class.generate_token(type='refresh', user_id=user.id)
+        access_token: str = cls.backend_class.generate_token(type='access', user_id=user.id)
+        refresh_token: str = cls.backend_class.generate_token(type='refresh', user_id=user.id)
         return cls(token=access_token, type='access'), cls(token=refresh_token, type='refresh')
 
     def get_user_by_token(self) -> User:

@@ -11,7 +11,7 @@ from jauth.tokens import Token
 
 class UserSerializer(serializers.ModelSerializer):
     """
-    UserSerializer: Serializes User object to py-native types and vice versa.
+    UserSerializer: Serializes user json to py-native types and vice versa.
 
     Args:
         serializers.ModelSerializer (_type_): Builtin superclass for a UserSerliazer.
@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model: ClassVar[type[User]] = User
-        fields: ClassVar[tuple] = (
+        fields: ClassVar[list] = [
             'username',
             'email',
             'password',
@@ -31,15 +31,30 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active',
             'is_staff',
             'is_verified',
-        )
-        read_only_fields: ClassVar[tuple] = (
+        ]
+        read_only_fields: ClassVar[list] = [
             'date_joined',
             'last_updated',
             'last_login',
             'is_active',
             'is_staff',
             'is_verified',
-        )
+        ]
+
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    """
+    ResetPasswordSerializer: Serializes password json to py-native types and vice versa.
+
+    Args:
+        serializers.ModelSerializer (_type_): Builtin superclass for a ResetPasswordSerliazer.
+    """
+
+    class Meta:
+        model: ClassVar[type[User]] = User
+        fields: ClassVar[list] = [
+            'password',
+        ]
 
 
 class AccessTokenSerializer(serializers.Serializer):
@@ -181,7 +196,7 @@ class RefreshTokenSerializer(serializers.Serializer):
 
         token: Token = self.token_class(token=user_refresh_token, type='refresh')
 
-        is_verified = token.verify()
+        is_verified: Optional[bool] = token.verify()
 
         if not is_verified:
             if token.expired:

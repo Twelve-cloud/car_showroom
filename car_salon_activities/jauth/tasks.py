@@ -12,18 +12,18 @@ from jauth.models import User
 
 
 @shared_task
-def send_verification_mail(email: str, verification_link: str) -> None:
+def send_confirmation_mail(email: str, confirmation_link: str) -> None:
     """
-    send_verification_mail: Sends verification link to email address.
+    send_confirmation_mail: Sends confirmation link to email address.
 
     Args:
         email (str): Email address.
-        verification_link (str): Verification link (usually token).
+        confirmation_link (str): Confirmation link (usually token).
     """
 
     send_mail(
-        'Email Address Verification.',
-        f'Verification link: {verification_link}',
+        'Email Address Confirmation.',
+        f'Confirmation link: {confirmation_link}',
         settings.EMAIL_HOST_USER,
         [email],
     )

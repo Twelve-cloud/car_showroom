@@ -49,7 +49,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
             tuple[User, Token]: Tuple with access token and refresh token.
         """
 
-        header = self.get_header(request)
+        header: str = self.get_header(request)
 
         if header is None:
             return None
@@ -59,14 +59,14 @@ class JWTAuthentication(authentication.BaseAuthentication):
         if token_type is None or access_token is None:
             raise AuthenticationFailed('Token structure is not correct.')
 
-        is_correct = self.check_if_token_type_is_correct(token_type)
+        is_correct: bool = self.check_if_token_type_is_correct(token_type)
 
         if not is_correct:
             raise AuthenticationFailed('Token type is not correct.')
 
-        token = self.token_class(token=access_token, type='access')
+        token: Token = self.token_class(token=access_token, type='access')
 
-        is_verified = token.verify()
+        is_verified: Optional[bool] = token.verify()
 
         if not is_verified:
             if token.expired:
@@ -75,7 +75,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
             if token.invalid:
                 raise AuthenticationFailed('Token is invalid.')
 
-        user = token.get_user_by_token()
+        user: Optional[User] = token.get_user_by_token()
 
         if user is None:
             raise AuthenticationFailed('Token is not correct.')
@@ -106,7 +106,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
             str: Value of Authorization header.
         """
 
-        header = request.META.get(settings.JWT_TOKEN['HEADER_NAME'], None)
+        header: str = request.META.get(settings.JWT_TOKEN['HEADER_NAME'], None)
         return header
 
     def get_token(self, header: str) -> tuple[Optional[str], Optional[str]]:
