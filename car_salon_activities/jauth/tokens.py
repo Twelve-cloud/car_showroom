@@ -4,9 +4,13 @@ tokns.py: File, containing implementation of JWT token for a jauth app.
 
 
 from __future__ import annotations
+import logging
 from typing import ClassVar, Optional
 from jauth.models import User
 from jauth.backends import TokenBackend
+
+
+logger = logging.getLogger(__name__)
 
 
 class Token:
@@ -57,6 +61,7 @@ class Token:
         """
 
         if not hasattr(self, '_payload'):
+            logger.error('Function get_user_by_token called before verify.')
             raise Exception('You must call verify before any action with token.')
 
         user_id: int = self._payload.get('sub', None)

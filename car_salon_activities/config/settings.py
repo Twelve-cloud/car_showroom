@@ -14,8 +14,17 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from typing import Optional
 from pathlib import Path
+import sentry_sdk
 from celery.schedules import crontab
 
+
+# -------------------------- SETRY SETTINGS -----------------------------------
+
+sentry_sdk.init(
+    dsn=os.getenv('SENTRY_DNS'),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 # -------------------------- MAIN SETTINGS ------------------------------------
 
@@ -95,6 +104,98 @@ TIME_ZONE: str = 'UTC'
 
 USE_TZ: bool = True
 
+# ----------------------- DJANGO EMAIL SETTINGS -------------------------------
+
+EMAIL_BACKEND: str = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL: Optional[str] = os.getenv('DEFAULT_FROM_EMAIL')
+EMAIL_HOST: Optional[str] = os.getenv('EMAIL_HOST')
+EMAIL_PORT: Optional[str] = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER: Optional[str] = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD: Optional[str] = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_DEV_USER: Optional[str] = os.getenv('EMAIL_DEV_USER')
+EMAIL_USE_TLS: bool = True
+EMAIL_USE_SSL: bool = False
+EMAIL_USE_LOCALTIME: bool = False
+EMAIL_TIMEOUT: None = None
+
+# -------------------------- LOGGING SETTINGS ---------------------------------
+
+LOGGING: dict = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'formatters': {
+        'short': {
+            'format': '[%(asctime)s] %(levelname)s: %(message)s',
+            'datefmt': '%Y.%m.%d %H:%M:%S',
+        },
+        'long': {
+            'format': '[%(asctime)s][%(pathname)s; line: %(lineno)s] %(levelname)s: %(message)s',
+            'datefmt': '%Y.%m.%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console_dev': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'short',
+            'filters': ['require_debug_true'],
+        },
+        'console_prd': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'short',
+            'filters': ['require_debug_false'],
+        },
+        'mail_prd': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.SMTPHandler',
+            'mailhost': EMAIL_HOST,
+            'fromaddr': EMAIL_HOST_USER,
+            'toaddrs': EMAIL_DEV_USER,
+            'subject': 'ERROR in code',
+            'credentials': (EMAIL_HOST_USER, EMAIL_HOST_PASSWORD),
+            'secure': (),
+            'formatter': 'short',
+            'filters': ['require_debug_false'],
+        },
+        'console_dev_long': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'long',
+            'filters': ['require_debug_true'],
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console_dev', 'console_prd'],
+            'level': 'INFO',
+        },
+        'django.db.backends': {
+            'handlers': ['console_dev', 'console_prd', 'mail_prd'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['mail_prd'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'jauth': {
+            'handlers': ['console_dev_long', 'console_prd', 'mail_prd'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
 # --------------------------- DRF SETTINGS ------------------------------------
 
 REST_FRAMEWORK: dict = {
@@ -140,19 +241,6 @@ JWT_TOKEN: dict = {
     'DECODE_ALGS': ['HS256'],
     'HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
-
-# ----------------------- DJANGO EMAIL SETTINGS -------------------------------
-
-EMAIL_BACKEND: str = 'django.core.mail.backends.smtp.EmailBackend'
-DEFAULT_FROM_EMAIL: Optional[str] = os.getenv('DEFAULT_FROM_EMAIL')
-EMAIL_HOST: Optional[str] = os.getenv('EMAIL_HOST')
-EMAIL_PORT: Optional[str] = os.getenv('EMAIL_PORT')
-EMAIL_HOST_USER: Optional[str] = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD: Optional[str] = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS: bool = True
-EMAIL_USE_SSL: bool = False
-EMAIL_USE_LOCALTIME: bool = False
-EMAIL_TIMEOUT: None = None
 
 # ------------------------ RABBITMQ SETTINGS -----------------------------------
 
