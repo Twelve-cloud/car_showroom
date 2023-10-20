@@ -1,15 +1,19 @@
 """
-views.py: File, containing views for an jauth application.
+views.py: File, containing views for a jauth application.
 """
 
 
-from typing import Any, ClassVar, Iterable, Optional
+from typing import ClassVar, Optional
 from rest_framework import status, viewsets
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.db.models.query import QuerySet
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from jauth.models import User
 from jauth.swagger import (
     user_list_schema_extenstion,
     user_update_schema_extension,
@@ -23,21 +27,13 @@ from jauth.swagger import (
     user_reset_password_schema_extenstion,
     user_reset_password_confirm_schema_extenstion,
 )
+from jauth.services import UserService
 from jauth.permissions import IsUserOwner
 from jauth.serializers import (
     UserSerializer,
-    EmailSerializer,
-    PasswordSerializer,
     AccessTokenSerializer,
     RefreshTokenSerializer,
-)
-from jauth.services.user_service import UserDTO, UserService
-from jauth.services.user_auth_service import TokenPairDTO, CredentialsDTO, UserAuthService
-from jauth.services.user_mail_service import (
-    EmailDTO,
-    PasswordDTO,
-    UserMailService,
-    ConfirmationTokenDTO,
+    ResetPasswordSerializer,
 )
 
 
@@ -53,7 +49,7 @@ from jauth.services.user_mail_service import (
     reset_password=extend_schema(**user_reset_password_schema_extenstion),
     reset_password_confirm=extend_schema(**user_reset_password_confirm_schema_extenstion),
 )
-class UserViewSet(viewsets.ViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """
     UserViewSet: Handling every action for a User resource.
     Maps HTTP methods to actions:
@@ -67,13 +63,41 @@ class UserViewSet(viewsets.ViewSet):
         DELETE -> destroy
 
     Args:
-        viewsets.ViewSet (_type_): Builtin superclass for a UserViewSet.
+        viewsets.ModelViewSet (_type_): Builtin superclass for a UserViewSet.
     """
 
-    user_service: ClassVar[UserService] = UserService()
-    user_mail_service: ClassVar[UserMailService] = UserMailService()
+    service: UserService = UserService()
+    queryset: ClassVar[QuerySet[User]] = User.objects.all()
+    serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
 
-    permission_map: dict[str, Any] = {
+    filter_backends: list = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields: list = [
+        'email',
+        'username',
+        'first_name',
+        'last_name',
+    ]
+
+    search_fields: list = [
+        'email',
+        'username',
+        'first_name',
+        'last_name',
+    ]
+
+    ordering_fields: list = [
+        'email',
+        'username',
+        'first_name',
+        'last_name',
+    ]
+
+    permission_map: ClassVar[dict] = {
         'create': [
             ~IsAuthenticated | IsAdminUser,
         ],
@@ -103,108 +127,18 @@ class UserViewSet(viewsets.ViewSet):
         ],
     }
 
-    def get_permissions(self) -> list[Any]:
+    def get_permissions(self) -> list:
         """
-        get_permissions: Return apropriate permission classes according to action.
+        get_permissions: Returns apropriate permission classes according to action.
 
         Returns:
             list: Permission classes.
         """
 
-        self.permission_classes: list[Any] = self.permission_map.get(self.action, [])
+        self.permission_classes: list = self.permission_map.get(self.action, [])
         return super().get_permissions()
 
-    def _make_user_dto_from_val_data(self, data: dict) -> UserDTO:
-        """
-        _make_user_dto_from_val_data: Make UserDTO from validated data.
-
-        Args:
-            data (dict): Validated data.
-
-        Returns:
-            UserDTO: UserDTO.
-        """
-
-        return UserDTO(
-            username=data.get('username', None),
-            email=data.get('email', None),
-            password=data.get('password', None),
-            first_name=data.get('first_name', None),
-            last_name=data.get('last_name', None),
-        )
-
-    def _prepare_user(self, dto: UserDTO) -> dict[str, Any]:
-        """
-        _prepare_user: Make user dict from UserDTO.
-
-        Args:
-            user_dto (UserDTO): UserDTO.
-
-        Returns:
-            dict[str, Any]: User dict object.
-        """
-
-        return {
-            'pk': dto.pk,
-            'username': dto.username,
-            'email': dto.email,
-            'password': dto.password,
-            'first_name': dto.first_name,
-            'last_name': dto.last_name,
-            'date_joined': dto.date_joined,
-            'last_updated': dto.last_updated,
-            'last_login': dto.last_login,
-            'is_active': dto.is_active,
-            'is_staff': dto.is_staff,
-            'is_verified': dto.is_verified,
-        }
-
-    def _make_email_dto_from_val_data(self, data: dict) -> EmailDTO:
-        """
-        _make_email_dto_from_val_data: Make EmailDTO from validated data.
-
-        Args:
-            data (dict): Validated data.
-
-        Returns:
-            EmailDTO: EmailDTO.
-        """
-
-        return EmailDTO(
-            email=data['email'],
-        )
-
-    def _make_passw_dto_from_val_data(self, data: dict) -> PasswordDTO:
-        """
-        _make_passw_dto_from_val_data: Make PasswordDTO from validated data.
-
-        Args:
-            data (dict): Validated data.
-
-        Returns:
-            PasswordDTO: PasswordDTO.
-        """
-
-        return PasswordDTO(
-            password=data['password'],
-        )
-
-    def _make_confirmation_token_dto(self, token: str) -> ConfirmationTokenDTO:
-        """
-        _make_confirmation_token_dto: Make ConfirmationTokenDTO from token str.
-
-        Args:
-            token (str): Token str.
-
-        Returns:
-            ConfirmationTokenDTO: ConfirmationTokenDTO.
-        """
-
-        return ConfirmationTokenDTO(
-            token=token,
-        )
-
-    def create(self, request: Request) -> Response:
+    def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         create: Creates user account and sends confirmation link to user's email address.
 
@@ -215,119 +149,42 @@ class UserViewSet(viewsets.ViewSet):
             Response: HTTP 201 Reponse if user can be created otherwise HTTP 400.
         """
 
-        serializer: UserSerializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        response: Response = super().create(request, *args, **kwargs)
+        self.service.send_confirmation_link(response.data.get('email'))
+        return response
 
-        user_dto: UserDTO = self._make_user_dto_from_val_data(serializer.validated_data)
-        created_user_dto = self.user_service.create(user_dto)
-
-        email_dto: EmailDTO = self._make_email_dto_from_val_data(serializer.validated_data)
-        self.user_mail_service.send_confirmation_link(email_dto)
-
-        created_user = self._prepare_user(created_user_dto)
-
-        return Response(data=created_user, status=status.HTTP_201_CREATED)
-
-    def list(self, request: Request) -> Response:
+    def update(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
-        list: Return all users.
+        update: Updates user account and if email is specified then sends link to confirm email.
 
         Args:
             request (Request): Request instance.
 
         Returns:
-            Response: List of users in json format.
+            Response: Updated user json if user can be updated otherwise HTTP 400.
         """
 
-        user_dto_list: Iterable[UserDTO] = self.user_service.get_all()
-        serializer: UserSerializer = UserSerializer(user_dto_list, many=True)
+        response: Response = super().update(request, *args, **kwargs)
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        if 'email' in request.data:
+            user: User = self.get_object()
+            self.service.set_user_as_not_verified(user)
+            self.service.send_confirmation_link(user.email)
 
-    def retrieve(self, request: Request, pk: int) -> Response:
+        return response
+
+    def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
-        retrieve: Return information about concrete user.
+        destroy: Instead of deleting from database this method set user's is_active field to False.
 
         Args:
             request (Request): Request instance.
-            pk (int): id of the current user.
 
         Returns:
-            Response: Information about concrete user.
+            Response: HTTP 204 Response if user can be deleted otherwise HTTP 400.
         """
 
-        user_dto: UserDTO = self.user_service.get_by_pk(pk)
-        serializer: UserSerializer = UserSerializer(user_dto)
-
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request: Request, pk: int, partial: bool = False) -> Response:
-        """
-        update: Update existing user account (fully).
-        If email is specified, it also sends email confirmation link to specified email address.
-        Also if email is being updated, then user will be marked as unverified.
-        When email address if confirmed, user account will be verified.
-
-        Args:
-            request (Request): Request instance.
-            pk (int): id of the current user.
-            partial (bool, optional): If false then HTTP method is PUT, otherwise PATCH.
-
-        Returns:
-            Response: Updated user information in json format.
-        """
-
-        user_dto: UserDTO = self.user_service.get_by_pk(pk)
-        self.check_object_permissions(request, user_dto)
-
-        serializer: UserSerializer = UserSerializer(user_dto, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-
-        new_user_dto: UserDTO = self._make_user_dto_from_val_data(serializer.validated_data)
-        updated_user_dto = self.user_service.update(pk, new_user_dto)
-
-        if 'email' in serializer.validated_data:
-            email_dto: EmailDTO = self._make_email_dto_from_val_data(serializer.validated_data)
-            self.user_service.make_user_unferified(pk)
-            self.user_mail_service.send_confirmation_link(email_dto)
-
-        updated_user = self._prepare_user(updated_user_dto)
-
-        return Response(data=updated_user, status=status.HTTP_200_OK)
-
-    def partial_update(self, request: Request, pk: int) -> Response:
-        """
-        update: Update existing user account (partially).
-        If email is specified, it also sends email confirmation link to specified email address.
-        Also if email is being updated, then user will be marked as unverified.
-        When email address if confirmed, user account will be verified.
-
-        Args:
-            request (Request): Request instance.
-            pk (int): id of the current user.
-
-        Returns:
-            Response: Updated user information in json format.
-        """
-
-        return self.update(request, pk, True)
-
-    def destroy(self, request: Request, pk: int) -> Response:
-        """
-        destroy: Deactivates user account. Marks user as inactive instead of deleting from database.
-
-        Args:
-            request (Request): Request instance.
-            pk (int): id of the current user.
-
-        Returns:
-            Response: HTTP 204 status.
-        """
-
-        user_dto: UserDTO = self.user_service.get_by_pk(pk)
-        self.check_object_permissions(request, user_dto)
-        self.user_service.destroy(pk)
-
+        self.service.set_user_as_inactive(self.get_object())
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False, url_path=r'confirm_email/(?P<token>[\S-]+)')
@@ -337,37 +194,46 @@ class UserViewSet(viewsets.ViewSet):
 
         Args:
             request (Request): Request instance.
-            token (str): Token.
 
         Returns:
             Response: HTTP 400 if token is not valid otherwise HTTP 200 Response.
         """
 
-        token_dto: ConfirmationTokenDTO = self._make_confirmation_token_dto(token)
-        self.user_mail_service.set_user_as_verified(token_dto)
+        user: Optional[User] = self.service.get_user_by_token(token)
 
+        if user is None:
+            return Response({'Error': 'Bad link'}, status=status.HTTP_400_BAD_REQUEST)
+
+        self.service.set_user_as_verified(user)
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['post'], detail=False)
-    def reset_password(self, request: Request) -> Response:
+    @action(methods=['get'], detail=False, url_path=r'reset_password/(?P<email>[\S-]+)')
+    def reset_password(self, request: Request, email: str) -> Response:
         """
         reset_password: Sends link to email address to reset password.
 
         Args:
             request (Request): Request insatnce.
+            email (str): Email of the user.
 
         Returns:
             Response: Response insatnce.
         """
 
-        serializer: EmailSerializer = EmailSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email_dto: EmailDTO = self._make_email_dto_from_val_data(serializer.validated_data)
-        self.user_mail_service.send_reset_password_link(email_dto)
+        user: Optional[User] = self.service.get_user_by_email(email)
 
+        if user is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        self.service.send_reset_password_link(user.email)
         return Response(status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['patch'], url_path=r'reset_password_confirm/(?P<token>[\S-]+)')
+    @action(
+        detail=False,
+        methods=['patch'],
+        serializer_class=ResetPasswordSerializer,
+        url_path=r'reset_password_confirm/(?P<token>[\S-]+)',
+    )
     def reset_password_confirm(self, request: Request, token: str) -> Response:
         """
         reset_password_confirm: Checks confirmation token and if it is correct, then changes pass.
@@ -380,11 +246,14 @@ class UserViewSet(viewsets.ViewSet):
             Response: Reponse instance.
         """
 
-        serializer: PasswordSerializer = PasswordSerializer(data=request.data)
+        user: Optional[User] = self.service.get_user_by_token(token)
+
+        if user is None:
+            return Response({'Error': 'Bad link'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer: ResetPasswordSerializer = self.get_serializer(user, request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        token_dto: ConfirmationTokenDTO = self._make_confirmation_token_dto(token)
-        passw_dto: PasswordDTO = self._make_passw_dto_from_val_data(serializer.validated_data)
-        self.user_mail_service.reset_user_password(token_dto, passw_dto)
+        serializer.save()
 
         return Response(status=status.HTTP_200_OK)
 
@@ -394,7 +263,7 @@ class UserViewSet(viewsets.ViewSet):
     create=extend_schema(**token_create_schema_extenstion),
     refresh=extend_schema(**token_refresh_schema_extenstion),
 )
-class TokenViewSet(viewsets.ViewSet):
+class TokenViewSet(viewsets.GenericViewSet):
     """
     TokenViewSet: Hadling token creation.
 
@@ -402,58 +271,23 @@ class TokenViewSet(viewsets.ViewSet):
         viewsets.GenericViewSet (_type_): Builtin superclass for an TokenViewSet.
     """
 
-    user_auth_service: ClassVar[UserAuthService] = UserAuthService()
-    permission_classes: ClassVar[list[Any]] = [~IsAuthenticated]
+    permission_classes: ClassVar[list] = [~IsAuthenticated]
+    serializer_map: ClassVar[dict] = {
+        'create': AccessTokenSerializer,
+        'refresh': RefreshTokenSerializer,
+    }
 
-    def _prepare_tokens(self, dto: TokenPairDTO) -> dict[str, Optional[str]]:
+    def get_serializer_class(self) -> AccessTokenSerializer | RefreshTokenSerializer:
         """
-        _prepare_tokens: Make token pair dict from TokenPairDTO.
-
-        Args:
-            dto (TokenPairDTO): TokenPairDTO.
+        get_serializer_class: Returns proper serializer class according to an action.
 
         Returns:
-            dict[str, Optional[str]]: Token pair dict object.
+            AccessTokenSerializer | RefreshTokenSerializer: Serializer class.
         """
 
-        return {
-            'access': dto.access,
-            'refresh': dto.refresh,
-        }
+        return self.serializer_map.get(self.action, None)
 
-    def _make_creds_dto_from_val_data(self, data: dict) -> CredentialsDTO:
-        """
-        _make_creds_dto_from_val_data: Make CredentialsDTO from validated data.
-
-        Args:
-            data (dict): Validated data.
-
-        Returns:
-            CredentialsDTO: CredentialsDTO.
-        """
-
-        return CredentialsDTO(
-            email=data['email'],
-            password=data['password'],
-        )
-
-    def _make_token_pair_dto_from_val_data(self, data: dict) -> TokenPairDTO:
-        """
-        _make_token_pair_dto_from_val_data: Make TokenPairDTO from validated data.
-
-        Args:
-            data (dict): Validated data.
-
-        Returns:
-            TokenPairDTO: TokenPairDTO.
-        """
-
-        return TokenPairDTO(
-            access=data.get('access', None),
-            refresh=data.get('refresh', None),
-        )
-
-    def create(self, request: Request) -> Response:
+    def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         create: Creates new pair of token: access and refresh.
 
@@ -461,33 +295,26 @@ class TokenViewSet(viewsets.ViewSet):
             request (Request): Request instance.
 
         Returns:
-            Response: New token pair in json format.
+            Response: Response instance.
         """
 
-        serializer: AccessTokenSerializer = AccessTokenSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        creds_dto: CredentialsDTO = self._make_creds_dto_from_val_data(serializer.validated_data)
-        token_pair_dto: TokenPairDTO = self.user_auth_service.get_tokens(creds_dto)
-        tokens: dict[str, Optional[str]] = self._prepare_tokens(token_pair_dto)
-
-        return Response(tokens, status=status.HTTP_200_OK)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
-    def refresh(self, request: Request) -> Response:
+    def refresh(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         refresh: Creates new pair of token: access and refresh when access token is expired.
 
         Args:
             request (Request): Request instance.
 
+
         Returns:
-            Response: New token pair in json format.
+            Response: Response instance.
         """
 
-        serializer: RefreshTokenSerializer = RefreshTokenSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        dto: TokenPairDTO = self._make_token_pair_dto_from_val_data(serializer.validated_data)
-        token_pair_dto: TokenPairDTO = self.user_auth_service.refresh(dto)
-        tokens: dict[str, Optional[str]] = self._prepare_tokens(token_pair_dto)
-
-        return Response(tokens, status=status.HTTP_200_OK)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
