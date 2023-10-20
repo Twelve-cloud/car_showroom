@@ -29,12 +29,7 @@ from jauth.swagger import (
 )
 from jauth.services import UserService
 from jauth.permissions import IsUserOwner
-from jauth.serializers import (
-    UserSerializer,
-    AccessTokenSerializer,
-    RefreshTokenSerializer,
-    ResetPasswordSerializer,
-)
+from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
 
 @extend_schema(tags=['User'])
@@ -194,6 +189,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         Args:
             request (Request): Request instance.
+            token (str): Confirmation token.
 
         Returns:
             Response: HTTP 400 if token is not valid otherwise HTTP 200 Response.
@@ -207,20 +203,19 @@ class UserViewSet(viewsets.ModelViewSet):
         self.service.set_user_as_verified(user)
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['get'], detail=False, url_path=r'reset_password/(?P<email>[\S-]+)')
-    def reset_password(self, request: Request, email: str) -> Response:
+    @action(methods=['post'], detail=False)
+    def reset_password(self, request: Request) -> Response:
         """
         reset_password: Sends link to email address to reset password.
 
         Args:
             request (Request): Request insatnce.
-            email (str): Email of the user.
 
         Returns:
             Response: Response insatnce.
         """
 
-        user: Optional[User] = self.service.get_user_by_email(email)
+        user: Optional[User] = self.service.get_user_by_email(request.data.get('email'))
 
         if user is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -228,12 +223,7 @@ class UserViewSet(viewsets.ModelViewSet):
         self.service.send_reset_password_link(user.email)
         return Response(status=status.HTTP_200_OK)
 
-    @action(
-        detail=False,
-        methods=['patch'],
-        serializer_class=ResetPasswordSerializer,
-        url_path=r'reset_password_confirm/(?P<token>[\S-]+)',
-    )
+    @action(detail=False, methods=['patch'], url_path=r'reset_password_confirm/(?P<token>[\S-]+)')
     def reset_password_confirm(self, request: Request, token: str) -> Response:
         """
         reset_password_confirm: Checks confirmation token and if it is correct, then changes pass.
@@ -251,7 +241,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if user is None:
             return Response({'Error': 'Bad link'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer: ResetPasswordSerializer = self.get_serializer(user, request.data, partial=True)
+        serializer = self.get_serializer(user, request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

@@ -17,6 +17,41 @@ class UserSerializer(serializers.ModelSerializer):
         serializers.ModelSerializer (_type_): Builtin superclass for a UserSerliazer.
     """
 
+    def create(self, validated_data: dict) -> User:
+        """
+        create: Creates user object.
+
+        Args:
+            validated_data (dict): Validated data.
+
+        Returns:
+            User: User instance.
+        """
+
+        created_user = super().create(validated_data)
+        created_user.set_password(created_user.password)
+
+        return created_user
+
+    def update(self, instance: User, validated_data: dict) -> User:
+        """
+        update: Updates user object.
+
+        Args:
+            instance (User): User instance.
+            validated_data (dict): Validated data.
+
+        Returns:
+            User: User instance.
+        """
+
+        password = validated_data.pop('password', None)
+
+        if password:
+            instance.set_password(password)
+
+        return super().update(instance, validated_data)
+
     class Meta:
         model: ClassVar[type[User]] = User
         fields: ClassVar[list] = [
@@ -39,21 +74,6 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active',
             'is_staff',
             'is_verified',
-        ]
-
-
-class ResetPasswordSerializer(serializers.ModelSerializer):
-    """
-    ResetPasswordSerializer: Serializes password json to py-native types and vice versa.
-
-    Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a ResetPasswordSerliazer.
-    """
-
-    class Meta:
-        model: ClassVar[type[User]] = User
-        fields: ClassVar[list] = [
-            'password',
         ]
 
 

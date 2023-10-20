@@ -7,8 +7,6 @@ from typing import ClassVar
 from datetime import datetime
 from django.db import models
 from django.core import validators
-from django.dispatch import receiver
-from django.db.models.signals import pre_save
 from django.contrib.auth.hashers import make_password, check_password
 
 
@@ -141,6 +139,7 @@ class User(models.Model):
         """
 
         self.password = make_password(raw_password)
+        self.save(update_fields=['password'])
 
     def check_password(self, raw_password: str) -> bool:
         """
@@ -153,11 +152,7 @@ class User(models.Model):
             bool: True or False.
         """
 
-        def setter(raw_password: str) -> None:
-            self.set_password(raw_password)
-            self.save(update_fields=['password'])
-
-        return check_password(raw_password, self.password, setter)
+        return check_password(raw_password, self.password, self.set_password)
 
     def get_full_name(self) -> str:
         """
@@ -193,24 +188,3 @@ class User(models.Model):
         """
         self.is_active = True
         self.save(update_fields=['is_active'])
-
-
-@receiver(pre_save, sender=User)
-def pre_save_handler(sender: type[User], instance: User, **kwargs: dict) -> None:
-    """
-    pre_save_handler: Function, performing before .save() is called.
-    It starts full validation of the record and encrypt password.
-
-    Args:
-        sender (type[User]): User model.
-        instance (User): Instance of the User model.
-    """
-
-    instance.full_clean()
-
-    if instance._state.adding:
-        instance.set_password(instance.password)
-    else:
-        old_instance = sender.objects.get(pk=instance.pk)
-        if old_instance.password != instance.password:
-            instance.set_password(instance.password)

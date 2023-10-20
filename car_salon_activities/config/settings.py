@@ -48,7 +48,6 @@ DJANGO_APPS: list = []
 
 LOCAL_APPS: list = [
     'jauth.apps.JauthConfig',
-    'salon.apps.SalonConfig',
 ]
 
 THIRD_PARTY_APPS: list = [
@@ -288,9 +287,12 @@ CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL: None = None
 CELERY_REDIS_BACKEND_USE_SSL: bool = False
 
 CELERY_BEAT_SCHEDULE: dict = {
-    'clear-every-year': {
+    'clear-every-day': {
         'task': 'jauth.tasks.clear_database_from_waste_accounts',
-        'schedule': crontab(minute=0, hour=0),
+        'schedule': crontab(
+            minute=os.getenv('CELERY_CLEAR_EVERY_DAY_CRON_MIN'),
+            hour=os.getenv('CELERY_CLEAR_EVERY_DAY_CRON_HOUR'),
+        ),
     }
 }
 
