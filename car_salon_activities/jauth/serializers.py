@@ -1,78 +1,120 @@
 """
-serializers.py: File, containing serializers for a jauth application.
+serializers.py: File, containing serializers for an jauth application.
 """
 
 
-from typing import ClassVar, Optional
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from jauth.models import User
-from jauth.tokens import Token
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.Serializer):
     """
-    UserSerializer: Serializes user json to py-native types and vice versa.
+    UserSerializer: Serialize user json to py-native types or user class to py-native types.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a UserSerliazer.
+        serializers.Serializer (_type_): Builtin superclass for a UserSerliazer.
     """
 
-    class Meta:
-        model: ClassVar[type[User]] = User
-        fields: ClassVar[list] = [
-            'username',
-            'email',
-            'password',
-            'first_name',
-            'last_name',
-            'date_joined',
-            'last_updated',
-            'last_login',
-            'is_active',
-            'is_staff',
-            'is_verified',
-        ]
-        read_only_fields: ClassVar[list] = [
-            'date_joined',
-            'last_updated',
-            'last_login',
-            'is_active',
-            'is_staff',
-            'is_verified',
-        ]
+    pk = serializers.IntegerField(
+        label='ID',
+        read_only=True,
+    )
+
+    username = serializers.CharField(
+        max_length=32,
+        min_length=8,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+
+    email = serializers.EmailField(
+        max_length=320,
+        min_length=3,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+    )
+
+    first_name = serializers.CharField(
+        allow_blank=True,
+        allow_null=True,
+        max_length=32,
+        required=False,
+    )
+
+    last_name = serializers.CharField(
+        allow_blank=True,
+        allow_null=True,
+        max_length=32,
+        required=False,
+    )
+
+    date_joined = serializers.DateTimeField(
+        read_only=True,
+    )
+
+    last_updated = serializers.DateTimeField(
+        read_only=True,
+    )
+
+    last_login = serializers.DateTimeField(
+        allow_null=True,
+        read_only=True,
+    )
+
+    is_active = serializers.BooleanField(
+        read_only=True,
+    )
+
+    is_staff = serializers.BooleanField(
+        read_only=True,
+    )
+
+    is_verified = serializers.BooleanField(
+        read_only=True,
+    )
 
 
-class ResetPasswordSerializer(serializers.ModelSerializer):
+class EmailSerializer(serializers.Serializer):
     """
-    ResetPasswordSerializer: Serializes password json to py-native types and vice versa.
+    EmailSerializer: Serialize email json to py-native types to py-native types.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a ResetPasswordSerliazer.
+        serializers.Serializer (_type_): Builtin superclass for a UserSerliazer.
     """
 
-    class Meta:
-        model: ClassVar[type[User]] = User
-        fields: ClassVar[list] = [
-            'password',
-        ]
+    email = serializers.EmailField(
+        max_length=320,
+        min_length=3,
+        write_only=True,
+    )
+
+
+class PasswordSerializer(serializers.Serializer):
+    """
+    PasswordSerializer: Serialize password json to py-native types to py-native types.
+
+    Args:
+        serializers.Serializer (_type_): Builtin superclass for a UserSerliazer.
+    """
+
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True,
+    )
 
 
 class AccessTokenSerializer(serializers.Serializer):
     """
-    AccessTokenSerializer: Serializes token form to py-native types and vice versa.
+    AccessTokenSerializerSerializer: Serialize credentials to py-native types to py-native types.
 
     Args:
-        serializers.Serializer (_type_): Builtin superclass for an AccessTokenSerializer.
-
-    Raises:
-        serializers.ValidationError: Raises when email adress is not specified.
-        serializers.ValidationError: Raises when password is not specified.
-        serializers.ValidationError: Raises when spicified email adress is not found.
-        serializers.ValidationError: Raises when spicified password is not correct.
-        serializers.ValidationError: Raises when account is deactivated.
+        serializers.Serializer (_type_): Builtin superclass for a UserSerliazer.
     """
-
-    token_class: ClassVar[type[Token]] = Token
 
     email = serializers.CharField(
         max_length=320,
@@ -86,141 +128,17 @@ class AccessTokenSerializer(serializers.Serializer):
         write_only=True,
     )
 
-    def validate(self, data: dict) -> dict:
-        """
-        validate: Validates request data.
-
-        Args:
-            data (dict): Incoming data.
-
-        Raises:
-            serializers.ValidationError: Raises when email adress is not specified.
-            serializers.ValidationError: Raises when password is not specified.
-            serializers.ValidationError: Raises when spicified email adress is not found.
-            serializers.ValidationError: Raises when spicified password is not correct.
-            serializers.ValidationError: Raises when account is not verified.
-
-        Returns:
-            dict: Dict with new access token and refresh token.
-        """
-
-        email: Optional[str] = data.get('email', None)
-
-        if email is None:
-            raise serializers.ValidationError(
-                'An email address is required.',
-            )
-
-        password: Optional[str] = data.get('password', None)
-
-        if password is None:
-            raise serializers.ValidationError(
-                'A password is required.',
-            )
-
-        user: Optional[User] = User.objects.filter(email=email).first()
-
-        if user is None:
-            raise serializers.ValidationError(
-                'A user with this email is not found.',
-            )
-
-        if not user.check_password(password):
-            raise serializers.ValidationError(
-                'Password is not correct.',
-            )
-
-        if not user.is_active and not user.is_verified:
-            raise serializers.ValidationError(
-                'Account is not virified.',
-            )
-
-        if not user.is_active and user.is_verified:
-            user.set_active()
-
-        user.set_last_login()
-
-        access_token, refresh_token = self.token_class.for_user(user)
-
-        return {
-            'access': access_token.token,
-            'refresh': refresh_token.token,
-        }
-
 
 class RefreshTokenSerializer(serializers.Serializer):
     """
-    RefreshTokenSerializer: Serializes refresh-token form to py-native types and vice versa.
+    RefreshTokenSerializer: Serialize refresh token json to py-native types to py-native types.
 
     Args:
-        serializers.Serializer (_type_): Builtin superclass for an RefreshTokenSerializer.
-
-    Raises:
-        serializers.ValidationError: Raises when refresh token is not specified.
-        serializers.ValidationError: Raises when refresh token is expired.
-        serializers.ValidationError: Raises when refresh token is invalid.
-        serializers.ValidationError: Raises when refresh token is not correct.
+        serializers.Serializer (_type_): Builtin superclass for a UserSerliazer.
     """
-
-    token_class: ClassVar[type[Token]] = Token
 
     refresh = serializers.CharField(
         max_length=128,
         min_length=32,
         write_only=True,
     )
-
-    def validate(self, data: dict) -> dict:
-        """
-        validate: Validates request data.
-
-        Args:
-            data (dict): Incoming data.
-
-        Raises:
-            serializers.ValidationError: Raises when refresh token is not specified.
-            serializers.ValidationError: Raises when refresh token is expired.
-            serializers.ValidationError: Raises when refresh token is invalid.
-            serializers.ValidationError: Raises when refresh token is not correct.
-
-        Returns:
-            dict: Dict with new access token and refresh token.
-        """
-
-        user_refresh_token: Optional[str] = data.get('refresh', None)
-
-        if user_refresh_token is None:
-            raise serializers.ValidationError(
-                'Refresh token is required.',
-            )
-
-        token: Token = self.token_class(token=user_refresh_token, type='refresh')
-
-        is_verified: Optional[bool] = token.verify()
-
-        if not is_verified:
-            if token.expired:
-                raise serializers.ValidationError(
-                    'Token is expired.',
-                )
-
-            if token.invalid:
-                raise serializers.ValidationError(
-                    'Token is invalid.',
-                )
-
-        user: Optional[User] = token.get_user_by_token()
-
-        if user is None:
-            raise serializers.ValidationError(
-                'Token is not correct.',
-            )
-
-        user.set_last_login()
-
-        access_token, refresh_token = self.token_class.for_user(user)
-
-        return {
-            'access': access_token.token,
-            'refresh': refresh_token.token,
-        }

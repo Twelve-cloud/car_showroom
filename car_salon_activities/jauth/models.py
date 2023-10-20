@@ -1,5 +1,5 @@
 """
-models.py: File, containing models for a jauth application.
+models.py: File, containing models for an jauth application.
 """
 
 
@@ -7,8 +7,6 @@ from typing import ClassVar
 from datetime import datetime
 from django.db import models
 from django.core import validators
-from django.dispatch import receiver
-from django.db.models.signals import pre_save
 from django.contrib.auth.hashers import make_password, check_password
 
 
@@ -87,30 +85,95 @@ class User(models.Model):
         verbose_name='is verified',
     )
 
-    class Meta:
-        verbose_name: ClassVar[str] = 'User'
-        verbose_name_plural: ClassVar[str] = 'Users'
-        db_table: ClassVar[str] = 'User'
-
-    def get_username(self) -> str:
+    def set_password(self, password: str) -> None:
         """
-        get_username: Returns User's username.
+        set_password: Set password to the current user.
+
+        Args:
+            password (str): New password.
+        """
+
+        self.password = make_password(password)
+        self.save(update_fields=['password'])
+
+    def check_password(self, password: str) -> bool:
+        """
+        check_password: Check if password is correct.
+
+        Args:
+            rpassword (str): Specified password.
 
         Returns:
-            str: Username of User instance.
+            bool: True if password is correct otherwise False.
         """
 
-        return self.username
+        return check_password(password, self.password, self.set_password)
 
-    def __str__(self) -> str:
+    def set_first_name(self, first_name: str) -> None:
         """
-        __str__: Returns User's username.
+        set_first_name: Set first name to the current user.
 
-        Returns:
-            str: Username of User instance.
+        Args:
+            first_name (str): New first name.
         """
 
-        return self.get_username()
+        self.first_name = first_name
+        self.save(update_fields=['first_name'])
+
+    def set_last_name(self, last_name: str) -> None:
+        """
+        set_last_name: Set last name to the current user.
+
+        Args:
+            last_name (str): New last name.
+        """
+
+        self.last_name = last_name
+        self.save(update_fields=['last_name'])
+
+    def set_last_login(self, last_login: datetime = datetime.now()) -> None:
+        """
+        set_last_login: Set last login date to the current user.
+
+        Args:
+            last_login (datetime): New last login date.
+        """
+
+        self.last_login = last_login
+        self.save(update_fields=['last_login'])
+
+    def set_is_active(self, is_active: bool) -> None:
+        """
+        set_is_active: Set user active status.
+
+        Args:
+            is_active (bool): New active status.
+        """
+
+        self.is_active = is_active
+        self.save(update_fields=['is_active'])
+
+    def set_is_staff(self, is_staff: bool) -> None:
+        """
+        set_is_staff: Set user staff status.
+
+        Args:
+            is_staff (bool): New staff status.
+        """
+
+        self.is_staff = is_staff
+        self.save(update_fields=['is_staff'])
+
+    def set_is_verified(self, is_verified: bool) -> None:
+        """
+        set_is_verified: Set user verified status.
+
+        Args:
+            is_verified (bool): New verified status.
+        """
+
+        self.is_verified = is_verified
+        self.save(update_fields=['is_verified'])
 
     def is_anonymous(self) -> bool:
         """
@@ -132,85 +195,22 @@ class User(models.Model):
 
         return True
 
-    def set_password(self, raw_password: str) -> None:
+    def __str__(self) -> str:
         """
-        set_password: Encrypts password and set it to user's password field.
-
-        Args:
-            raw_password (str): Not encrypted password.
-        """
-
-        self.password = make_password(raw_password)
-
-    def check_password(self, raw_password: str) -> bool:
-        """
-        check_password: Checks if password if correct.
-
-        Args:
-            raw_password (str): Specified password.
+        __str__: Return user instance representation.
 
         Returns:
-            bool: True or False.
+            str: User instance representation.
         """
 
-        def setter(raw_password: str) -> None:
-            self.set_password(raw_password)
-            self.save(update_fields=['password'])
+        return self.username
 
-        return check_password(raw_password, self.password, setter)
-
-    def get_full_name(self) -> str:
+    class Meta:
         """
-        get_full_name: Returns full name of the user.
-
-        Returns:
-            str: Full name of the user.
+        Meta: Class, providing medata for custom User model.
         """
 
-        return f'{self.first_name} {self.last_name}'.strip()
-
-    def get_short_name(self) -> str:
-        """
-        get_short_name: Returns short name of the user.
-
-        Returns:
-            str: Short name of the user.
-        """
-
-        return self.first_name.strip()
-
-    def set_last_login(self) -> None:
-        """
-        set_last_login: Sets last login date and time.
-        """
-
-        self.last_login = datetime.now()
-        self.save(update_fields=['last_login'])
-
-    def set_active(self) -> None:
-        """
-        set_is_active: Sets user's is_active field to True.
-        """
-        self.is_active = True
-        self.save(update_fields=['is_active'])
-
-
-@receiver(pre_save, sender=User)
-def pre_save_handler(sender: type[User], instance: User, **kwargs: dict) -> None:
-    """
-    pre_save_handler: Function, performing before .save() is called.
-    It starts full validation of the record and encrypt password.
-
-    Args:
-        sender (type[User]): User model.
-        instance (User): Instance of the User model.
-    """
-
-    instance.full_clean()
-
-    if instance._state.adding:
-        instance.set_password(instance.password)
-    else:
-        old_instance = sender.objects.get(pk=instance.pk)
-        if old_instance.password != instance.password:
-            instance.set_password(instance.password)
+        verbose_name: ClassVar[str] = 'User'
+        verbose_name_plural: ClassVar[str] = 'Users'
+        ordering: ClassVar[list] = ['pk']
+        db_table: ClassVar[str] = 'User'

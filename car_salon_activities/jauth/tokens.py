@@ -5,7 +5,7 @@ tokns.py: File, containing implementation of JWT token for a jauth app.
 
 from __future__ import annotations
 import logging
-from typing import ClassVar, Optional
+from typing import ClassVar
 from jauth.models import User
 from jauth.backends import TokenBackend
 
@@ -73,12 +73,12 @@ class Token:
 
         return user
 
-    def verify(self) -> Optional[bool]:
+    def verify(self) -> bool:
         """
         verify: Verifies if token is valid.
 
         Returns:
-            Optional[bool]: True if valid False if invalid.
+            bool: True if valid False if invalid.
         """
 
         try:
