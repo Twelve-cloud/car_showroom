@@ -48,6 +48,10 @@ DJANGO_APPS: list = []
 
 LOCAL_APPS: list = [
     'jauth.apps.JauthConfig',
+    'core.apps.CoreConfig',
+    'customer.apps.CustomerConfig',
+    'showroom.apps.ShowroomConfig',
+    'supplier.apps.SupplierConfig',
 ]
 
 THIRD_PARTY_APPS: list = [

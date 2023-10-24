@@ -54,6 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model: ClassVar[type[User]] = User
+
         fields: ClassVar[list] = [
             'username',
             'email',
@@ -67,6 +68,7 @@ class UserSerializer(serializers.ModelSerializer):
             'is_staff',
             'is_verified',
         ]
+
         read_only_fields: ClassVar[list] = [
             'date_joined',
             'last_updated',

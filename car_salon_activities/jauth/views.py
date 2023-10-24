@@ -62,7 +62,9 @@ class UserViewSet(viewsets.ModelViewSet):
     """
 
     service: UserService = UserService()
+
     queryset: ClassVar[QuerySet[User]] = User.objects.all()
+
     serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
 
     filter_backends: list = [
@@ -141,7 +143,7 @@ class UserViewSet(viewsets.ModelViewSet):
             request (Request): Request instance.
 
         Returns:
-            Response: HTTP 201 Reponse if user can be created otherwise HTTP 400.
+            Response: HTTP 201 Reponse if user can be created otherwise HTTP 400/401/403.
         """
 
         response: Response = super().create(request, *args, **kwargs)
@@ -156,7 +158,7 @@ class UserViewSet(viewsets.ModelViewSet):
             request (Request): Request instance.
 
         Returns:
-            Response: Updated user json if user can be updated otherwise HTTP 400.
+            Response: Updated user json if user can be updated otherwise HTTP 400/401/403.
         """
 
         response: Response = super().update(request, *args, **kwargs)
@@ -176,7 +178,7 @@ class UserViewSet(viewsets.ModelViewSet):
             request (Request): Request instance.
 
         Returns:
-            Response: HTTP 204 Response if user can be deleted otherwise HTTP 400.
+            Response: HTTP 204 Response if user can be deleted otherwise HTTP 401/403.
         """
 
         self.service.set_user_as_inactive(self.get_object())

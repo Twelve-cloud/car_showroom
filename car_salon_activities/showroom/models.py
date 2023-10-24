@@ -45,7 +45,7 @@ class ShowroomModel(BaseModel):
 
     appropriate_cars = models.ManyToManyField(
         CarModel,
-        symmetrical=True,
+        symmetrical=False,
         related_name='showrooms',
         related_query_name='showrooms',
         verbose_name='appropriate cars for the showroom',
@@ -53,7 +53,7 @@ class ShowroomModel(BaseModel):
 
     current_suppliers = models.ManyToManyField(
         SupplierModel,
-        symmetrical=True,
+        symmetrical=False,
         related_name='showrooms',
         related_query_name='showrooms',
         verbose_name='current suppliers of the showroom',

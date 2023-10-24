@@ -32,7 +32,7 @@ class BaseModel(models.Model):
     )
 
     class Meta:
-        proxy: ClassVar[bool] = True
+        abstract: ClassVar[bool] = True
 
 
 class CarModel(BaseModel):
@@ -79,6 +79,7 @@ class CarModel(BaseModel):
     )
 
     creation_year = models.PositiveIntegerField(
+        validators=[validators.MinValueValidator(1900)],
         verbose_name='creation year of the car',
     )
 
