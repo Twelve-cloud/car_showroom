@@ -1,9 +1,21 @@
+"""
+serializers.py: File, containing serializers for a customer application.
+"""
+
+
 from typing import ClassVar
 from rest_framework import serializers
 from customer.models import CustomerModel, CustomerHistory
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    """
+    CustomerSerializer: Serializes customer json to py-native types and vice versa.
+
+    Args:
+        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+    """
+
     class Meta:
         model: ClassVar[type[CustomerModel]] = CustomerModel
 
@@ -20,21 +32,19 @@ class CustomerSerializer(serializers.ModelSerializer):
             'is_active',
         ]
 
-    def save(self, **kwargs: dict) -> None:
-        customer = super().save(**kwargs)
-
-        if self.instance is None:
-            user = kwargs.pop('user')
-            customer.user = user
-
-        return customer
-
 
 class CustomerHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomerHistory
+    """
+    CustomerHistorySerializer: Serializes customer history json to py-native types and vice versa.
 
-        fields = [
+    Args:
+        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+    """
+
+    class Meta:
+        model: ClassVar[type[CustomerModel]] = CustomerHistory
+
+        fields: list = [
             'created_at',
             'last_updated',
             'is_active',
@@ -44,7 +54,7 @@ class CustomerHistorySerializer(serializers.ModelSerializer):
             'showroom',
         ]
 
-        read_only_fields = [
+        read_only_fields: list = [
             'created_at',
             'last_updated',
             'is_active',

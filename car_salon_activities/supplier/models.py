@@ -18,6 +18,7 @@ class SupplierModel(BaseModel):
     """
 
     name = models.CharField(
+        max_length=50,
         verbose_name='name of the supplier',
     )
 
@@ -64,6 +65,7 @@ class SupplierCarDiscount(BaseModel):
     """
 
     name = models.CharField(
+        max_length=50,
         verbose_name='discount name',
     )
 
@@ -159,6 +161,7 @@ class SupplierHistory(BaseModel):
     )
 
     car = models.CharField(
+        max_length=50,
         verbose_name='car',
     )
 
@@ -170,6 +173,7 @@ class SupplierHistory(BaseModel):
     )
 
     showroom = models.CharField(
+        max_length=50,
         verbose_name='showroom',
     )
 

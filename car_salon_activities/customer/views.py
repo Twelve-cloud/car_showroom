@@ -1,59 +1,114 @@
-from django.request import Request
+"""
+views.py: File, containing views for a customer application.
+"""
+
+
+from typing import ClassVar
 from rest_framework import status, viewsets
 from django.db.models.query import QuerySet
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from customer.models import CustomerModel, CustomerHistory
+from customer.models import CustomerModel
+from customer.services import CustomerService
+from customer.permissions import IsCustomerOwner, IsUserHasNotCustomer
 from customer.serializers import CustomerSerializer, CustomerHistorySerializer
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
-    permission_map = {
+    serializer_class: ClassVar[type[CustomerSerializer]] = CustomerSerializer
+    queryset: ClassVar[QuerySet[CustomerModel]] = CustomerModel.objects.all()
+    service: ClassVar[CustomerService] = CustomerService()
+
+    permission_map: dict = {
         'create': [
-            # IsAuthenticated & ~IsUserHasCustomer,
+            IsAuthenticated & IsUserHasNotCustomer,
         ],
         'list': [
-            IsAuthenticated,
+            IsAuthenticated & IsAdminUser,
         ],
         'retrieve': [
-            IsAuthenticated,
+            IsAuthenticated & (IsCustomerOwner | IsAdminUser),
         ],
         'update': [
-            IsAdminUser,
+            IsAuthenticated & IsAdminUser,
         ],
         'partial_update': [
-            IsAdminUser,
+            IsAuthenticated & IsAdminUser,
         ],
         'destroy': [
-            # IsAuthenticated & (IsAdminUser | IsCustomerOwner),
+            IsAuthenticated & IsAdminUser,
+        ],
+        'get_statistics': [
+            IsAuthenticated & (IsCustomerOwner | IsAdminUser),
         ],
     }
 
-    def get_queryset(self) -> QuerySet:
-        if self.action == 'get_statistics':
-            return CustomerHistory.objects.filter(is_active=True)
-        return CustomerModel.objects.filter(is_active=True)
-
-    def get_serializer_class(self) -> type[CustomerHistorySerializer] | type[CustomerSerializer]:
-        if self.action == 'get_statistics':
-            return CustomerHistorySerializer
-        return CustomerSerializer
-
     def get_permissions(self) -> list:
+        """
+        get_permissions: Returns apropriate permission classes according to action.
+
+        Returns:
+            list: Permission classes.
+        """
+
         self.permission_classes = self.permission_map.get(self.action, [])
         return super().get_permissions()
 
-    def perform_create(self, serializer: CustomerHistorySerializer | CustomerSerializer) -> None:
+    def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        """
+        create: Creates customer object for current user.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: HTTP 200 if it is first try, otherwise HTTP 401/403.
+        """
+
+        if 'balance' in request.data:
+            request.data.pop('balance')
+
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer: CustomerSerializer) -> None:
+        """
+        perform_create: Connect user and customer instances and also creates customer itself.
+
+        Args:
+            serializer (CustomerSerializer): CustomerSerializer instance.
+        """
+
         serializer.save(user=self.request.user)
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
-        customer = self.get_object()
-        customer.is_active = False
+        """
+        destroy: Instead of deleting from database this method set customers's is_active to False.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: HTTP 204 Response if user can be deleted otherwise HTTP 401/403.
+        """
+
+        self.service.delete_customer(self.get_object())
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=['get'], detail=False)
-    def get_statistics(self, request: Request) -> Response:
-        history = self.get_queryset()
-        serializer = self.get_serializer(history, many=True)
+    @action(methods=['get'], detail=True, serializer_class=CustomerHistorySerializer)
+    def get_statistics(self, request: Request, pk: int) -> Response:
+        """
+        get_statistics: Returns statistics for customer's operations.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Customer's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403/
+        """
+
+        customer = self.get_object()
+        serializer = self.get_serializer(customer.history.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

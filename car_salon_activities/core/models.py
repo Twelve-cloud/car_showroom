@@ -69,11 +69,13 @@ class CarModel(BaseModel):
         __empty__: str = 'Choose transmission type of the car.'
 
     brand = models.CharField(
+        max_length=50,
         choices=Brands.choices,
         verbose_name='brand of the car',
     )
 
     transmission_type = models.CharField(
+        max_length=50,
         choices=TransmissionTypes.choices,
         verbose_name='transmission type of the car',
     )

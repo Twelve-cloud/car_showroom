@@ -26,7 +26,7 @@ class CustomerModel(BaseModel):
         verbose_name='balance',
     )
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         verbose_name='user instance',
@@ -55,6 +55,7 @@ class CustomerHistory(BaseModel):
     )
 
     car = models.CharField(
+        max_length=50,
         verbose_name='car',
     )
 
@@ -66,6 +67,7 @@ class CustomerHistory(BaseModel):
     )
 
     showroom = models.CharField(
+        max_length=50,
         verbose_name='showroom',
     )
 

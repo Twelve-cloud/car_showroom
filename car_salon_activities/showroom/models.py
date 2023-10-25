@@ -21,6 +21,7 @@ class ShowroomModel(BaseModel):
     """
 
     name = models.CharField(
+        max_length=50,
         verbose_name='name of the showroom',
     )
 
@@ -91,6 +92,7 @@ class ShowroomCarDiscount(BaseModel):
     """
 
     name = models.CharField(
+        max_length=50,
         verbose_name='discount name',
     )
 
@@ -197,6 +199,7 @@ class ShowroomHistory(BaseModel):
     )
 
     car = models.CharField(
+        max_length=50,
         verbose_name='car',
     )
 
@@ -208,6 +211,7 @@ class ShowroomHistory(BaseModel):
     )
 
     customer = models.CharField(
+        max_length=50,
         verbose_name='customer',
     )
 

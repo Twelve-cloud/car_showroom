@@ -7,12 +7,10 @@ from rest_framework import mixins, status, viewsets
 from django.db.models.query import QuerySet
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
 from core.models import CarModel
 from core.services import CarService
 from core.serializers import CarSerializer
-
-
-# from rest_framework.permissions import IsAdminUser
 
 
 class CarViewSet(
@@ -42,7 +40,7 @@ class CarViewSet(
 
     serializer_class = CarSerializer
 
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     service = CarService()
 
