@@ -17,11 +17,29 @@ from customer.serializers import CustomerSerializer, CustomerHistorySerializer
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
+    """
+    CustomerViewSet: Handling every action for a Customer resource.
+    Maps HTTP methods to actions:
+        HEAD -> list
+        HEAD -> retrieve
+        GET -> list
+        GET -> retrieve
+        POST -> create
+        PUT -> update
+        PATCH -> partial_update
+        DELETE -> destroy
+
+    Args:
+        viewsets.ModelViewSet (_type_): Builtin superclass for a CustomerViewSet.
+    """
+
     serializer_class: ClassVar[type[CustomerSerializer]] = CustomerSerializer
+
     queryset: ClassVar[QuerySet[CustomerModel]] = CustomerModel.objects.all()
+
     service: ClassVar[CustomerService] = CustomerService()
 
-    permission_map: dict = {
+    permission_map: ClassVar[dict] = {
         'create': [
             IsAuthenticated & IsUserHasNotCustomer,
         ],
@@ -53,7 +71,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
             list: Permission classes.
         """
 
-        self.permission_classes = self.permission_map.get(self.action, [])
+        self.permission_classes: list = self.permission_map.get(self.action, [])
         return super().get_permissions()
 
     def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
@@ -90,7 +108,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
             request (Request): Request instance.
 
         Returns:
-            Response: HTTP 204 Response if user can be deleted otherwise HTTP 401/403.
+            Response: HTTP 204 Response if customer can be deleted otherwise HTTP 401/403.
         """
 
         self.service.delete_customer(self.get_object())
@@ -106,9 +124,10 @@ class CustomerViewSet(viewsets.ModelViewSet):
             pk (int): Customer's pk.
 
         Returns:
-            Response: HTTP 200 if has permissions otherwise 401/403/
+            Response: HTTP 200 if has permissions otherwise 401/403.
         """
 
-        customer = self.get_object()
-        serializer = self.get_serializer(customer.history.all(), many=True)
+        customer: CustomerModel = self.get_object()
+        history = customer.history.all()
+        serializer: CustomerHistorySerializer = self.get_serializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

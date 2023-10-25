@@ -39,7 +39,7 @@ class SupplierModel(BaseModel):
         verbose_name='number of sales after which discount is provided',
     )
 
-    discount_for_unique_castomers = models.DecimalField(
+    discount_for_unique_customers = models.DecimalField(
         default=0.2,
         max_digits=3,
         decimal_places=2,

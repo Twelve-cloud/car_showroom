@@ -67,27 +67,27 @@ class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class: ClassVar[type[UserSerializer]] = UserSerializer
 
-    filter_backends: list = [
+    filter_backends: ClassVar[list] = [
         DjangoFilterBackend,
         SearchFilter,
         OrderingFilter,
     ]
 
-    filterset_fields: list = [
+    filterset_fields: ClassVar[list] = [
         'email',
         'username',
         'first_name',
         'last_name',
     ]
 
-    search_fields: list = [
+    search_fields: ClassVar[list] = [
         'email',
         'username',
         'first_name',
         'last_name',
     ]
 
-    ordering_fields: list = [
+    ordering_fields: ClassVar[list] = [
         'email',
         'username',
         'first_name',
@@ -264,6 +264,7 @@ class TokenViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes: ClassVar[list] = [~IsAuthenticated]
+
     serializer_map: ClassVar[dict] = {
         'create': AccessTokenSerializer,
         'refresh': RefreshTokenSerializer,

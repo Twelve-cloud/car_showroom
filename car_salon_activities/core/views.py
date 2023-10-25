@@ -3,6 +3,7 @@ views.py: File, containing views for a core application.
 """
 
 
+from typing import ClassVar
 from rest_framework import mixins, status, viewsets
 from django.db.models.query import QuerySet
 from rest_framework.request import Request
@@ -38,21 +39,13 @@ class CarViewSet(
         mixins.DestroyModelMixin (_type_): Builtin superclass for a CarViewset.
     """
 
-    serializer_class = CarSerializer
+    serializer_class: ClassVar[type[CarSerializer]] = CarSerializer
 
-    permission_classes = [IsAdminUser]
+    queryset: ClassVar[QuerySet[CarModel]] = CarModel.objects.all()
 
-    service = CarService()
+    service: ClassVar[CarService] = CarService()
 
-    def get_queryset(self) -> QuerySet:
-        """
-        get_queryset: Returns all active car objects.
-
-        Returns:
-            QuerySet: Queryset of all active car objects.
-        """
-
-        return CarModel.objects.filter(is_active=True)
+    permission_classes: ClassVar[list] = [IsAdminUser]
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
@@ -62,7 +55,7 @@ class CarViewSet(
             request (Request): Request instance.
 
         Returns:
-            Response: HTTP 204 Response.
+            Response: HTTP 204 Response if car can be deleted otherwise HTTP 401/403.
         """
 
         self.service.set_car_as_inactive(self.get_object())
