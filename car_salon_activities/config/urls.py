@@ -28,6 +28,7 @@ urlpatterns: list = [
     path('api/v1/core/', include('core.urls')),
     path('api/v1/customer/', include('customer.urls')),
     path('api/v1/showroom/', include('showroom.urls')),
+    path('api/v1/supplier/', include('supplier.urls')),
 ]
 
 

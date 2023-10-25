@@ -22,7 +22,7 @@ class SupplierModel(BaseModel):
         verbose_name='name of the supplier',
     )
 
-    year = models.PositiveIntegerField(
+    creation_year = models.PositiveIntegerField(
         validators=[validators.MinValueValidator(1900)],
         verbose_name='creation year',
     )

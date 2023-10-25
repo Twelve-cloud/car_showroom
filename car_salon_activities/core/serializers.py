@@ -19,7 +19,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model: ClassVar[type[CarModel]] = CarModel
 
-        fields: list = [
+        fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -29,7 +29,7 @@ class CarSerializer(serializers.ModelSerializer):
             'miliage',
         ]
 
-        read_only_fields: list = [
+        read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',

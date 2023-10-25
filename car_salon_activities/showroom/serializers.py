@@ -13,13 +13,13 @@ class ShowroomSerializer(serializers.ModelSerializer):
     ShowroomSerializer: Serializes showroom json to py-native types and vice versa.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+        serializers.ModelSerializer (_type_): Builtin superclass for a ShowroomSerializer.
     """
 
     class Meta:
         model: ClassVar[type[ShowroomModel]] = ShowroomModel
 
-        fields: list = [
+        fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -34,7 +34,7 @@ class ShowroomSerializer(serializers.ModelSerializer):
             'discount_for_unique_customers',
         ]
 
-        read_only_fields: list = [
+        read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -48,13 +48,13 @@ class ShowroomCarDiscountSerializer(serializers.ModelSerializer):
     ShowroomCarDiscountSerializer: Serializes shroom discount json to pynative types and vice versa.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+        serializers.ModelSerializer (_type_): Builtin supclass for a ShowroomCarDiscountSerializer.
     """
 
     class Meta:
         model: ClassVar[type[ShowroomCarDiscount]] = ShowroomCarDiscount
 
-        fields: list = [
+        fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -66,7 +66,7 @@ class ShowroomCarDiscountSerializer(serializers.ModelSerializer):
             'showroom',
         ]
 
-        read_only_fields: list = [
+        read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -78,13 +78,13 @@ class ShowroomHistorySerializer(serializers.ModelSerializer):
     ShowroomHistorySerializer: Serializes showroom history json to py-native types and vice versa.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+        serializers.ModelSerializer (_type_): Builtin superclass for a ShowroomHistorySerializer.
     """
 
     class Meta:
         model: ClassVar[type[ShowroomHistory]] = ShowroomHistory
 
-        fields: list = [
+        fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -94,7 +94,7 @@ class ShowroomHistorySerializer(serializers.ModelSerializer):
             'customer',
         ]
 
-        read_only_fields: list = [
+        read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',

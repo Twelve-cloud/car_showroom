@@ -21,7 +21,7 @@ from showroom.serializers import (
 
 class ShowroomViewSet(viewsets.ModelViewSet):
     """
-    CustomerViewSet: Handling every action for a Customer resource.
+    ShowroomViewSet: Handling every action for a Showroom resource.
     Maps HTTP methods to actions:
         HEAD -> list
         HEAD -> retrieve
@@ -33,7 +33,7 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         DELETE -> destroy
 
     Args:
-        viewsets.ModelViewSet (_type_): Builtin superclass for a CustomerViewSet.
+        viewsets.ModelViewSet (_type_): Builtin superclass for a ShowroomViewSet.
     """
 
     queryset: ClassVar[QuerySet[ShowroomModel]] = ShowroomModel.objects.all()

@@ -13,20 +13,20 @@ class CustomerSerializer(serializers.ModelSerializer):
     CustomerSerializer: Serializes customer json to py-native types and vice versa.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+        serializers.ModelSerializer (_type_): Builtin superclass for a CustomerSerializer.
     """
 
     class Meta:
         model: ClassVar[type[CustomerModel]] = CustomerModel
 
-        fields: list = [
+        fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
             'balance',
         ]
 
-        read_only_fields: list = [
+        read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -38,13 +38,13 @@ class CustomerHistorySerializer(serializers.ModelSerializer):
     CustomerHistorySerializer: Serializes customer history json to py-native types and vice versa.
 
     Args:
-        serializers.ModelSerializer (_type_): Builtin superclass for a CarSerliazer.
+        serializers.ModelSerializer (_type_): Builtin superclass for a CustomerHistorySerializer.
     """
 
     class Meta:
         model: ClassVar[type[CustomerModel]] = CustomerHistory
 
-        fields: list = [
+        fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
@@ -54,7 +54,7 @@ class CustomerHistorySerializer(serializers.ModelSerializer):
             'showroom',
         ]
 
-        read_only_fields: list = [
+        read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
