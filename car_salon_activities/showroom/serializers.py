@@ -5,7 +5,7 @@ serializers.py: File, containing serializers for a showroom application.
 
 from typing import ClassVar
 from rest_framework import serializers
-from showroom.models import ShowroomModel, ShowroomHistory, ShowroomCarDiscount
+from showroom.models import ShowroomCar, ShowroomModel, ShowroomHistory, ShowroomCarDiscount
 
 
 class ShowroomSerializer(serializers.ModelSerializer):
@@ -64,12 +64,45 @@ class ShowroomCarDiscountSerializer(serializers.ModelSerializer):
             'start_date',
             'finish_date',
             'showroom',
+            'cars',
         ]
 
         read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
+        ]
+
+
+class ShowroomCarSerializer(serializers.ModelSerializer):
+    """
+    ShowroomCarSerializer: Serializes showroom car json to py-native types and vice versa.
+
+    Args:
+        serializers.ModelSerializer (_type_): Builtin superclass for a ShowroomCarSerializer.
+    """
+
+    class Meta:
+        model: ClassVar[type[ShowroomCar]] = ShowroomCar
+
+        fields: ClassVar[list] = [
+            'created_at',
+            'last_updated',
+            'is_active',
+            'price',
+            'showroom',
+            'car',
+            'user',
+        ]
+
+        read_only_fields: ClassVar[list] = [
+            'created_at',
+            'last_updated',
+            'is_active',
+            'price',
+            'showroom',
+            'car',
+            'user',
         ]
 
 

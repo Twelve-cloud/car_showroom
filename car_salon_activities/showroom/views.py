@@ -14,6 +14,7 @@ from showroom.models import ShowroomModel
 from showroom.services import ShowroomService
 from showroom.serializers import (
     ShowroomSerializer,
+    ShowroomCarSerializer,
     ShowroomHistorySerializer,
     ShowroomCarDiscountSerializer,
 )
@@ -72,8 +73,8 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         """
 
         showroom: ShowroomModel = self.get_object()
-        history = showroom.history.all()
-        serializer: ShowroomSerializer = self.get_serializer(history, many=True)
+        history: QuerySet = showroom.history.all()
+        serializer: ShowroomHistorySerializer = self.get_serializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['post'], detail=True, serializer_class=ShowroomCarDiscountSerializer)
@@ -93,3 +94,39 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True, serializer_class=ShowroomCarDiscountSerializer)
+    def get_discounts(self, request: Request, pk: int) -> Response:
+        """
+        get_statistics: Returns discounts of the showroom.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Showroom's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403.
+        """
+
+        showroom: ShowroomModel = self.get_object()
+        discounts: QuerySet = showroom.discounts.all()
+        serializer: ShowroomHistorySerializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True, serializer_class=ShowroomCarSerializer)
+    def get_cars(self, request: Request, pk: int) -> Response:
+        """
+        get_cars: Returns cars of the showroom.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Showrooms's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403.
+        """
+
+        showroom: ShowroomModel = self.get_object()
+        cars: QuerySet = showroom.cars.all()
+        serializer: ShowroomCarSerializer = self.get_serializer(cars, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

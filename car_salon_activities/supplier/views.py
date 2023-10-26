@@ -14,6 +14,7 @@ from supplier.models import SupplierModel
 from supplier.services import SupplierService
 from supplier.serializers import (
     SupplierSerializer,
+    SupplierCarSerializer,
     SupplierHistorySerializer,
     SupplierCarDiscountSerializer,
 )
@@ -72,8 +73,8 @@ class SupplierViewSet(viewsets.ModelViewSet):
         """
 
         supplier: SupplierModel = self.get_object()
-        history = supplier.history.all()
-        serializer: SupplierSerializer = self.get_serializer(history, many=True)
+        history: QuerySet = supplier.history.all()
+        serializer: SupplierHistorySerializer = self.get_serializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['post'], detail=True, serializer_class=SupplierCarDiscountSerializer)
@@ -93,3 +94,39 @@ class SupplierViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True, serializer_class=SupplierCarDiscountSerializer)
+    def get_discounts(self, request: Request, pk: int) -> Response:
+        """
+        get_discounts: Return discounts of the supplier.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Supplier's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403.
+        """
+
+        supplier: SupplierModel = self.get_object()
+        discounts: QuerySet = supplier.discounts.all()
+        serializer: SupplierCarDiscountSerializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True, serializer_class=SupplierCarSerializer)
+    def get_cars(self, request: Request, pk: int) -> Response:
+        """
+        get_cars: Returns cars of the supplier.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Supplier's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403.
+        """
+
+        supplier: SupplierModel = self.get_object()
+        cars: QuerySet = supplier.cars.all()
+        serializer: SupplierCarSerializer = self.get_serializer(cars, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

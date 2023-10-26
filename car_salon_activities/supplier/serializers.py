@@ -5,7 +5,7 @@ serializers.py: File, containing serializers for a supplier application.
 
 from typing import ClassVar
 from rest_framework import serializers
-from supplier.models import SupplierModel, SupplierHistory, SupplierCarDiscount
+from supplier.models import SupplierCar, SupplierModel, SupplierHistory, SupplierCarDiscount
 
 
 class SupplierSerializer(serializers.ModelSerializer):
@@ -61,12 +61,43 @@ class SupplierCarDiscountSerializer(serializers.ModelSerializer):
             'start_date',
             'finish_date',
             'supplier',
+            'cars',
         ]
 
         read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
+        ]
+
+
+class SupplierCarSerializer(serializers.ModelSerializer):
+    """
+    SupplierCarSerializer: Serializes supplier car json to py-native types and vice versa.
+
+    Args:
+        serializers.ModelSerializer (_type_): Builtin superclass for a SupplierCarSerializer.
+    """
+
+    class Meta:
+        model: ClassVar[type[SupplierCar]] = SupplierCar
+
+        fields: ClassVar[list] = [
+            'created_at',
+            'last_updated',
+            'is_active',
+            'price',
+            'supplier',
+            'car',
+        ]
+
+        read_only_fields: ClassVar[list] = [
+            'created_at',
+            'last_updated',
+            'is_active',
+            'price',
+            'supplier',
+            'car',
         ]
 
 
