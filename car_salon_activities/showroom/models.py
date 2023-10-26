@@ -126,6 +126,14 @@ class ShowroomCarDiscount(BaseModel):
         verbose_name='showroom which provides discount',
     )
 
+    cars = models.ManyToManyField(
+        CarModel,
+        symmetrical=False,
+        related_name='showroom_discounts',
+        related_query_name='showroom_discounts',
+        verbose_name='cars with discounts',
+    )
+
     class Meta:
         verbose_name: ClassVar[str] = 'Showroom discount'
         verbose_name_plural: ClassVar[str] = 'Showroom discounts.'
@@ -155,14 +163,12 @@ class ShowroomCar(BaseModel):
         verbose_name='showroom that owns cars',
     )
 
-    discount = models.ForeignKey(
-        ShowroomCarDiscount,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='cars',
-        related_query_name='cars',
-        verbose_name='car discount',
+    car = models.ForeignKey(
+        CarModel,
+        on_delete=models.CASCADE,
+        related_name='showroom_cars',
+        related_query_name='showroom_cars',
+        verbose_name='showroom car',
     )
 
     user = models.ForeignKey(

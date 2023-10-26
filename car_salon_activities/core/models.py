@@ -54,7 +54,6 @@ class CarModel(BaseModel):
         AUDI: tuple[str, str] = 'audi', 'Audi'
         BMW: tuple[str, str] = 'bmw', 'BMW'
         TESLA: tuple[str, str] = 'tesla', 'Tesla'
-        __empty__: str = 'Choose brand of the car.'
 
     class TransmissionTypes(models.TextChoices):
         """
@@ -66,7 +65,6 @@ class CarModel(BaseModel):
 
         MANUAL: tuple[str, str] = 'manual', 'Manual'
         AUTO: tuple[str, str] = 'auto', 'Automatic'
-        __empty__: str = 'Choose transmission type of the car.'
 
     brand = models.CharField(
         max_length=50,

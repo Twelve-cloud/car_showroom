@@ -6,7 +6,7 @@ models.py: File, containing models for supplier app.
 from typing import ClassVar
 from django.db import models
 from django.core import validators
-from core.models import BaseModel
+from core.models import CarModel, BaseModel
 
 
 class SupplierModel(BaseModel):
@@ -99,6 +99,14 @@ class SupplierCarDiscount(BaseModel):
         verbose_name='supplier which provides discount',
     )
 
+    cars = models.ManyToManyField(
+        CarModel,
+        symmetrical=False,
+        related_name='supplier_discounts',
+        related_query_name='supplier_discounts',
+        verbose_name='cars with discounts',
+    )
+
     class Meta:
         verbose_name: ClassVar[str] = 'Supplier discount'
         verbose_name_plural: ClassVar[str] = 'Supplier discounts'
@@ -128,14 +136,12 @@ class SupplierCar(BaseModel):
         verbose_name='supplier that owns cars',
     )
 
-    discount = models.ForeignKey(
-        SupplierCarDiscount,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='cars',
-        related_query_name='cars',
-        verbose_name='car discount',
+    car = models.ForeignKey(
+        CarModel,
+        on_delete=models.CASCADE,
+        related_name='supplier_cars',
+        related_query_name='supplier_cars',
+        verbose_name='supplier car',
     )
 
     class Meta:
