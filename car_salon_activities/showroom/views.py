@@ -45,6 +45,15 @@ class ShowroomViewSet(viewsets.ModelViewSet):
 
     permission_classes: ClassVar[list] = [IsAdminUser]
 
+    def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cars = self.service.find_appropriate_cars(request.data)
+        showroom = serializer.save()
+        self.service.add_appropriate_cars(showroom, cars)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         destroy: Instead of deleting from database this method set showrooms's is_active to False.
@@ -59,24 +68,6 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         self.service.delete_showroom(self.get_object())
         return Response(status=status.HTTP_204_NO_RESPONSE)
 
-    @action(methods=['get'], detail=True, serializer_class=ShowroomHistorySerializer)
-    def get_statistics(self, request: Request, pk: int) -> Response:
-        """
-        get_statistics: Returns statistics for showrooms's operations.
-
-        Args:
-            request (Request): Request instance.
-            pk (int): Showroom's pk.
-
-        Returns:
-            Response: HTTP 200 if has permissions otherwise 401/403.
-        """
-
-        showroom: ShowroomModel = self.get_object()
-        history: QuerySet = showroom.history.all()
-        serializer: ShowroomHistorySerializer = self.get_serializer(history, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(methods=['post'], detail=True, serializer_class=ShowroomCarDiscountSerializer)
     def make_discount(self, request: Request, pk: int) -> Response:
         """
@@ -90,9 +81,10 @@ class ShowroomViewSet(viewsets.ModelViewSet):
             Response: HTTP 200 if has permissions otherwise 401/403.
         """
 
+        showroom = self.get_object()
         serializer: ShowroomCarDiscountSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(showroom=showroom)
         return Response(serializer.data, status.HTTP_200_OK)
 
     @action(methods=['get'], detail=True, serializer_class=ShowroomCarDiscountSerializer)
@@ -111,6 +103,24 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         showroom: ShowroomModel = self.get_object()
         discounts: QuerySet = showroom.discounts.all()
         serializer: ShowroomHistorySerializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True, serializer_class=ShowroomHistorySerializer)
+    def get_statistics(self, request: Request, pk: int) -> Response:
+        """
+        get_statistics: Returns statistics for showrooms's operations.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Showroom's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403.
+        """
+
+        showroom: ShowroomModel = self.get_object()
+        history: QuerySet = showroom.history.all()
+        serializer: ShowroomHistorySerializer = self.get_serializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['get'], detail=True, serializer_class=ShowroomCarSerializer)

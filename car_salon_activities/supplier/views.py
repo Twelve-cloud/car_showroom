@@ -59,24 +59,6 @@ class SupplierViewSet(viewsets.ModelViewSet):
         self.service.delete_supplier(self.get_object())
         return Response(status=status.HTTP_204_NO_RESPONSE)
 
-    @action(methods=['get'], detail=True, serializer_class=SupplierHistorySerializer)
-    def get_statistics(self, request: Request, pk: int) -> Response:
-        """
-        get_statistics: Returns statistics for suppliers's operations.
-
-        Args:
-            request (Request): Request instance.
-            pk (int): Supplier's pk.
-
-        Returns:
-            Response: HTTP 200 if has permissions otherwise 401/403.
-        """
-
-        supplier: SupplierModel = self.get_object()
-        history: QuerySet = supplier.history.all()
-        serializer: SupplierHistorySerializer = self.get_serializer(history, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(methods=['post'], detail=True, serializer_class=SupplierCarDiscountSerializer)
     def make_discount(self, request: Request, pk: int) -> Response:
         """
@@ -90,9 +72,10 @@ class SupplierViewSet(viewsets.ModelViewSet):
             Response: HTTP 200 if has permissions otherwise 401/403.
         """
 
+        supplier = self.get_object()
         serializer: SupplierCarDiscountSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(supplier=supplier)
         return Response(serializer.data, status.HTTP_200_OK)
 
     @action(methods=['get'], detail=True, serializer_class=SupplierCarDiscountSerializer)
@@ -111,6 +94,24 @@ class SupplierViewSet(viewsets.ModelViewSet):
         supplier: SupplierModel = self.get_object()
         discounts: QuerySet = supplier.discounts.all()
         serializer: SupplierCarDiscountSerializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True, serializer_class=SupplierHistorySerializer)
+    def get_statistics(self, request: Request, pk: int) -> Response:
+        """
+        get_statistics: Returns statistics for suppliers's operations.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Supplier's pk.
+
+        Returns:
+            Response: HTTP 200 if has permissions otherwise 401/403.
+        """
+
+        supplier: SupplierModel = self.get_object()
+        history: QuerySet = supplier.history.all()
+        serializer: SupplierHistorySerializer = self.get_serializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['get'], detail=True, serializer_class=SupplierCarSerializer)

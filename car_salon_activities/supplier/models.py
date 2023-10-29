@@ -19,6 +19,7 @@ class SupplierModel(BaseModel):
 
     name = models.CharField(
         max_length=50,
+        unique=True,
         verbose_name='name of the supplier',
     )
 

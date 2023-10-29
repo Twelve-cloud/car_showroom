@@ -71,7 +71,27 @@ class ShowroomCarDiscountSerializer(serializers.ModelSerializer):
             'created_at',
             'last_updated',
             'is_active',
+            'showroom',
         ]
+
+    def validate(self, data: dict) -> dict:
+        """
+        validate: Validates showroom car discount.
+
+        Args:
+            data (dict): Non-validated data.
+
+        Raises:
+            serializers.SerializerError: When start date more than finish date.
+
+        Returns:
+            dict: Validated data.
+        """
+
+        if data['start_date'] >= data['finish_date']:
+            raise serializers.ValidationError('Start date must be less than finish date')
+
+        return data
 
 
 class ShowroomCarSerializer(serializers.ModelSerializer):

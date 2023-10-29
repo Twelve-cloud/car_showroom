@@ -294,10 +294,16 @@ CELERY_BEAT_SCHEDULE: dict = {
     'clear-every-day': {
         'task': 'jauth.tasks.clear_database_from_waste_accounts',
         'schedule': crontab(
-            minute=os.getenv('CELERY_CLEAR_EVERY_DAY_CRON_MIN'),
-            hour=os.getenv('CELERY_CLEAR_EVERY_DAY_CRON_HOUR'),
+            minute=os.getenv('CELERY_DELETE_ACCOUNTS_CRON_MIN'),
+            hour=os.getenv('CELERY_DELETE_ACCOUNTS_CRON_HOUR'),
         ),
-    }
+    },
+    'delete_discounts_every_minute': {
+        'task': 'core.tasks.delete_finished_discounts',
+        'schedule': crontab(
+            minute=os.getenv('CELERY_DELETE_DISCOUNTS_CRON_MIN'),
+        ),
+    },
 }
 
 # ---------------------- DJANGO DEBUG TOOLBAR SETTINGS -------------------------
