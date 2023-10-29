@@ -24,12 +24,14 @@ class CustomerSerializer(serializers.ModelSerializer):
             'last_updated',
             'is_active',
             'balance',
+            'cars',
         ]
 
         read_only_fields: ClassVar[list] = [
             'created_at',
             'last_updated',
             'is_active',
+            'cars',
         ]
 
 

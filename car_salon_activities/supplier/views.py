@@ -72,7 +72,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
             Response: HTTP 200 if has permissions otherwise 401/403.
         """
 
-        supplier = self.get_object()
+        supplier: SupplierModel = self.get_object()
         serializer: SupplierCarDiscountSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(supplier=supplier)

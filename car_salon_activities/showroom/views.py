@@ -3,7 +3,7 @@ views.py: File, containing views for a showroom application.
 """
 
 
-from typing import ClassVar
+from typing import ClassVar, Iterable
 from rest_framework import status, viewsets
 from django.db.models.query import QuerySet
 from rest_framework.request import Request
@@ -46,13 +46,48 @@ class ShowroomViewSet(viewsets.ModelViewSet):
     permission_classes: ClassVar[list] = [IsAdminUser]
 
     def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
-        serializer = self.get_serializer(data=request.data)
+        """
+        create: Creates showroom, finds appropriates cars and suppliers for showroom.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: HTTP 201 if everything is correct, otherwise HTTP 400/401/403.
+        """
+
+        serializer: ShowroomSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        cars = self.service.find_appropriate_cars(request.data)
-        showroom = serializer.save()
+
+        cars: Iterable = self.service.find_appropriate_cars(request.data)
+        showroom: ShowroomModel = serializer.save()
         self.service.add_appropriate_cars(showroom, cars)
-        headers = self.get_success_headers(serializer.data)
+
+        # self.service.find_appropriate_suppliers(showroom)
+
+        headers: dict = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
+        """
+        update: Updates showroom and if charts is updated then finds appropriate cars and suppliers.
+
+        Args:
+            request (Request): Request instance.
+
+        Returns:
+            Response: Response instance.
+        """
+
+        if 'charts' in request.data:
+            cars: Iterable = self.service.find_appropriate_cars(request.data)
+            showroom: ShowroomModel = self.get_object()
+            self.service.add_appropriate_cars(showroom, cars)
+
+            # self.service.find_appropriate_suppliers(showroom)
+
+        response: Response = super().update(request, *args, **kwargs)
+        return response
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
@@ -81,7 +116,7 @@ class ShowroomViewSet(viewsets.ModelViewSet):
             Response: HTTP 200 if has permissions otherwise 401/403.
         """
 
-        showroom = self.get_object()
+        showroom: ShowroomModel = self.get_object()
         serializer: ShowroomCarDiscountSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(showroom=showroom)
