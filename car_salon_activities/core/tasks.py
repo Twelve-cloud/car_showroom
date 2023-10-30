@@ -112,6 +112,16 @@ def check_suppliers() -> None:
 
 
 def normalize(showroom: ShowroomModel) -> list[tuple[CarModel, SupplierHistory]]:
+    """
+    normalize: Returns cars with suppliers that are solding these cats.
+
+    Args:
+        showroom (ShowroomModel): Showroom instance.
+
+    Returns:
+        list[tuple[CarModel, SupplierHistory]]: List where elements are (car, supplier).
+    """
+
     return [
         (car, supplier)
         for car, supplier in zip(showroom.appropriate_cars.all(), showroom.current_suppliers.all())
@@ -119,9 +129,24 @@ def normalize(showroom: ShowroomModel) -> list[tuple[CarModel, SupplierHistory]]
 
 
 def get_cars_with_suppliers_by_priority(showroom: ShowroomModel, cars_to_suppliers: list) -> list:
+    """
+    get_cars_with_suppliers_by_priority: Returns cars with supplier by priority.
+
+    Args:
+        showroom (ShowroomModel): Showroom instance.
+        cars_to_suppliers (list): List with cars and suppliers.
+
+    Returns:
+        list: Ordered by priority list with cars and suppliers.
+    """
+
     priority_to_car: dict = {}
 
-    for history_entry in ShowroomHistory.objects.filter(showroom=showroom).annotate(Count('car')):
+    for history_entry in (
+        ShowroomHistory.objects.select_related('car')
+        .filter(showroom=showroom, is_active=True)
+        .annotate(Count('car'))
+    ):
         priority_to_car[history_entry.car__count] = history_entry.car
 
     cars_by_priority: list = [priority_to_car[priority] for priority in sorted(priority_to_car)]
@@ -145,25 +170,58 @@ def get_cars_with_suppliers_by_priority(showroom: ShowroomModel, cars_to_supplie
 
 
 def get_unique_showroom_discount(showroom: ShowroomModel, supplier: SupplierModel) -> float:
+    """
+    get_unique_showroom_discount: Returns unique discount for showroom if it has it otherwise 1.
+
+    Args:
+        showroom (ShowroomModel): Showroom instance.
+        supplier (SupplierModel): Supplier instance.
+
+    Returns:
+        float: Showroom unique discount.
+    """
+
     if supplier.number_of_sales <= len(showroom.supplier_history.all()):
         return supplier.discount_for_unique_customers
     return 1
 
 
-def get_car_details_with_max_discount(car: CarModel) -> tuple[CarModel, float]:
-    discount = min(
-        SupplierCarDiscount.objects.filter(cars__pk=car.pk, is_active=True),
-        key=lambda discount: discount.precent,
-    )
+def get_car_details_with_max_discount(car: CarModel) -> tuple[CarModel, float] | tuple[None, None]:
+    """
+    get_car_details_with_max_discount: Returns cheapest car and discount of that car or None.
 
-    supplier, max_precent = discount.supplier, discount.precent
-    supplier_car = SupplierCar.objects.filter(supplier=supplier, car=car).first()
+    Args:
+        car (CarModel): Car instance.
 
-    return supplier_car, max_precent
+    Returns:
+        tuple[CarModel, float]: Car and its discount.
+    """
+
+    try:
+        discount: SupplierCarDiscount = min(
+            SupplierCarDiscount.objects.select_related('supplier').filter(
+                cars__pk=car.pk, is_active=True
+            ),
+            key=lambda discount: discount.precent,
+        )
+
+        supplier, max_precent = discount.supplier, discount.precent
+        supplier_car: SupplierCar = (
+            SupplierCar.objects.select_related('supplier')
+            .filter(supplier=supplier, car=car)
+            .first()
+        )
+        return supplier_car, max_precent
+    except ValueError:
+        return None, None
 
 
 @shared_task
 def buy_supplier_cars() -> None:
+    """
+    buy_supplier_cars: Buys supplier cars for each showroom.
+    """
+
     for showroom in ShowroomModel.objects.all():
         cars_to_suppliers: list = normalize(showroom)
 
@@ -171,29 +229,31 @@ def buy_supplier_cars() -> None:
             showroom, cars_to_suppliers
         )
 
-        for car, supplier in cars_with_suppliers_by_priority[:1]:
-            supplier_car: SupplierCar = supplier.cars.filter(car=car).first()
+        for car, supplier in cars_with_suppliers_by_priority:
+            supplier_car: SupplierCar = supplier.cars.filter(car=car, is_active=True).first()
             unique_showoom_discount: float = get_unique_showroom_discount(showroom, supplier)
             car_with_max_discount, discount = get_car_details_with_max_discount(car)
 
             if (
-                supplier_car.price * unique_showoom_discount
+                car_with_max_discount is None
+                or supplier_car.price * unique_showoom_discount
                 < car_with_max_discount.price * discount
             ):
-                price = supplier_car.price * unique_showoom_discount
-                chosen_car = supplier_car
-                chosen_supplier = supplier
+                price: float = supplier_car.price * unique_showoom_discount
+                chosen_car: SupplierCar = supplier_car
+                chosen_supplier: SupplierModel = supplier
             else:
                 price = car_with_max_discount.price * discount
                 chosen_car = car_with_max_discount
                 chosen_supplier = car_with_max_discount.supplier
 
             if showroom.balance > price:
-                showroom_car = ShowroomCar.objects.create(
+                showroom_car: ShowroomCar = ShowroomCar.objects.create(
                     car=chosen_car.car, price=price, showroom=showroom, user=None
                 )
                 showroom.cars.add(showroom_car)
                 showroom.balance -= price
+                showroom.save()
 
                 history: SupplierHistory = SupplierHistory.objects.create(
                     supplier=chosen_supplier, car=car, sale_price=price, showroom=showroom

@@ -183,7 +183,7 @@ LOGGING: dict = {
         },
         'django.db.backends': {
             'handlers': ['console_dev', 'console_prd', 'mail_prd'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django.request': {
@@ -307,14 +307,13 @@ CELERY_BEAT_SCHEDULE: dict = {
     'check_suppliers_every_hour': {
         'task': 'core.tasks.check_suppliers',
         'schedule': crontab(
-            # hour=os.getenv('CELERY_CHECK_SUPPLIERS_CRON_HOUR'),
-            minute='*',
+            hour=os.getenv('CELERY_CHECK_SUPPLIERS_CRON_HOUR'),
         ),
     },
     'buy_supplier_cars_every_ten_minutes': {
         'task': 'core.tasks.buy_supplier_cars',
         'schedule': crontab(
-            minute='*',
+            minute=os.getenv('CELERY_BUY_SUPPLIER_CARS_CRON_MIN'),
         ),
     },
 }
