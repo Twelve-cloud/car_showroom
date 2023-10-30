@@ -62,8 +62,7 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         cars: Iterable = self.service.find_appropriate_cars(request.data)
         showroom: ShowroomModel = serializer.save()
         self.service.add_appropriate_cars(showroom, cars)
-
-        # self.service.find_appropriate_suppliers(showroom)
+        self.service.find_appropriate_suppliers(showroom)
 
         headers: dict = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -83,8 +82,7 @@ class ShowroomViewSet(viewsets.ModelViewSet):
             cars: Iterable = self.service.find_appropriate_cars(request.data)
             showroom: ShowroomModel = self.get_object()
             self.service.add_appropriate_cars(showroom, cars)
-
-            # self.service.find_appropriate_suppliers(showroom)
+            self.service.find_appropriate_suppliers(showroom)
 
         response: Response = super().update(request, *args, **kwargs)
         return response
@@ -101,7 +99,7 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         """
 
         self.service.delete_showroom(self.get_object())
-        return Response(status=status.HTTP_204_NO_RESPONSE)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['post'], detail=True, serializer_class=ShowroomCarDiscountSerializer)
     def make_discount(self, request: Request, pk: int) -> Response:

@@ -2,6 +2,7 @@
 urls.py: File, containing routes for a core application.
 """
 
+
 from rest_framework.routers import SimpleRouter
 from core import views
 

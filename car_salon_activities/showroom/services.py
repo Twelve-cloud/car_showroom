@@ -6,6 +6,7 @@ sevices.py: File, containing services for a showroom application.
 import json
 from typing import Iterable
 from rest_framework.exceptions import ParseError
+from core.tasks import find_suppliers
 from core.models import CarModel
 from showroom.models import ShowroomModel
 
@@ -52,6 +53,16 @@ class ShowroomService:
         showroom.appropriate_cars.clear()
         showroom.appropriate_cars.add(*cars)
 
+    def find_appropriate_suppliers(self, showroom: ShowroomModel) -> None:
+        """
+        find_appropriate_suppliers: Finds appropriate supplier for the showroom.
+
+        Args:
+            showroom (ShowroomModel): Showroom instance.
+        """
+
+        find_suppliers.delay(showroom.pk)
+
     def delete_showroom(self, showroom: ShowroomModel) -> None:
         """
         delete_showroom: Sets showroom's is_active field to False.
@@ -62,3 +73,15 @@ class ShowroomService:
 
         showroom.is_active = False
         showroom.save()
+
+        for discount in showroom.discounts.all():
+            discount.is_active = False
+            discount.save()
+
+        for car in showroom.cars.all():
+            car.is_active = False
+            car.save()
+
+        for history_entry in showroom.history.all():
+            history_entry.is_active = False
+            history_entry.save()

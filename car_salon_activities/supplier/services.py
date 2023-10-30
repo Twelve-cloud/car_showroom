@@ -21,3 +21,15 @@ class SupplierService:
 
         supplier.is_active = False
         supplier.save()
+
+        for discount in supplier.discounts.all():
+            discount.is_active = False
+            discount.save()
+
+        for car in supplier.cars.all():
+            car.is_active = False
+            car.save()
+
+        for history_entry in supplier.history.all():
+            history_entry.is_active = False
+            history_entry.save()

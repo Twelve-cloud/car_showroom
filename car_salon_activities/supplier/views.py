@@ -57,7 +57,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
         """
 
         self.service.delete_supplier(self.get_object())
-        return Response(status=status.HTTP_204_NO_RESPONSE)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['post'], detail=True, serializer_class=SupplierCarDiscountSerializer)
     def make_discount(self, request: Request, pk: int) -> Response:

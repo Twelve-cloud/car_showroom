@@ -304,6 +304,12 @@ CELERY_BEAT_SCHEDULE: dict = {
             minute=os.getenv('CELERY_DELETE_DISCOUNTS_CRON_MIN'),
         ),
     },
+    'check_suppliers_every_hour': {
+        'task': 'core.tasks.check_suppliers',
+        'schedule': crontab(
+            hour=os.getenv('CELERY_CHECK_SUPPLIERS_CRON_HOUR'),
+        ),
+    },
 }
 
 # ---------------------- DJANGO DEBUG TOOLBAR SETTINGS -------------------------
