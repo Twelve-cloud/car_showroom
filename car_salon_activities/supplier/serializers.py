@@ -29,6 +29,7 @@ class SupplierSerializer(serializers.ModelSerializer):
             'number_of_sales',
             'discount_for_unique_customers',
             'showrooms',
+            'cars',
         ]
 
         read_only_fields: ClassVar[list] = [
@@ -37,6 +38,7 @@ class SupplierSerializer(serializers.ModelSerializer):
             'is_active',
             'customers_count',
             'showrooms',
+            'cars',
         ]
 
 

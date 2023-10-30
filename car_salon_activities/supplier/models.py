@@ -7,6 +7,7 @@ from typing import ClassVar
 from django.db import models
 from django.core import validators
 from core.models import CarModel, BaseModel
+from showroom.models import ShowroomModel
 
 
 class SupplierModel(BaseModel):
@@ -32,6 +33,14 @@ class SupplierModel(BaseModel):
         default=0,
         validators=[validators.MinValueValidator(0)],
         verbose_name='number of customers',
+    )
+
+    showrooms = models.ManyToManyField(
+        ShowroomModel,
+        symmetrical=False,
+        related_name='current_suppliers',
+        related_query_name='current_suppliers',
+        verbose_name='current showroomss of the supplier',
     )
 
     number_of_sales = models.PositiveIntegerField(
@@ -149,6 +158,7 @@ class SupplierCar(BaseModel):
         verbose_name: ClassVar[str] = 'Supplier car'
         verbose_name_plural: ClassVar[str] = 'Supplier cars'
         db_table: ClassVar[str] = 'SupplierCar'
+        ordering = ['price']
 
 
 class SupplierHistory(BaseModel):
@@ -167,8 +177,13 @@ class SupplierHistory(BaseModel):
         verbose_name='supplier which owns history entry',
     )
 
-    car = models.CharField(
-        max_length=50,
+    car = models.ForeignKey(
+        CarModel,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='supplier_history',
+        related_query_name='supplier_history',
         verbose_name='car',
     )
 
@@ -179,8 +194,13 @@ class SupplierHistory(BaseModel):
         verbose_name='sale price',
     )
 
-    showroom = models.CharField(
-        max_length=50,
+    showroom = models.ForeignKey(
+        ShowroomModel,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='supplier_history',
+        related_query_name='supplier_history',
         verbose_name='showroom',
     )
 

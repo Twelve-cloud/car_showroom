@@ -9,7 +9,6 @@ from django.core import validators
 from django_countries.fields import CountryField
 from core.models import CarModel, BaseModel
 from customer.models import CustomerModel
-from supplier.models import SupplierModel
 
 
 class ShowroomModel(BaseModel):
@@ -51,14 +50,6 @@ class ShowroomModel(BaseModel):
         related_name='showrooms',
         related_query_name='showrooms',
         verbose_name='appropriate cars for the showroom',
-    )
-
-    current_suppliers = models.ManyToManyField(
-        SupplierModel,
-        symmetrical=False,
-        related_name='showrooms',
-        related_query_name='showrooms',
-        verbose_name='current suppliers of the showroom',
     )
 
     number_of_sales = models.PositiveIntegerField(
@@ -205,8 +196,13 @@ class ShowroomHistory(BaseModel):
         verbose_name='showroom which owns history entry',
     )
 
-    car = models.CharField(
-        max_length=50,
+    car = models.ForeignKey(
+        CarModel,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='showroom_history',
+        related_query_name='showroom_history',
         verbose_name='car',
     )
 
@@ -217,8 +213,13 @@ class ShowroomHistory(BaseModel):
         verbose_name='sale price',
     )
 
-    customer = models.CharField(
-        max_length=50,
+    customer = models.ForeignKey(
+        CustomerModel,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='showroom_history',
+        related_query_name='showroom_history',
         verbose_name='customer',
     )
 
