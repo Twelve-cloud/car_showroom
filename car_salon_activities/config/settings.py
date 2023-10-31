@@ -103,7 +103,7 @@ USE_I18N: bool = False
 
 USE_L10N: bool = False
 
-TIME_ZONE: str = 'UTC'
+TIME_ZONE: str = 'Europe/Minsk'
 
 USE_TZ: bool = True
 
@@ -268,7 +268,7 @@ REDIS: dict = {
 # ------------------------- CELERY SETTINGS ------------------------------------
 
 CELERY_ENABLE_UTC: bool = True
-CELERY_TIMEZONE: str = 'UTC'
+CELERY_TIMEZONE: str = 'Europe/Minsk'
 
 CELERY_BROKER_URL: str = (
     f"{RABBITMQ['PROTOCOL']}://{RABBITMQ['USER']}:"

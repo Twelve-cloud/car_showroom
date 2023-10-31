@@ -6,9 +6,11 @@ views.py: File, containing views for a core application.
 from typing import ClassVar
 from rest_framework import mixins, status, viewsets
 from django.db.models.query import QuerySet
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
+from django_filters.rest_framework import DjangoFilterBackend
 from core.models import CarModel
 from core.services import CarService
 from core.serializers import CarSerializer
@@ -46,6 +48,27 @@ class CarViewSet(
     service: ClassVar[CarService] = CarService()
 
     permission_classes: ClassVar[list] = [IsAdminUser]
+
+    filter_backends: ClassVar[list] = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields: ClassVar[list] = [
+        'brand',
+        'creation_year',
+    ]
+
+    search_fields: ClassVar[list] = [
+        'brand',
+        'creation_year',
+    ]
+
+    ordering_fields: ClassVar[list] = [
+        'brand',
+        'creation_year',
+    ]
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """

@@ -10,10 +10,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from customer.models import CustomerModel
+from customer.models import CustomerModel, CustomerOffer
 from customer.services import CustomerService
 from customer.permissions import IsCustomerOwner, IsUserHasNotCustomer
-from customer.serializers import CustomerSerializer, CustomerHistorySerializer
+from customer.serializers import (
+    CustomerSerializer,
+    CustomerOfferSerializer,
+    CustomerHistorySerializer,
+)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -59,6 +63,9 @@ class CustomerViewSet(viewsets.ModelViewSet):
             IsAuthenticated & IsAdminUser,
         ],
         'get_statistics': [
+            # IsAuthenticated & (IsCustomerOwner | IsAdminUser),
+        ],
+        'make_offer': [
             IsAuthenticated & (IsCustomerOwner | IsAdminUser),
         ],
     }
@@ -128,6 +135,25 @@ class CustomerViewSet(viewsets.ModelViewSet):
         """
 
         customer: CustomerModel = self.get_object()
-        history = customer.history.all()
+        history: QuerySet = customer.history.all()
         serializer: CustomerHistorySerializer = self.get_serializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=True, serializer_class=CustomerOfferSerializer)
+    def make_offer(self, request: Request, pk: int) -> Response:
+        """
+        make_offer: Makes customer's offer.
+
+        Args:
+            request (Request): Request instance.
+            pk (int): Customer's pk.
+
+        Returns:
+            Response: Response instance.
+        """
+
+        serializer: CustomerOfferSerializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        offer: CustomerOffer = serializer.save(customer=self.get_object())
+        self.service.make_offer(offer)
+        return Response(status=status.HTTP_200_OK)

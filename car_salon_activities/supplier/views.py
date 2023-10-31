@@ -6,10 +6,12 @@ views.py: File, containing views for a supplier application.
 from typing import ClassVar
 from rest_framework import status, viewsets
 from django.db.models.query import QuerySet
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
+from django_filters.rest_framework import DjangoFilterBackend
 from supplier.models import SupplierModel
 from supplier.services import SupplierService
 from supplier.serializers import (
@@ -44,6 +46,27 @@ class SupplierViewSet(viewsets.ModelViewSet):
     service: ClassVar[SupplierService] = SupplierService()
 
     permission_classes: ClassVar[list] = [IsAdminUser]
+
+    filter_backends: ClassVar[list] = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields: ClassVar[list] = [
+        'name',
+        'creation_year',
+    ]
+
+    search_fields: ClassVar[list] = [
+        'name',
+        'creation_year',
+    ]
+
+    ordering_fields: ClassVar[list] = [
+        'name',
+        'creation_year',
+    ]
 
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """

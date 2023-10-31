@@ -3,7 +3,8 @@ sevices.py: File, containing services for a customer application.
 """
 
 
-from customer.models import CustomerModel
+from core.tasks import make_customer_offer
+from customer.models import CustomerModel, CustomerOffer
 
 
 class CustomerService:
@@ -21,3 +22,13 @@ class CustomerService:
 
         customer.is_active = False
         customer.save()
+
+    def make_offer(self, offer: CustomerOffer) -> None:
+        """
+        make_offer: Makes customer's offer.
+
+        Args:
+            offer (CustomerOffer): CustomerOffer instance.
+        """
+
+        make_customer_offer.delay(offer.id)

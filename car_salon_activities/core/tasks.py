@@ -9,6 +9,7 @@ from celery import group, shared_task
 from django.db.models import Max, Count
 from django.db.models.query import QuerySet
 from core.models import CarModel
+from customer.models import CustomerModel, CustomerOffer, CustomerHistory
 from showroom.models import ShowroomCar, ShowroomModel, ShowroomHistory, ShowroomCarDiscount
 from supplier.models import SupplierCar, SupplierModel, SupplierHistory, SupplierCarDiscount
 
@@ -186,9 +187,9 @@ def get_unique_showroom_discount(showroom: ShowroomModel, supplier: SupplierMode
     return 1
 
 
-def get_car_details_with_max_discount(car: CarModel) -> tuple[CarModel, float] | tuple[None, None]:
+def get_supplier_car_with_max_discount(car: CarModel) -> tuple[CarModel, float] | tuple[None, None]:
     """
-    get_car_details_with_max_discount: Returns cheapest car and discount of that car or None.
+    get_supplier_car_with_max_discount: Returns cheapest car and discount of that car or None.
 
     Args:
         car (CarModel): Car instance.
@@ -231,8 +232,12 @@ def buy_supplier_cars() -> None:
 
         for car, supplier in cars_with_suppliers_by_priority:
             supplier_car: SupplierCar = supplier.cars.filter(car=car, is_active=True).first()
+
+            if supplier_car is None:
+                return
+
             unique_showoom_discount: float = get_unique_showroom_discount(showroom, supplier)
-            car_with_max_discount, discount = get_car_details_with_max_discount(car)
+            car_with_max_discount, discount = get_supplier_car_with_max_discount(car)
 
             if (
                 car_with_max_discount is None
@@ -249,13 +254,128 @@ def buy_supplier_cars() -> None:
 
             if showroom.balance > price:
                 showroom_car: ShowroomCar = ShowroomCar.objects.create(
-                    car=chosen_car.car, price=price, showroom=showroom, user=None
+                    car=chosen_car.car,
+                    price=price,
+                    showroom=showroom,
+                    user=None,
                 )
                 showroom.cars.add(showroom_car)
                 showroom.balance -= price
                 showroom.save()
 
+                chosen_car.is_active = False
+                chosen_car.save()
+
                 history: SupplierHistory = SupplierHistory.objects.create(
-                    supplier=chosen_supplier, car=car, sale_price=price, showroom=showroom
+                    supplier=chosen_supplier,
+                    car=car,
+                    sale_price=price,
+                    showroom=showroom,
                 )
                 showroom.supplier_history.add(history)
+
+
+def get_unique_customer_discount(customer: CustomerModel, showroom: ShowroomModel) -> float:
+    """
+    get_unique_customer_discount: Returns unique discount for customer if it has it otherwise 1.
+
+    Args:
+        customer (CustomerModel): Customer instance.
+        showroom (ShowroomModel): Showroom instance.
+
+    Returns:
+        float: Customer unique discount.
+    """
+
+    if showroom.number_of_sales <= len(customer.showroom_history.all()):
+        return showroom.discount_for_unique_customers
+    return 1
+
+
+def get_showroom_car_with_max_discount(car: CarModel) -> tuple[CarModel, float] | tuple[None, None]:
+    """
+    get_showroom_car_with_max_discount: Returns cheapest car and discount of that car or None.
+
+    Args:
+        car (CarModel): Car instance.
+
+    Returns:
+        tuple[CarModel, float]: Car and its discount.
+    """
+
+    try:
+        discount: ShowroomCarDiscount = min(
+            ShowroomCarDiscount.objects.select_related('showroom').filter(
+                cars__pk=car.pk, is_active=True
+            ),
+            key=lambda discount: discount.precent,
+        )
+
+        showroom, max_precent = discount.showroom, discount.precent
+        showroom_car: ShowroomCar = (
+            ShowroomCar.objects.select_related('showroom')
+            .filter(showroom=showroom, car=car)
+            .first()
+        )
+        return showroom_car, max_precent
+    except ValueError:
+        return None, None
+
+
+@shared_task
+def make_customer_offer(offer_id: int) -> None:
+    """
+    make_customer_offer: Buys cars for customer if it has money.
+
+    Args:
+        offer (CustomerOffer): CustomerOffer instance.
+    """
+
+    offer = CustomerOffer.objects.get(id=offer_id)
+
+    cheapest_car: ShowroomCar = ShowroomCar.objects.filter(car=offer.car, is_active=True).first()
+
+    if not cheapest_car:
+        return
+
+    unique_customer_discount: float = get_unique_customer_discount(
+        offer.customer, cheapest_car.showroom
+    )
+    car_with_max_discount, discount = get_showroom_car_with_max_discount(offer.car)
+
+    if (
+        car_with_max_discount is None
+        or cheapest_car.price * unique_customer_discount < car_with_max_discount.price * discount
+    ):
+        price: float = cheapest_car.price * unique_customer_discount
+        chosen_car: ShowroomCar = cheapest_car
+        chosen_showroom: SupplierModel = cheapest_car.showroom
+    else:
+        price = car_with_max_discount.price * discount
+        chosen_car = car_with_max_discount
+        chosen_showroom = car_with_max_discount.showroom
+
+    customer = offer.customer
+
+    if offer.max_price > price:
+        customer.cars.add(chosen_car)
+        customer.balance -= price
+        customer.save()
+
+        chosen_car.is_active = False
+        chosen_car.save()
+
+        history: ShowroomHistory = ShowroomHistory.objects.create(
+            showroom=chosen_showroom,
+            car=chosen_car.car,
+            sale_price=price,
+            customer=customer,
+        )
+        customer.showroom_history.add(history)
+
+        CustomerHistory.objects.create(
+            customer=customer,
+            car=chosen_car.car,
+            purchase_price=price,
+            showroom=chosen_showroom.name,
+        )
