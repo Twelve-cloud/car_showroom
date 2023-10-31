@@ -5,6 +5,7 @@ views.py: File, containing views for a core application.
 
 from typing import ClassVar
 from rest_framework import mixins, status, viewsets
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models.query import QuerySet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
@@ -12,10 +13,23 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import CarModel
+from core.swagger import (
+    car_list_schema_extenstion,
+    car_create_schema_extenstion,
+    car_destroy_schema_extenstion,
+    car_retrieve_schema_extenstion,
+)
 from core.services import CarService
 from core.serializers import CarSerializer
 
 
+@extend_schema(tags=['Car'])
+@extend_schema_view(
+    list=extend_schema(**car_list_schema_extenstion),
+    create=extend_schema(**car_create_schema_extenstion),
+    destroy=extend_schema(**car_destroy_schema_extenstion),
+    retrieve=extend_schema(**car_retrieve_schema_extenstion),
+)
 class CarViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,

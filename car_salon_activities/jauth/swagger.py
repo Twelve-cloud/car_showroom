@@ -61,7 +61,7 @@ user_update_schema_extension: dict = {
 }
 
 user_partial_update_schema_extenstion: dict = {
-    'summary': 'Existing user account updated (not all fields)',
+    'summary': 'Existing user account updating (not all fields)',
     'description': """
       Updates existing user account (partially).
       If email is specified, it also sends email confirmation link to specified email address.
