@@ -178,6 +178,7 @@ class ShowroomCar(BaseModel):
         verbose_name: ClassVar[str] = 'Showroom car'
         verbose_name_plural: ClassVar[str] = 'Showroom cars'
         db_table: ClassVar[str] = 'ShowroomCar'
+        ordering = ['price']
 
 
 class ShowroomHistory(BaseModel):
