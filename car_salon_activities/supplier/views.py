@@ -5,6 +5,7 @@ views.py: File, containing views for a supplier application.
 
 from typing import ClassVar
 from rest_framework import status, viewsets
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models.query import QuerySet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
@@ -13,6 +14,18 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from supplier.models import SupplierModel
+from supplier.swagger import (
+    supplier_list_schema_extension,
+    supplier_create_schema_extension,
+    supplier_update_schema_extension,
+    supplier_destroy_schema_extension,
+    supplier_get_cars_schema_extension,
+    supplier_retrieve_schema_extension,
+    supplier_get_discounts_schema_extension,
+    supplier_make_discount_schema_extension,
+    supplier_get_statistics_schema_extension,
+    supplier_partial_update_schema_extension,
+)
 from supplier.services import SupplierService
 from supplier.serializers import (
     SupplierSerializer,
@@ -22,6 +35,19 @@ from supplier.serializers import (
 )
 
 
+@extend_schema(tags=['Supplier'])
+@extend_schema_view(
+    list=extend_schema(**supplier_list_schema_extension),
+    update=extend_schema(**supplier_update_schema_extension),
+    create=extend_schema(**supplier_create_schema_extension),
+    destroy=extend_schema(**supplier_destroy_schema_extension),
+    retrieve=extend_schema(**supplier_retrieve_schema_extension),
+    partial_update=extend_schema(**supplier_partial_update_schema_extension),
+    make_discount=extend_schema(**supplier_make_discount_schema_extension),
+    get_discounts=extend_schema(**supplier_get_discounts_schema_extension),
+    get_statistics=extend_schema(**supplier_get_statistics_schema_extension),
+    get_cars=extend_schema(**supplier_get_cars_schema_extension),
+)
 class SupplierViewSet(viewsets.ModelViewSet):
     """
     SupplierViewSet: Handling every action for a Supplier resource.

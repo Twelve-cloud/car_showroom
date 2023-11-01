@@ -1,5 +1,5 @@
 """
-swagger.py: File, containg schema extenstions for extend schema decorator.
+swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
 
@@ -8,7 +8,7 @@ from drf_spectacular.utils import OpenApiResponse, inline_serializer
 from core.serializers import CarSerializer
 
 
-car_create_schema_extenstion: dict = {
+car_create_schema_extension: dict = {
     'summary': 'New car creating',
     'description': """
       Creates new car.
@@ -23,7 +23,7 @@ car_create_schema_extenstion: dict = {
     },
 }
 
-car_list_schema_extenstion: dict = {
+car_list_schema_extension: dict = {
     'summary': 'Showing all cars',
     'description': """
       Shows all cars.
@@ -49,7 +49,7 @@ car_list_schema_extenstion: dict = {
     },
 }
 
-car_retrieve_schema_extenstion: dict = {
+car_retrieve_schema_extension: dict = {
     'summary': 'Showing concrete car',
     'description': """
       Shows information about concrete car.
@@ -75,7 +75,7 @@ car_retrieve_schema_extenstion: dict = {
     },
 }
 
-car_destroy_schema_extenstion: dict = {
+car_destroy_schema_extension: dict = {
     'summary': 'Deactivating car',
     'description': """
       Deactivates car. Marks car as inactive insted of deleting it from database.

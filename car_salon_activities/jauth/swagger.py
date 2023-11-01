@@ -1,5 +1,5 @@
 """
-swagger.py: File, containg schema extenstions for extend schema decorator.
+swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
 
@@ -8,7 +8,7 @@ from drf_spectacular.utils import OpenApiResponse, inline_serializer
 from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
 
-user_create_schema_extenstion: dict = {
+user_create_schema_extension: dict = {
     'summary': 'New user account creating',
     'description': """
       Creates new User account. After that sends email confirmation link to specified email address.
@@ -60,7 +60,7 @@ user_update_schema_extension: dict = {
     },
 }
 
-user_partial_update_schema_extenstion: dict = {
+user_partial_update_schema_extension: dict = {
     'summary': 'Existing user account updating (not all fields)',
     'description': """
       Updates existing user account (partially).
@@ -94,7 +94,7 @@ user_partial_update_schema_extenstion: dict = {
     },
 }
 
-user_list_schema_extenstion: dict = {
+user_list_schema_extension: dict = {
     'summary': 'Showing all users',
     'description': """
       Shows all users.
@@ -120,7 +120,7 @@ user_list_schema_extenstion: dict = {
     },
 }
 
-user_retrieve_schema_extenstion: dict = {
+user_retrieve_schema_extension: dict = {
     'summary': 'Showing concrete user',
     'description': """
       Shows information about concrete user.
@@ -146,7 +146,7 @@ user_retrieve_schema_extenstion: dict = {
     },
 }
 
-user_destroy_schema_extenstion: dict = {
+user_destroy_schema_extension: dict = {
     'summary': 'Deactivating user account',
     'description': """
       Deactivates user account.
@@ -176,7 +176,7 @@ user_destroy_schema_extenstion: dict = {
     },
 }
 
-user_confirm_email_schema_extenstion: dict = {
+user_confirm_email_schema_extension: dict = {
     'summary': 'Confirming email address of the user',
     'description': """
       Checks confirmation token and if it is OK, then set user as virified.
@@ -198,7 +198,7 @@ user_confirm_email_schema_extenstion: dict = {
     },
 }
 
-user_reset_password_schema_extenstion: dict = {
+user_reset_password_schema_extension: dict = {
     'summary': 'Requesting to reset password of the user',
     'description': """
       Requesting to reset password of the user. User email is in urlpath.
@@ -216,7 +216,7 @@ user_reset_password_schema_extenstion: dict = {
     },
 }
 
-user_reset_password_confirm_schema_extenstion: dict = {
+user_reset_password_confirm_schema_extension: dict = {
     'summary': 'Confirming reset password of the user',
     'description': """
       Confirming password reset. Token is in urlpath. New password is in body.
@@ -238,7 +238,7 @@ user_reset_password_confirm_schema_extenstion: dict = {
     },
 }
 
-token_create_schema_extenstion: dict = {
+token_create_schema_extension: dict = {
     'summary': 'Creating a pair of token (access and refresh).',
     'description': """
       Creates new pair of token in order to authenticate.
@@ -263,7 +263,7 @@ token_create_schema_extenstion: dict = {
     },
 }
 
-token_refresh_schema_extenstion: dict = {
+token_refresh_schema_extension: dict = {
     'summary': 'Refreshing a pair of token.',
     'description': """
     Refreshes expired access token and sends new pair of token.

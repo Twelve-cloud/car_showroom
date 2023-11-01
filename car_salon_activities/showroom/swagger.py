@@ -1,67 +1,41 @@
-"""
+"""Showroom
 swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
 
 from rest_framework import status, serializers
 from drf_spectacular.utils import OpenApiResponse, inline_serializer
-from customer.serializers import CustomerSerializer, CustomerHistorySerializer
+from showroom.serializers import (
+    ShowroomSerializer,
+    ShowroomCarSerializer,
+    ShowroomHistorySerializer,
+    ShowroomCarDiscountSerializer,
+)
 
 
-customer_create_schema_extension: dict = {
-    'summary': 'New customer creating',
+showroom_create_schema_extension: dict = {
+    'summary': 'New showroom creating',
     'description': """
-      Creates new customer and bind user to customer's user field.
+      Creates new showroom.
     """,
-    'request': CustomerSerializer,
+    'request': ShowroomSerializer,
     'responses': {
-        status.HTTP_201_CREATED: CustomerSerializer,
+        status.HTTP_201_CREATED: ShowroomSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response=CustomerSerializer,
+            response=ShowroomSerializer,
             description='Fields, that (are not correct)/exists',
         ),
     },
 }
 
-customer_update_schema_extension: dict = {
-    'summary': 'Existing customer updating (all fields)',
+showroom_update_schema_extension: dict = {
+    'summary': 'Existing showroom updating (all fields)',
     'description': """
-      Updates existing customer (fully).
+      Updates existing showroom (fully).
     """,
-    'request': CustomerSerializer,
+    'request': ShowroomSerializer,
     'responses': {
-        status.HTTP_200_OK: CustomerSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
-        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response=CustomerSerializer,
-            description='Fields, that (are not correct)/exists',
-        ),
-    },
-}
-
-customer_partial_update_schema_extension: dict = {
-    'summary': 'Existing customer updating (not all fields)',
-    'description': """
-      Updates existing customer (partially).
-    """,
-    'request': CustomerSerializer,
-    'responses': {
-        status.HTTP_200_OK: CustomerSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: inline_serializer(
             name='Unauthorized',
             fields={
@@ -79,19 +53,50 @@ customer_partial_update_schema_extension: dict = {
             },
         ),
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response=CustomerSerializer,
+            response=ShowroomSerializer,
             description='Fields, that (are not correct)/exists',
         ),
     },
 }
 
-customer_list_schema_extension: dict = {
-    'summary': 'Showing all customers',
+showroom_partial_update_schema_extension: dict = {
+    'summary': 'Existing showroom updating (not all fields)',
     'description': """
-      Shows all customers.
+      Updates existing showroom (partially).
+    """,
+    'request': ShowroomSerializer,
+    'responses': {
+        status.HTTP_200_OK: ShowroomSerializer,
+        status.HTTP_401_UNAUTHORIZED: inline_serializer(
+            name='Unauthorized',
+            fields={
+                'defail': serializers.CharField(
+                    default='Authentication credentials were not provided.',
+                ),
+            },
+        ),
+        status.HTTP_403_FORBIDDEN: inline_serializer(
+            name='Forbidden',
+            fields={
+                'detail': serializers.CharField(
+                    default='You do not have permission to perform this action.',
+                ),
+            },
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            response=ShowroomSerializer,
+            description='Fields, that (are not correct)/exists',
+        ),
+    },
+}
+
+showroom_list_schema_extension: dict = {
+    'summary': 'Showing all showrooms',
+    'description': """
+      Shows all showrooms.
     """,
     'responses': {
-        status.HTTP_200_OK: CustomerSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: inline_serializer(
             name='Unauthorized',
             fields={
@@ -111,13 +116,13 @@ customer_list_schema_extension: dict = {
     },
 }
 
-customer_retrieve_schema_extension: dict = {
-    'summary': 'Showing concrete customer',
+showroom_retrieve_schema_extension: dict = {
+    'summary': 'Showing concrete showroom',
     'description': """
-      Shows information about concrete customer.
+      Shows information about concrete showroom.
     """,
     'responses': {
-        status.HTTP_200_OK: CustomerSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: inline_serializer(
             name='Unauthorized',
             fields={
@@ -137,15 +142,15 @@ customer_retrieve_schema_extension: dict = {
     },
 }
 
-customer_destroy_schema_extension: dict = {
-    'summary': 'Deactivating customer',
+showroom_destroy_schema_extension: dict = {
+    'summary': 'Deactivating showroom',
     'description': """
-      Deactivates customer. Marks customer as inactive insted of deleting it from database.
+      Deactivates showroom. Marks showroom as inactive insted of deleting it from database.
     """,
     'responses': {
         status.HTTP_204_NO_CONTENT: OpenApiResponse(
             response=None,
-            description='Customer is deactivated.',
+            description='Showroom is deactivated.',
         ),
         status.HTTP_401_UNAUTHORIZED: inline_serializer(
             name='Unauthorized',
@@ -166,13 +171,14 @@ customer_destroy_schema_extension: dict = {
     },
 }
 
-customer_get_statistics_schema_extension: dict = {
-    'summary': 'Gettings statistics for customer',
+showroom_make_discount_schema_extension: dict = {
+    'summary': 'Making discount for cars of the showrooms.',
     'description': """
-      Returns statistics for customer. Includes info about deals with showrooms.
+      Makes discount for cars of the showrooms.
+      When discount is finished then discount will be deleted.
     """,
     'responses': {
-        status.HTTP_200_OK: CustomerHistorySerializer,
+        status.HTTP_200_OK: ShowroomCarDiscountSerializer,
         status.HTTP_401_UNAUTHORIZED: inline_serializer(
             name='Unauthorized',
             fields={
@@ -192,16 +198,65 @@ customer_get_statistics_schema_extension: dict = {
     },
 }
 
-customer_make_offer_schema_extensions: dict = {
-    'summary': 'Creating customer offer for buying a car.',
+showroom_get_discounts_schema_extension: dict = {
+    'summary': 'Gettings discounts for cars of the showroom',
     'description': """
-      Creates customer offer for buying a car if customer has enough money.
+      Returns discounts for cars of the showroom.
     """,
     'responses': {
-        status.HTTP_200_OK: OpenApiResponse(
-            response=None,
-            description='Offer is created.',
+        status.HTTP_200_OK: ShowroomCarDiscountSerializer,
+        status.HTTP_401_UNAUTHORIZED: inline_serializer(
+            name='Unauthorized',
+            fields={
+                'defail': serializers.CharField(
+                    default='Authentication credentials were not provided.',
+                ),
+            },
         ),
+        status.HTTP_403_FORBIDDEN: inline_serializer(
+            name='Forbidden',
+            fields={
+                'detail': serializers.CharField(
+                    default='You do not have permission to perform this action.',
+                ),
+            },
+        ),
+    },
+}
+
+showroom_get_statistics_schema_extension: dict = {
+    'summary': 'Gettings statistics for showroom',
+    'description': """
+      Returns statistics for showroom. Includes info about deals with showrooms and suppliers.
+    """,
+    'responses': {
+        status.HTTP_200_OK: ShowroomHistorySerializer,
+        status.HTTP_401_UNAUTHORIZED: inline_serializer(
+            name='Unauthorized',
+            fields={
+                'defail': serializers.CharField(
+                    default='Authentication credentials were not provided.',
+                ),
+            },
+        ),
+        status.HTTP_403_FORBIDDEN: inline_serializer(
+            name='Forbidden',
+            fields={
+                'detail': serializers.CharField(
+                    default='You do not have permission to perform this action.',
+                ),
+            },
+        ),
+    },
+}
+
+showroom_get_cars_schema_extension: dict = {
+    'summary': 'Gettings cars for showroom',
+    'description': """
+      Returns cars of the showroom.
+    """,
+    'responses': {
+        status.HTTP_200_OK: ShowroomCarSerializer,
         status.HTTP_401_UNAUTHORIZED: inline_serializer(
             name='Unauthorized',
             fields={

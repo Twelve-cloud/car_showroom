@@ -14,10 +14,10 @@ from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import CarModel
 from core.swagger import (
-    car_list_schema_extenstion,
-    car_create_schema_extenstion,
-    car_destroy_schema_extenstion,
-    car_retrieve_schema_extenstion,
+    car_list_schema_extension,
+    car_create_schema_extension,
+    car_destroy_schema_extension,
+    car_retrieve_schema_extension,
 )
 from core.services import CarService
 from core.serializers import CarSerializer
@@ -25,10 +25,10 @@ from core.serializers import CarSerializer
 
 @extend_schema(tags=['Car'])
 @extend_schema_view(
-    list=extend_schema(**car_list_schema_extenstion),
-    create=extend_schema(**car_create_schema_extenstion),
-    destroy=extend_schema(**car_destroy_schema_extenstion),
-    retrieve=extend_schema(**car_retrieve_schema_extenstion),
+    list=extend_schema(**car_list_schema_extension),
+    create=extend_schema(**car_create_schema_extension),
+    destroy=extend_schema(**car_destroy_schema_extension),
+    retrieve=extend_schema(**car_retrieve_schema_extension),
 )
 class CarViewSet(
     viewsets.GenericViewSet,

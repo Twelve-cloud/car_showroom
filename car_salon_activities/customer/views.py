@@ -13,14 +13,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from customer.models import CustomerModel, CustomerOffer
 from customer.swagger import (
-    customer_list_schema_extenstion,
+    customer_list_schema_extension,
+    customer_create_schema_extension,
     customer_update_schema_extension,
-    customer_create_schema_extenstion,
-    customer_destroy_schema_extenstion,
-    customer_retrieve_schema_extenstion,
+    customer_destroy_schema_extension,
+    customer_retrieve_schema_extension,
     customer_make_offer_schema_extensions,
     customer_get_statistics_schema_extension,
-    customer_partial_update_schema_extenstion,
+    customer_partial_update_schema_extension,
 )
 from customer.services import CustomerService
 from customer.permissions import IsCustomerOwner, IsUserHasNotCustomer
@@ -33,12 +33,12 @@ from customer.serializers import (
 
 @extend_schema(tags=['Customer'])
 @extend_schema_view(
-    list=extend_schema(**customer_list_schema_extenstion),
+    list=extend_schema(**customer_list_schema_extension),
     update=extend_schema(**customer_update_schema_extension),
-    create=extend_schema(**customer_create_schema_extenstion),
-    destroy=extend_schema(**customer_destroy_schema_extenstion),
-    retrieve=extend_schema(**customer_retrieve_schema_extenstion),
-    partial_update=extend_schema(**customer_partial_update_schema_extenstion),
+    create=extend_schema(**customer_create_schema_extension),
+    destroy=extend_schema(**customer_destroy_schema_extension),
+    retrieve=extend_schema(**customer_retrieve_schema_extension),
+    partial_update=extend_schema(**customer_partial_update_schema_extension),
     get_statistics=extend_schema(**customer_get_statistics_schema_extension),
     make_offer=extend_schema(**customer_make_offer_schema_extensions),
 )

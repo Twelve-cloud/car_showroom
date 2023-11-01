@@ -15,17 +15,17 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from jauth.models import User
 from jauth.swagger import (
-    user_list_schema_extenstion,
+    user_list_schema_extension,
+    user_create_schema_extension,
     user_update_schema_extension,
-    user_create_schema_extenstion,
-    token_create_schema_extenstion,
-    user_destroy_schema_extenstion,
-    token_refresh_schema_extenstion,
-    user_retrieve_schema_extenstion,
-    user_confirm_email_schema_extenstion,
-    user_partial_update_schema_extenstion,
-    user_reset_password_schema_extenstion,
-    user_reset_password_confirm_schema_extenstion,
+    token_create_schema_extension,
+    user_destroy_schema_extension,
+    token_refresh_schema_extension,
+    user_retrieve_schema_extension,
+    user_confirm_email_schema_extension,
+    user_partial_update_schema_extension,
+    user_reset_password_schema_extension,
+    user_reset_password_confirm_schema_extension,
 )
 from jauth.services import UserService
 from jauth.permissions import IsUserOwner
@@ -34,15 +34,15 @@ from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshToke
 
 @extend_schema(tags=['User'])
 @extend_schema_view(
-    list=extend_schema(**user_list_schema_extenstion),
+    list=extend_schema(**user_list_schema_extension),
     update=extend_schema(**user_update_schema_extension),
-    create=extend_schema(**user_create_schema_extenstion),
-    destroy=extend_schema(**user_destroy_schema_extenstion),
-    retrieve=extend_schema(**user_retrieve_schema_extenstion),
-    confirm_email=extend_schema(**user_confirm_email_schema_extenstion),
-    partial_update=extend_schema(**user_partial_update_schema_extenstion),
-    reset_password=extend_schema(**user_reset_password_schema_extenstion),
-    reset_password_confirm=extend_schema(**user_reset_password_confirm_schema_extenstion),
+    create=extend_schema(**user_create_schema_extension),
+    destroy=extend_schema(**user_destroy_schema_extension),
+    retrieve=extend_schema(**user_retrieve_schema_extension),
+    confirm_email=extend_schema(**user_confirm_email_schema_extension),
+    partial_update=extend_schema(**user_partial_update_schema_extension),
+    reset_password=extend_schema(**user_reset_password_schema_extension),
+    reset_password_confirm=extend_schema(**user_reset_password_confirm_schema_extension),
 )
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -252,8 +252,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=['Token'])
 @extend_schema_view(
-    create=extend_schema(**token_create_schema_extenstion),
-    refresh=extend_schema(**token_refresh_schema_extenstion),
+    create=extend_schema(**token_create_schema_extension),
+    refresh=extend_schema(**token_refresh_schema_extension),
 )
 class TokenViewSet(viewsets.GenericViewSet):
     """

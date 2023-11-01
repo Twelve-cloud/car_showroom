@@ -5,6 +5,7 @@ views.py: File, containing views for a showroom application.
 
 from typing import ClassVar, Iterable
 from rest_framework import status, viewsets
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models.query import QuerySet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
@@ -13,6 +14,18 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from showroom.models import ShowroomModel
+from showroom.swagger import (
+    showroom_list_schema_extension,
+    showroom_create_schema_extension,
+    showroom_update_schema_extension,
+    showroom_destroy_schema_extension,
+    showroom_get_cars_schema_extension,
+    showroom_retrieve_schema_extension,
+    showroom_get_discounts_schema_extension,
+    showroom_make_discount_schema_extension,
+    showroom_get_statistics_schema_extension,
+    showroom_partial_update_schema_extension,
+)
 from showroom.services import ShowroomService
 from showroom.serializers import (
     ShowroomSerializer,
@@ -22,6 +35,19 @@ from showroom.serializers import (
 )
 
 
+@extend_schema(tags=['Showroom'])
+@extend_schema_view(
+    list=extend_schema(**showroom_list_schema_extension),
+    update=extend_schema(**showroom_update_schema_extension),
+    create=extend_schema(**showroom_create_schema_extension),
+    destroy=extend_schema(**showroom_destroy_schema_extension),
+    retrieve=extend_schema(**showroom_retrieve_schema_extension),
+    partial_update=extend_schema(**showroom_partial_update_schema_extension),
+    make_discount=extend_schema(**showroom_make_discount_schema_extension),
+    get_discounts=extend_schema(**showroom_get_discounts_schema_extension),
+    get_statistics=extend_schema(**showroom_get_statistics_schema_extension),
+    get_cars=extend_schema(**showroom_get_cars_schema_extension),
+)
 class ShowroomViewSet(viewsets.ModelViewSet):
     """
     ShowroomViewSet: Handling every action for a Showroom resource.
