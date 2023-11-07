@@ -12,7 +12,7 @@ lines_between_sections = 0
 
 [tool.flake8]
 max-line-length = 100
-exclude = ['migrations', 'data']
+exclude = ['migrations', 'data', '.venv']
 ignore = ['E203', 'E266', 'E704', 'W503', 'B905', 'B907']
 max-complexity = 18
 select = ['B', 'C', 'E', 'F', 'W', 'T4', 'B9']
@@ -27,6 +27,7 @@ strict_optional = "True"
 exclude = '''(?x)(
     ^data/$
     | migrations/$
+    | tests/$
 )'''
 
 [tool.black]
@@ -49,3 +50,33 @@ exclude = '''
   | data
 )/
 '''
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+django_find_project = true
+minversion = "7.1.2"
+testpaths = "tests"
+norecursedirs = ".venv .mypy_cache .pytest_cache data docs"
+addopts = "-l -v -rsxX -p no:warnings --tb=short --strict-markers"
+python_files = "test_* *_test tests_* *_tests unit* *unit func* *func"
+python_classes = "*Test Test*"
+python_functions = "test_*  *_test"
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*apps.py",
+    "*settings*.py",
+    "*urls.py",
+    "*wsgi.py",
+    "*asgi.py",
+    "manage.py"
+]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.html]
+directory = ".coverage_report"

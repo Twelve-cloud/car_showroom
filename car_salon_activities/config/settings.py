@@ -32,7 +32,7 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 SECRET_KEY: Optional[str] = os.getenv('SECRET_KEY')
 
-DEBUG: Optional[str] = os.getenv('DEBUG')
+DEBUG: bool = os.getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS: Optional[list] = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
@@ -44,7 +44,9 @@ AUTH_USER_MODEL: str = 'jauth.User'
 
 # -------------------------- INSTALLED APPS -----------------------------------
 
-DJANGO_APPS: list = []
+DJANGO_APPS: list = [
+    'django.contrib.staticfiles',
+]
 
 LOCAL_APPS: list = [
     'jauth.apps.JauthConfig',
@@ -57,7 +59,6 @@ LOCAL_APPS: list = [
 THIRD_PARTY_APPS: list = [
     'rest_framework',
     'django_filters',
-    'sslserver',
     'drf_spectacular',
 ]
 
@@ -76,24 +77,37 @@ MIDDLEWARE: list = [
 
 DATABASES: dict = {
     'master': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'CONN_MAX_AGE': 0,
     },
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'CONN_MAX_AGE': 0,
     },
 }
+
+# ---------------------------- TEMPLATE SETTINGS -------------------------------
+
+TEMPLATES: list = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+    }
+]
+
+# --------------------------- STATIC SETTINGS ----------------------------------
+
+STATIC_URL: str = "/static/"
 
 # ------------------------- LANGUAGE SETTINGS ---------------------------------
 
@@ -109,16 +123,26 @@ USE_TZ: bool = True
 
 # ----------------------- DJANGO EMAIL SETTINGS -------------------------------
 
-EMAIL_BACKEND: str = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND: Optional[str] = os.getenv('EMAIL_BACKEND')
+
 DEFAULT_FROM_EMAIL: Optional[str] = os.getenv('DEFAULT_FROM_EMAIL')
+
 EMAIL_HOST: Optional[str] = os.getenv('EMAIL_HOST')
+
 EMAIL_PORT: Optional[str] = os.getenv('EMAIL_PORT')
+
 EMAIL_HOST_USER: Optional[str] = os.getenv('EMAIL_HOST_USER')
+
 EMAIL_HOST_PASSWORD: Optional[str] = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_DEV_USER: Optional[str] = os.getenv('EMAIL_DEV_USER')
+
+EMAIL_DEV_USER: Optional[str] = os.getenv('EMAIL_DEF_USER')
+
 EMAIL_USE_TLS: bool = True
+
 EMAIL_USE_SSL: bool = False
+
 EMAIL_USE_LOCALTIME: bool = False
+
 EMAIL_TIMEOUT: None = None
 
 # -------------------------- LOGGING SETTINGS ---------------------------------
@@ -268,6 +292,7 @@ REDIS: dict = {
 # ------------------------- CELERY SETTINGS ------------------------------------
 
 CELERY_ENABLE_UTC: bool = True
+
 CELERY_TIMEZONE: str = 'Europe/Minsk'
 
 CELERY_BROKER_URL: str = (
@@ -276,8 +301,11 @@ CELERY_BROKER_URL: str = (
 )
 
 CELERY_BROKER_TRANSPORT_OPTIONS: dict = {'visibility_timeout': 3600}
+
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP: bool = True
+
 CELERY_BROKER_CONNECTION_MAX_RETRIES: int = 200
+
 CELERY_BROKER_USE_SSL: bool = False
 
 CELERY_RESULT_BACKEND: str = (
@@ -286,35 +314,29 @@ CELERY_RESULT_BACKEND: str = (
 )
 
 CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS: dict = {'visibility_timeout': 3600}
+
 CELERY_RESULT_CACHE_MAX: bool = False
+
 CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL: None = None
+
 CELERY_REDIS_BACKEND_USE_SSL: bool = False
 
 CELERY_BEAT_SCHEDULE: dict = {
     'clear-every-day': {
         'task': 'jauth.tasks.clear_database_from_waste_accounts',
-        'schedule': crontab(
-            minute=os.getenv('CELERY_DELETE_ACCOUNTS_CRON_MIN'),
-            hour=os.getenv('CELERY_DELETE_ACCOUNTS_CRON_HOUR'),
-        ),
+        'schedule': crontab(minute=0, hour=0),
     },
     'delete_discounts_every_minute': {
         'task': 'core.tasks.delete_finished_discounts',
-        'schedule': crontab(
-            minute=os.getenv('CELERY_DELETE_DISCOUNTS_CRON_MIN'),
-        ),
+        'schedule': crontab(minute='*'),
     },
     'check_suppliers_every_hour': {
         'task': 'core.tasks.check_suppliers',
-        'schedule': crontab(
-            hour=os.getenv('CELERY_CHECK_SUPPLIERS_CRON_HOUR'),
-        ),
+        'schedule': crontab(hour=0),
     },
     'buy_supplier_cars_every_ten_minutes': {
         'task': 'core.tasks.buy_supplier_cars',
-        'schedule': crontab(
-            minute=os.getenv('CELERY_BUY_SUPPLIER_CARS_CRON_MIN'),
-        ),
+        'schedule': crontab(minute='*/10'),
     },
 }
 
@@ -322,12 +344,12 @@ CELERY_BEAT_SCHEDULE: dict = {
 
 if DEBUG:
     INSTALLED_APPS += [
-        "django.contrib.staticfiles",
-        "debug_toolbar",
+        'debug_toolbar',
+        'sslserver',
     ]
 
     MIDDLEWARE += [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
     ]
 
     DEBUG_TOOLBAR_CONFIG: dict = {
@@ -343,14 +365,6 @@ if DEBUG:
         'rest_framework.parsers.MultiPartParser',
     ]
 
-    TEMPLATES: list = [
-        {
-            "BACKEND": "django.template.backends.django.DjangoTemplates",
-            "APP_DIRS": True,
-        }
-    ]
-
-    STATIC_URL: str = "static/"
 # -------------------------- OTHER SETTINGS ------------------------------------
 
 WSGI_APPLICATION: str = 'config.wsgi.application'
