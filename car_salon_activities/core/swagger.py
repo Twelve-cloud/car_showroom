@@ -3,8 +3,9 @@ swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
 
-from rest_framework import status, serializers
-from drf_spectacular.utils import OpenApiResponse, inline_serializer
+from rest_framework import status
+from drf_spectacular.utils import OpenApiResponse
+from config.swagger import ForbiddenSerializer, UnauthorizedSerializer
 from core.serializers import CarSerializer
 
 
@@ -30,22 +31,8 @@ car_list_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: CarSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -56,22 +43,8 @@ car_retrieve_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: CarSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -85,21 +58,7 @@ car_destroy_schema_extension: dict = {
             response=None,
             description='Car is deactivated.',
         ),
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }

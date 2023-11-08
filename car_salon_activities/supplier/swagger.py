@@ -3,8 +3,9 @@ swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
 
-from rest_framework import status, serializers
-from drf_spectacular.utils import OpenApiResponse, inline_serializer
+from rest_framework import status
+from drf_spectacular.utils import OpenApiResponse
+from config.swagger import ForbiddenSerializer, UnauthorizedSerializer
 from supplier.serializers import (
     SupplierSerializer,
     SupplierCarSerializer,
@@ -36,22 +37,8 @@ supplier_update_schema_extension: dict = {
     'request': SupplierSerializer,
     'responses': {
         status.HTTP_200_OK: SupplierSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response=SupplierSerializer,
             description='Fields, that (are not correct)/exists',
@@ -67,22 +54,8 @@ supplier_partial_update_schema_extension: dict = {
     'request': SupplierSerializer,
     'responses': {
         status.HTTP_200_OK: SupplierSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response=SupplierSerializer,
             description='Fields, that (are not correct)/exists',
@@ -97,22 +70,8 @@ supplier_list_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: SupplierSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -123,22 +82,8 @@ supplier_retrieve_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: SupplierSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -152,22 +97,8 @@ supplier_destroy_schema_extension: dict = {
             response=None,
             description='Supplier is deactivated.',
         ),
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -179,22 +110,8 @@ supplier_make_discount_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: SupplierCarDiscountSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -205,22 +122,8 @@ supplier_get_discounts_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: SupplierCarDiscountSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -231,22 +134,8 @@ supplier_get_statistics_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: SupplierHistorySerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -257,21 +146,7 @@ supplier_get_cars_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: SupplierCarSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }

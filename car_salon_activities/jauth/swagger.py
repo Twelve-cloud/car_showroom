@@ -3,8 +3,14 @@ swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
 
-from rest_framework import status, serializers
-from drf_spectacular.utils import OpenApiResponse, inline_serializer
+from rest_framework import status
+from drf_spectacular.utils import OpenApiResponse
+from config.swagger import (
+    ForbiddenSerializer,
+    TokenPairSerializer,
+    UnauthorizedSerializer,
+    IncorrectTokenSerializer,
+)
 from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
 
@@ -37,22 +43,8 @@ user_update_schema_extension: dict = {
     'request': UserSerializer,
     'responses': {
         status.HTTP_200_OK: UserSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response=UserSerializer,
             description='Fields, that (are not correct)/exists',
@@ -71,22 +63,8 @@ user_partial_update_schema_extension: dict = {
     'request': UserSerializer,
     'responses': {
         status.HTTP_200_OK: UserSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response=UserSerializer,
             description='Fields, that (are not correct)/exists',
@@ -101,22 +79,8 @@ user_list_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: UserSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -127,22 +91,8 @@ user_retrieve_schema_extension: dict = {
     """,
     'responses': {
         status.HTTP_200_OK: UserSerializer,
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -157,22 +107,8 @@ user_destroy_schema_extension: dict = {
             response=None,
             description='Account is deactivated.',
         ),
-        status.HTTP_401_UNAUTHORIZED: inline_serializer(
-            name='Unauthorized',
-            fields={
-                'defail': serializers.CharField(
-                    default='Authentication credentials were not provided.',
-                ),
-            },
-        ),
-        status.HTTP_403_FORBIDDEN: inline_serializer(
-            name='Forbidden',
-            fields={
-                'detail': serializers.CharField(
-                    default='You do not have permission to perform this action.',
-                ),
-            },
-        ),
+        status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
+        status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
@@ -187,14 +123,7 @@ user_confirm_email_schema_extension: dict = {
             response=None,
             description='User email address is confirmed.',
         ),
-        status.HTTP_400_BAD_REQUEST: inline_serializer(
-            name='Token is not correct.',
-            fields={
-                'Error': serializers.CharField(
-                    default='Bad link.',
-                ),
-            },
-        ),
+        status.HTTP_400_BAD_REQUEST: IncorrectTokenSerializer,
     },
 }
 
@@ -227,14 +156,7 @@ user_reset_password_confirm_schema_extension: dict = {
             response=None,
             description='User has reset its password.',
         ),
-        status.HTTP_400_BAD_REQUEST: inline_serializer(
-            name='Token is not correct.',
-            fields={
-                'Error': serializers.CharField(
-                    default='Bad link.',
-                ),
-            },
-        ),
+        status.HTTP_400_BAD_REQUEST: IncorrectTokenSerializer,
     },
 }
 
@@ -245,17 +167,7 @@ token_create_schema_extension: dict = {
     """,
     'request': AccessTokenSerializer,
     'responses': {
-        status.HTTP_201_CREATED: inline_serializer(
-            name='Token',
-            fields={
-                'access': serializers.CharField(
-                    default='token_value',
-                ),
-                'refresh': serializers.CharField(
-                    default='token_value',
-                ),
-            },
-        ),
+        status.HTTP_201_CREATED: TokenPairSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response=AccessTokenSerializer,
             description='Fields, that (are not correct)/exists',
@@ -270,17 +182,7 @@ token_refresh_schema_extension: dict = {
     """,
     'request': RefreshTokenSerializer,
     'responses': {
-        status.HTTP_201_CREATED: inline_serializer(
-            name='Token',
-            fields={
-                'access': serializers.CharField(
-                    default='token_value',
-                ),
-                'refresh': serializers.CharField(
-                    default='token_value',
-                ),
-            },
-        ),
+        status.HTTP_201_CREATED: TokenPairSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response=RefreshTokenSerializer,
             description='Token is expired/not valid.',
