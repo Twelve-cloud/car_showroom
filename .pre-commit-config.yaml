@@ -28,3 +28,10 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
+      - id: unit_tests
+        name: unit tests
+        entry: bash -c "cd car_salon_activities && pipenv run pytest tests/unit/"
+        language: system
+        types: [python]
+        pass_filenames: false

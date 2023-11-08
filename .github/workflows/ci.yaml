@@ -37,3 +37,6 @@ jobs:
 
       - name: run mypy
         run: pipenv run mypy .
+
+      - name: run unit tests
+        run: pipenv run pytest tests/unit/
