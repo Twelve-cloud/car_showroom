@@ -20,4 +20,4 @@ COPY . ./
 
 # 6 layer
 RUN chmod +x django-entrypoint.sh && chmod +x celery-entrypoint.sh && chmod +x beat-entrypoint.sh && chmod +x flower-entrypoint.sh
-EXPOSE 8000
+EXPOSE 5000

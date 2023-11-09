@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  postgres:
+    env_file:
+      - ./env/tests/.env.tests.postgres
+    volumes:
+      - ./car_salon_activities/data/postgres:/var/lib/postgresql/data
+    networks:
+      back-tests:
+        ipv4_address: 182.168.10.9

@@ -80,3 +80,10 @@ networks:
     ipam:
      config:
        - subnet: 192.168.10.0/24
+
+  back-tests:
+    driver: bridge
+    internal: false
+    ipam:
+     config:
+       - subnet: 182.168.10.0/24

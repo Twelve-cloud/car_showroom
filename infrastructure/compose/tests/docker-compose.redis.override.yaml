@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  redis:
+    env_file:
+      - ./env/tests/.env.tests.redis
+    volumes:
+      - ./car_salon_activities/data/redis:/root/redis
+    networks:
+      back-tests:
+        ipv4_address: 182.168.10.7

@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 from rest_framework import status
 
 
@@ -11,7 +12,7 @@ class TestJauthApi:
         self.user_json = {
             'username': 'username1',
             'password': 'password1',
-            'email': 'email@mail.com',
+            'email': settings.EMAIL_HOST_USER,
         }
 
     def test_create_user(self, client):
