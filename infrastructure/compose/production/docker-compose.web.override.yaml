@@ -1,0 +1,106 @@
+version: '3.7'
+
+x-env: &default-env
+  env_file:
+    - ./env/production/.env.prod.django
+    - ./env/production/.env.prod.postgres
+    - ./env/production/.env.prod.rabbitmq
+    - ./env/production/.env.prod.redis
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    env_file:
+      - ./env/production/.env.prod.django
+    hostname: nginx
+    ports:
+      - 1337:${DJANGO_NGINX_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_NGINX_PORT}/auth/users/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.2
+    volumes:
+      - ./certs:/etc/nginx/certs:ro/
+    links:
+      - gunicorn
+    depends_on:
+      gunicorn:
+        condition: service_healthy
+    restart: always
+
+  gunicorn:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile-prod
+    entrypoint:
+      - ./gunicorn-entrypoint.sh
+    hostname: gunicorn
+    expose:
+      - ${DJANGO_GUNICORN_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_GUNICORN_PORT}/auth/users/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.3
+    volumes:
+      - ./certs:/code/certs:ro/
+    links:
+      - celery
+      - beat
+    depends_on:
+      celery:
+        condition: service_healthy
+      beat:
+        condition: service_healthy
+    restart: always
+
+  celery:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile-prod
+    entrypoint:
+      - ./celery-entrypoint.sh
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.4
+
+  beat:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile-prod
+    entrypoint:
+      - ./beat-entrypoint.sh
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.5
+
+  flower:
+    <<: *default-env
+    build:
+      context: ./car_salon_activities
+      dockerfile: Dockerfile-prod
+    entrypoint:
+      - ./flower-entrypoint.sh
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.6
+
+  sphinx:
+    build:
+      context: ./car_salon_activities/
+      dockerfile: Dockerfile-sphinx
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.7

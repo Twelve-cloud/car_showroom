@@ -1,46 +1,34 @@
-devstart: docker-compose-dev.yaml
-	sudo \
-	docker compose \
-	--env-file=./env/development/.env.dev.django \
-	--env-file=./env/development/.env.dev.postgres \
-	--env-file=./env/development/.env.dev.rabbitmq \
-	--env-file=./env/development/.env.dev.redis \
-	-f docker-compose-dev.yaml \
-	up \
-	--force-recreate \
-	--build \
+include .env
+export
 
-devstop: docker-compose-dev.yaml
-	sudo \
-	docker compose \
-	--env-file=./env/development/.env.dev.django \
-	--env-file=./env/development/.env.dev.postgres \
-	--env-file=./env/development/.env.dev.rabbitmq \
-	--env-file=./env/development/.env.dev.redis \
-	-f docker-compose-dev.yaml \
-	down \
-
-prodstart: docker-compose-prod.yaml
-	sudo \
-	docker compose \
-	--env-file=./env/production/.env.prod.django \
-	--env-file=./env/production/.env.prod.postgres \
-	--env-file=./env/production/.env.prod.rabbitmq \
-	--env-file=./env/production/.env.prod.redis \
-	-f docker-compose-prod.yaml \
-	up \
-	--force-recreate \
-	--build \
-
-prodstop: docker-compose-prod.yaml
-	sudo \
-	docker compose \
-	--env-file=./env/production/.env.prod.django \
-	--env-file=./env/production/.env.prod.postgres \
-	--env-file=./env/production/.env.prod.rabbitmq \
-	--env-file=./env/production/.env.prod.redis \
-	-f docker-compose-prod.yaml \
-	down \
 
 docs:
 	cd car_salon_activities/docs && make html
+
+
+COMPOSE_PROD := \
+	-f docker-compose.yaml \
+	-f ${COMPOSE_PROD_DB} \
+	-f ${COMPOSE_PROD_RABBIT} \
+	-f ${COMPOSE_PROD_REDIS} \
+	-f ${COMPOSE_PROD_WEB} \
+
+prodstart: docker-compose.yaml
+	sudo docker compose ${COMPOSE_PROD} up --build --force-recreate
+
+prodstop: docker-compose.yaml
+	sudo docker compose ${COMPOSE_PROD} down
+
+
+COMPOSE_DEV := \
+	-f docker-compose.yaml \
+	-f ${COMPOSE_DEV_DB} \
+	-f ${COMPOSE_DEV_RABBIT} \
+	-f ${COMPOSE_DEV_REDIS} \
+	-f ${COMPOSE_DEV_WEB} \
+
+devstart: docker-compose.yaml
+	sudo docker compose ${COMPOSE_DEV} up --build --force-recreate
+
+devstop: docker-compose.yaml
+	sudo docker compose ${COMPOSE_DEV} down

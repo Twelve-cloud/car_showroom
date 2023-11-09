@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  celery:
+    hostname: celery
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config inspect ping --destination worker1@celery"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  beat:
+    hostname: beat
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep celery"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  flower:
+    hostname: flower
+    ports:
+      - 5555:${FLOWER_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost:${FLOWER_PORT}/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  sphinx:
+    hostname: sphinx
+    ports:
+      - 7777:${SPHINX_NGINX_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost:${SPHINX_NGINX_PORT}/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always

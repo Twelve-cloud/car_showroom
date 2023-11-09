@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.10.7-management-alpine
+    hostname: rabbitmq
+    ports:
+      - 15672:${RABBITMQ_PORT}
+      - 5672:${AMQP_RABBITMQ_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always

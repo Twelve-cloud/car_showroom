@@ -1,0 +1,82 @@
+version: '3.7'
+
+services:
+  postgres:
+    extends:
+      file: ${COMPOSE_COMMON_DB}
+      service: postgres
+
+  rabbitmq:
+    extends:
+      file: ${COMPOSE_COMMON_RABBIT}
+      service: rabbitmq
+
+  redis:
+    extends:
+      file: ${COMPOSE_COMMON_REDIS}
+      service: redis
+
+  celery:
+    extends:
+      file: ${COMPOSE_COMMON_WEB}
+      service: celery
+    links:
+      - postgres
+      - rabbitmq
+      - redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  beat:
+    extends:
+      file: ${COMPOSE_COMMON_WEB}
+      service: beat
+    links:
+      - postgres
+      - rabbitmq
+      - redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  flower:
+    extends:
+      file: ${COMPOSE_COMMON_WEB}
+      service: flower
+    links:
+      - celery
+      - beat
+    depends_on:
+      celery:
+        condition: service_healthy
+      beat:
+        condition: service_healthy
+
+  sphinx:
+    extends:
+      file: ${COMPOSE_COMMON_WEB}
+      service: sphinx
+
+networks:
+  back-prod:
+    driver: bridge
+    internal: false
+    ipam:
+     config:
+       - subnet: 172.168.10.0/24
+
+  back-dev:
+    driver: bridge
+    internal: false
+    ipam:
+     config:
+       - subnet: 192.168.10.0/24

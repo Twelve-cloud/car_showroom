@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  postgres:
+    env_file:
+      - ./env/development/.env.dev.postgres
+    volumes:
+      - ./car_salon_activities/data/postgres:/var/lib/postgresql/data
+    networks:
+      back-dev:
+        ipv4_address: 192.168.10.9

@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  rabbitmq:
+    env_file:
+      - ./env/production/.env.prod.rabbitmq
+    volumes:
+      - ./car_salon_activities/data/rabbitmq:/var/lib/rabbitmq
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.9
