@@ -24,7 +24,7 @@ jobs:
         run: pip install pipenv
 
       - name: create venv and install dependencies
-        run: pipenv install --system --deploy
+        run: pipenv install --categories=packages,dev-packages,test-packages --system --deploy --ignore-pipfile
 
       - name: run flake8
         run: pipenv run flake8 .
