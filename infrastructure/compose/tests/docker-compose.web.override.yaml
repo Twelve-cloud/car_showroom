@@ -3,9 +3,6 @@ version: '3.7'
 x-env: &default-env
   env_file:
     - ./env/tests/.env.tests.django
-    - ./env/tests/.env.tests.postgres
-    - ./env/tests/.env.tests.rabbitmq
-    - ./env/tests/.env.tests.redis
 
 services:
   tests:

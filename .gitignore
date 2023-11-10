@@ -124,8 +124,10 @@ celerybeat.pid
 .venv
 env/production/*
 env/development/*
+env/tests/*
 !env/production/*example*
 !env/development/*example*
+!env/tests/*example*
 venv/
 ENV/
 env.bak/

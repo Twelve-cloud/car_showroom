@@ -3,9 +3,6 @@ version: '3.7'
 x-env: &default-env
   env_file:
     - ./env/development/.env.dev.django
-    - ./env/development/.env.dev.postgres
-    - ./env/development/.env.dev.rabbitmq
-    - ./env/development/.env.dev.redis
 
 services:
   django:

@@ -3,9 +3,6 @@ version: '3.7'
 x-env: &default-env
   env_file:
     - ./env/production/.env.prod.django
-    - ./env/production/.env.prod.postgres
-    - ./env/production/.env.prod.rabbitmq
-    - ./env/production/.env.prod.redis
 
 services:
   nginx:

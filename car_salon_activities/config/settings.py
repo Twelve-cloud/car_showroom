@@ -274,9 +274,9 @@ JWT_TOKEN: dict = {
 RABBITMQ: dict = {
     'PROTOCOL': 'amqp',
     'HOST': os.getenv('RABBITMQ_HOST'),
-    'PORT': os.getenv('AMQP_RABBITMQ_PORT'),
-    'USER': os.getenv('RABBITMQ_DEFAULT_USER'),
-    'PASS': os.getenv('RABBITMQ_DEFAULT_PASS'),
+    'PORT': os.getenv('RABBITMQ_PORT'),
+    'USER': os.getenv('RABBITMQ_USER'),
+    'PASS': os.getenv('RABBITMQ_PASS'),
 }
 
 # ------------------------- REDIS SETTINGS -------------------------------------

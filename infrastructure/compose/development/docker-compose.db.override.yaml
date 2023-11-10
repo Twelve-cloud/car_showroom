@@ -5,7 +5,7 @@ services:
     env_file:
       - ./env/development/.env.dev.postgres
     volumes:
-      - ./car_salon_activities/data/postgres:/var/lib/postgresql/data
+      - ./car_salon_activities/data/dev/postgres:/var/lib/postgresql/data
     networks:
       back-dev:
         ipv4_address: 192.168.10.9

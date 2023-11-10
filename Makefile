@@ -2,6 +2,8 @@ include .env
 export
 
 
+# PROD
+
 COMPOSE_PROD := \
 	-f docker-compose.yaml \
 	-f ${COMPOSE_PROD_DB} \
@@ -11,10 +13,7 @@ COMPOSE_PROD := \
 
 COMPOSE_PROD_ENV := \
 	--env-file=.env \
-	--env-file=env/production/.env.prod.django \
-	--env-file=env/production/.env.prod.postgres \
-	--env-file=env/production/.env.prod.rabbitmq \
-	--env-file=env/production/.env.prod.redis \
+	--env-file=env/production/.env.prod.compose \
 
 prodstart: docker-compose.yaml
 	sudo docker compose ${COMPOSE_PROD_ENV} ${COMPOSE_PROD} up --build --force-recreate
@@ -22,6 +21,8 @@ prodstart: docker-compose.yaml
 prodstop: docker-compose.yaml
 	sudo docker compose ${COMPOSE_PROD_ENV} ${COMPOSE_PROD} down
 
+
+# DEV
 
 COMPOSE_DEV := \
 	-f docker-compose.yaml \
@@ -32,10 +33,7 @@ COMPOSE_DEV := \
 
 COMPOSE_DEV_ENV := \
 	--env-file=.env \
-	--env-file=env/development/.env.dev.django \
-	--env-file=env/development/.env.dev.postgres \
-	--env-file=env/development/.env.dev.rabbitmq \
-	--env-file=env/development/.env.dev.redis \
+	--env-file=env/development/.env.dev.compose \
 
 devstart: docker-compose.yaml
 	sudo docker compose ${COMPOSE_DEV_ENV} ${COMPOSE_DEV} up --build --force-recreate
@@ -43,6 +41,8 @@ devstart: docker-compose.yaml
 devstop: docker-compose.yaml
 	sudo docker compose ${COMPOSE_DEV_ENV} ${COMPOSE_DEV} down
 
+
+# TESTS
 
 COMPOSE_TESTS := \
 	-f docker-compose.yaml \
@@ -53,14 +53,13 @@ COMPOSE_TESTS := \
 
 COMPOSE_TESTS_ENV := \
 	--env-file=.env \
-	--env-file=env/tests/.env.tests.django \
-	--env-file=env/tests/.env.tests.postgres \
-	--env-file=env/tests/.env.tests.rabbitmq \
-	--env-file=env/tests/.env.tests.redis \
+	--env-file=env/tests/.env.tests.compose \
 
-tests:
+itests:
 	./test.sh
 
+
+# DOCS
 
 docs:
 	cd car_salon_activities/docs && make html

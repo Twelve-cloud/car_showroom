@@ -5,7 +5,7 @@ services:
     env_file:
       - ./env/production/.env.prod.postgres
     volumes:
-      - ./car_salon_activities/data/postgres:/var/lib/postgresql/data
+      - ./car_salon_activities/data/prod/postgres:/var/lib/postgresql/data
     networks:
       back-prod:
         ipv4_address: 172.168.10.10

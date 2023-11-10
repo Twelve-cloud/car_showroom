@@ -5,7 +5,7 @@ services:
     env_file:
       - ./env/production/.env.prod.redis
     volumes:
-      - ./car_salon_activities/data/redis:/root/redis
+      - ./car_salon_activities/data/prod/redis:/root/redis
     networks:
       back-prod:
         ipv4_address: 172.168.10.8
