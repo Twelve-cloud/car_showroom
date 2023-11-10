@@ -8,7 +8,7 @@ services:
   tests:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-tests
     entrypoint:
       - ./tests-entrypoint.sh
@@ -28,7 +28,7 @@ services:
   celery:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-tests
     entrypoint:
       - ./celery-entrypoint.sh
@@ -39,7 +39,7 @@ services:
   beat:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-tests
     entrypoint:
       - ./beat-entrypoint.sh
@@ -50,7 +50,7 @@ services:
   flower:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-tests
     entrypoint:
       - ./flower-entrypoint.sh
@@ -60,7 +60,7 @@ services:
 
   sphinx:
     build:
-      context: ./car_salon_activities/
+      context: ./src/
       dockerfile: Dockerfile-sphinx
     networks:
       back-tests:

@@ -16,10 +16,10 @@ COMPOSE_PROD_ENV := \
 	--env-file=env/production/.env.prod.compose \
 
 prodstart: docker-compose.yaml
-	sudo docker compose ${COMPOSE_PROD_ENV} ${COMPOSE_PROD} up --build --force-recreate
+	sudo docker compose -p prod ${COMPOSE_PROD_ENV} ${COMPOSE_PROD} up --build --force-recreate
 
 prodstop: docker-compose.yaml
-	sudo docker compose ${COMPOSE_PROD_ENV} ${COMPOSE_PROD} down
+	sudo docker compose -p prod ${COMPOSE_PROD_ENV} ${COMPOSE_PROD} down
 
 
 # DEV
@@ -36,10 +36,10 @@ COMPOSE_DEV_ENV := \
 	--env-file=env/development/.env.dev.compose \
 
 devstart: docker-compose.yaml
-	sudo docker compose ${COMPOSE_DEV_ENV} ${COMPOSE_DEV} up --build --force-recreate
+	sudo docker compose -p dev ${COMPOSE_DEV_ENV} ${COMPOSE_DEV} up --build --force-recreate
 
 devstop: docker-compose.yaml
-	sudo docker compose ${COMPOSE_DEV_ENV} ${COMPOSE_DEV} down
+	sudo docker compose -p dev ${COMPOSE_DEV_ENV} ${COMPOSE_DEV} down
 
 
 # TESTS
@@ -62,4 +62,4 @@ itests:
 # DOCS
 
 docs:
-	cd car_salon_activities/docs && make html
+	cd src/docs && make html

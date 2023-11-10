@@ -8,7 +8,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./car_salon_activities
+        working-directory: ./src
 
     steps:
       - name: clone github repository
@@ -24,7 +24,7 @@ jobs:
         run: pip install pipenv
 
       - name: create venv and install dependencies
-        run: pipenv install --categories=packages,dev-packages,test-packages --system --deploy --ignore-pipfile
+        run: pipenv install --categories=test-packages --system --deploy --ignore-pipfile
 
       - name: run flake8
         run: pipenv run flake8 .

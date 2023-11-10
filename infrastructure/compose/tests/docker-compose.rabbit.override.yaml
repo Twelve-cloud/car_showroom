@@ -5,7 +5,7 @@ services:
     env_file:
       - ./env/tests/.env.tests.rabbitmq
     volumes:
-      - ./car_salon_activities/data/tests/rabbitmq:/var/lib/rabbitmq
+      - ./src/data/tests/rabbitmq:/var/lib/rabbitmq
     networks:
       back-tests:
         ipv4_address: 182.168.10.8

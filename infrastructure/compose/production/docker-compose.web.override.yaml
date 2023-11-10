@@ -34,7 +34,7 @@ services:
   gunicorn:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-prod
     entrypoint:
       - ./gunicorn-entrypoint.sh
@@ -64,7 +64,7 @@ services:
   celery:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-prod
     entrypoint:
       - ./celery-entrypoint.sh
@@ -75,7 +75,7 @@ services:
   beat:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-prod
     entrypoint:
       - ./beat-entrypoint.sh
@@ -86,7 +86,7 @@ services:
   flower:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile-prod
     entrypoint:
       - ./flower-entrypoint.sh
@@ -96,7 +96,7 @@ services:
 
   sphinx:
     build:
-      context: ./car_salon_activities/
+      context: ./src/
       dockerfile: Dockerfile-sphinx
     networks:
       back-prod:

@@ -8,7 +8,7 @@ services:
   django:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile
     entrypoint:
       - ./django-entrypoint.sh
@@ -38,7 +38,7 @@ services:
   celery:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile
     entrypoint:
       - ./celery-entrypoint.sh
@@ -49,7 +49,7 @@ services:
   beat:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile
     entrypoint:
       - ./beat-entrypoint.sh
@@ -60,7 +60,7 @@ services:
   flower:
     <<: *default-env
     build:
-      context: ./car_salon_activities
+      context: ./src
       dockerfile: Dockerfile
     entrypoint:
       - ./flower-entrypoint.sh
@@ -70,7 +70,7 @@ services:
 
   sphinx:
     build:
-      context: ./car_salon_activities/
+      context: ./src/
       dockerfile: Dockerfile-sphinx
     networks:
       back-dev:

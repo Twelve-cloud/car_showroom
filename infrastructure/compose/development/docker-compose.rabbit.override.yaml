@@ -5,7 +5,7 @@ services:
     env_file:
       - ./env/development/.env.dev.rabbitmq
     volumes:
-      - ./car_salon_activities/data/dev/rabbitmq:/var/lib/rabbitmq
+      - ./src/data/dev/rabbitmq:/var/lib/rabbitmq
     networks:
       back-dev:
         ipv4_address: 192.168.10.8

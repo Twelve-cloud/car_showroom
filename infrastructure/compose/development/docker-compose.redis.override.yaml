@@ -5,7 +5,7 @@ services:
     env_file:
       - ./env/development/.env.dev.redis
     volumes:
-      - ./car_salon_activities/data/dev/redis:/root/redis
+      - ./src/data/dev/redis:/root/redis
     networks:
       back-dev:
         ipv4_address: 192.168.10.7
