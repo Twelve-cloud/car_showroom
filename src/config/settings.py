@@ -135,7 +135,7 @@ EMAIL_HOST_USER: Optional[str] = os.getenv('EMAIL_HOST_USER')
 
 EMAIL_HOST_PASSWORD: Optional[str] = os.getenv('EMAIL_HOST_PASSWORD')
 
-EMAIL_DEV_USER: Optional[str] = os.getenv('EMAIL_DEF_USER')
+EMAIL_DEF_USER: Optional[str] = os.getenv('EMAIL_DEF_USER')
 
 EMAIL_USE_TLS: bool = True
 
@@ -186,7 +186,7 @@ LOGGING: dict = {
             'class': 'logging.handlers.SMTPHandler',
             'mailhost': EMAIL_HOST,
             'fromaddr': EMAIL_HOST_USER,
-            'toaddrs': EMAIL_DEV_USER,
+            'toaddrs': EMAIL_DEF_USER,
             'subject': 'ERROR in code',
             'credentials': (EMAIL_HOST_USER, EMAIL_HOST_PASSWORD),
             'secure': (),

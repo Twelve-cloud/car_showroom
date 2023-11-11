@@ -126,19 +126,9 @@ class AccessTokenSerializer(serializers.Serializer):
             dict: Dict with new access token and refresh token.
         """
 
-        email: Optional[str] = data.get('email', None)
+        email: str = data['email']
 
-        if email is None:
-            raise serializers.ValidationError(
-                'An email address is required.',
-            )
-
-        password: Optional[str] = data.get('password', None)
-
-        if password is None:
-            raise serializers.ValidationError(
-                'A password is required.',
-            )
+        password: str = data['password']
 
         user: Optional[User] = User.objects.filter(email=email).first()
 
@@ -209,12 +199,7 @@ class RefreshTokenSerializer(serializers.Serializer):
             dict: Dict with new access token and refresh token.
         """
 
-        user_refresh_token: Optional[str] = data.get('refresh', None)
-
-        if user_refresh_token is None:
-            raise serializers.ValidationError(
-                'Refresh token is required.',
-            )
+        user_refresh_token: str = data['refresh']
 
         token: Token = self.token_class(token=user_refresh_token, type='refresh')
 

@@ -4,8 +4,6 @@ services:
   rabbitmq:
     env_file:
       - ./env/tests/.env.tests.rabbitmq
-    volumes:
-      - ./src/data/tests/rabbitmq:/var/lib/rabbitmq
     networks:
       back-tests:
         ipv4_address: 182.168.10.8

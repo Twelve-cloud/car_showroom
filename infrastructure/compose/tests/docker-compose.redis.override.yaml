@@ -4,8 +4,6 @@ services:
   redis:
     env_file:
       - ./env/tests/.env.tests.redis
-    volumes:
-      - ./src/data/tests/redis:/root/redis
     networks:
       back-tests:
         ipv4_address: 182.168.10.7
