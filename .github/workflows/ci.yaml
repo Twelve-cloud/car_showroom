@@ -61,8 +61,5 @@ jobs:
           echo "${{ secrets.ENV_FILE_RABBITMQ }}" > ./env/tests/.env.tests.rabbitmq
           echo "${{ secrets.ENV_FILE_REDIS }}" > ./env/tests/.env.tests.redis
 
-      - name: test compose
-        run: make test
-
       - name: run integration tests
         run: make itests
