@@ -56,7 +56,7 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
           cat .env
-          echO "hello" > .env
+          echo "hello" > .env
           cat env
           echo "${{ secrets.ENV_FILE_COMPOSE }}" > ./env/tests/.env.tests.compose
           echo "${{ secrets.ENV_FILE_DJANGO }}" > ./env/tests/.env.tests.django
