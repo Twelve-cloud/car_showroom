@@ -55,11 +55,6 @@ jobs:
       - name: create envs files
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
-          echo "${{ secrets.ENV_FILE }}"
-          echo "--------------------------------------------"
-          cat .env
-          echo "hello" > .env
-          cat .env
           echo "${{ secrets.ENV_FILE_COMPOSE }}" > ./env/tests/.env.tests.compose
           echo "${{ secrets.ENV_FILE_DJANGO }}" > ./env/tests/.env.tests.django
           echo "${{ secrets.ENV_FILE_POSTGRES }}" > ./env/tests/.env.tests.postgres
