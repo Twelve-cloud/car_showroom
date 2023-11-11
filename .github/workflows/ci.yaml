@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  ci:
+  static:
     runs-on: [ubuntu-latest]
 
     defaults:
@@ -60,6 +60,9 @@ jobs:
           echo "${{ secrets.ENV_FILE_POSTGRES }}" > ./env/tests/.env.tests.postgres
           echo "${{ secrets.ENV_FILE_RABBITMQ }}" > ./env/tests/.env.tests.rabbitmq
           echo "${{ secrets.ENV_FILE_REDIS }}" > ./env/tests/.env.tests.redis
+
+      - name: test compose
+        run: sudo docker compose version
 
       - name: run integration tests
         run: make itests
