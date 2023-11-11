@@ -58,7 +58,6 @@ RED := \033[0;31m
 NC := \033[0m
 
 itests: docker-compose.yaml
-	cat .env
 	sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} up -d --build
 	@if [ `sudo docker wait tests-tests-1` -ne 0 ] ; then 									\
 		sudo docker logs tests-tests-1;														\
