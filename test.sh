@@ -1,6 +1,9 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
+cleanup () {
+	sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down
+}
 trap 'cleanup ; printf "${RED}Tests Failed For Unexpected Reasons${NC}\n"' HUP INT QUIT PIPE TERM
 sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} up -d --build
 if [ $? -ne 0 ] ; then
@@ -14,5 +17,5 @@ if [ -z ${TEST_EXIT_CODE+x} ] || [ "$TEST_EXIT_CODE" -ne 0 ] ; then
 else
 	printf "${GREEN}Tests Passed${NC}\n"
 fi
-sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down
+cleanup
 exit $TEST_EXIT_CODE

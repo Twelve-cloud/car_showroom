@@ -63,3 +63,7 @@ itests: docker-compose.yaml
 
 docs:
 	cd src/docs && make html
+
+
+test:
+	sudo docker compose version
