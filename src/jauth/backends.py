@@ -5,7 +5,7 @@ backends.py: File, containing JWT backends for a jauth app.
 
 import logging
 from typing import ClassVar
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from jwt import InvalidTokenError, ExpiredSignatureError, decode, encode
 from django.conf import settings
 
@@ -49,7 +49,7 @@ class TokenBackend:
                 logger.error('Unexpected type of token: must be access or refresh')
                 raise ValueError('Unexpected type of token: must be access or refresh')
 
-        expiry_token_date: datetime = datetime.now() + lifetime
+        expiry_token_date: datetime = datetime.now(tz=timezone.utc) + lifetime
 
         payload: dict[str, int] = {
             'sub': user_id,

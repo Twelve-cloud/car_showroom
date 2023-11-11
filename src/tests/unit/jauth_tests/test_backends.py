@@ -1,5 +1,5 @@
 """
-test_backends.py: File, containing tests for jauth.backends.
+test_backends.py: File, containing unit tests for jauth.backends.
 """
 
 

@@ -1,5 +1,5 @@
 """
-test_tasks.py: File, containing tests for jauth.tasks.
+test_tasks.py: File, containing unit tests for jauth.tasks.
 """
 
 

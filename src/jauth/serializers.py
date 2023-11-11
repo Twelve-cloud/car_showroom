@@ -211,10 +211,9 @@ class RefreshTokenSerializer(serializers.Serializer):
                     'Token is expired.',
                 )
 
-            if token.invalid:
-                raise serializers.ValidationError(
-                    'Token is invalid.',
-                )
+            raise serializers.ValidationError(
+                'Token is invalid.',
+            )
 
         user: Optional[User] = token.get_user_by_token()
 

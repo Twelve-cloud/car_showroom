@@ -1,6 +1,12 @@
+"""
+test_api.py: File, containing integration tests for jauth api.
+"""
+
+
 import pytest
 from django.conf import settings
 from rest_framework import status
+from jauth.tasks import send_confirmation_mail
 from jauth.models import User
 from jauth.backends import TokenBackend
 
@@ -12,7 +18,7 @@ class TestUserApi:
     @pytest.fixture(scope='function', autouse=True)
     def no_send_mail(self, mocker):
         mock = mocker.MagicMock()
-        mocker.patch('jauth.tasks.send_confirmation_mail', mock)
+        mocker.patch.object(send_confirmation_mail, 'delay', mock)
 
     @pytest.fixture(scope='function', autouse=True)
     def user(self):
@@ -256,6 +262,7 @@ class TestTokenApi:
             'password': 'password2',
         }
 
+    @pytest.fixture(scope='function')
     def expired_token(self, settings):
         old_access_token_lifetime = settings.JWT_TOKEN['REFRESH_TOKEN_LIFETIME_DAYS']
         settings.JWT_TOKEN['REFRESH_TOKEN_LIFETIME_DAYS'] = 0
@@ -287,19 +294,11 @@ class TestTokenApi:
         response = client.post('/auth/token/', self.credentials, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_refresh_token(self, client):
-        refresh = {
-            'refresh': TokenBackend.generate_token(type='refresh', user_id=self.verified_user.id),
-        }
-
-        response = client.post('/auth/token/refresh/', refresh, format='json')
-        assert response.status_code == status.HTTP_200_OK
-
-        response = client.post('/auth/token/refresh/', {'refresh': 'invalid'}, format='json')
+    def test_refresh_token(self, client, expired_token):
+        response = client.post('/auth/token/refresh/', {'refresh': 'invalid' * 10}, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        expired_token = self.expired_token()
-        response = client.post('/auth/token/refresh/', {'refresh': expired_token}, format='json')
+        response = client.post('/auth/token/refresh/', {'refresh': self.expired}, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         refresh = {
@@ -308,6 +307,13 @@ class TestTokenApi:
 
         response = client.post('/auth/token/refresh/', refresh, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        refresh = {
+            'refresh': TokenBackend.generate_token(type='refresh', user_id=self.verified_user.id),
+        }
+
+        response = client.post('/auth/token/refresh/', refresh, format='json')
+        assert response.status_code == status.HTTP_200_OK
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.verified_user.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')

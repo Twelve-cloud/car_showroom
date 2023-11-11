@@ -1,5 +1,5 @@
 """
-test_tokens.py: File, containing tests for jauth.tokens.
+test_tokens.py: File, containing unit tests for jauth.tokens.
 """
 
 

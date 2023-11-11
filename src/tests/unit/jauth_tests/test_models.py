@@ -1,5 +1,5 @@
 """
-test_models.py: File, containing tests for jauth.models.
+test_models.py: File, containing unit tests for jauth.models.
 """
 
 

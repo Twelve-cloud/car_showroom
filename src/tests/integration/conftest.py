@@ -1,3 +1,8 @@
+"""
+conftest.py: File, containing common fixtures for integration tests.
+"""
+
+
 import os
 import pytest
 from django.conf import settings

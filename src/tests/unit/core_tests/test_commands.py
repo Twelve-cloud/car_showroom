@@ -1,5 +1,5 @@
 """
-test_commands.py: File, containing tests for core.management.commands.
+test_commands.py: File, containing unit tests for core.management.commands.
 """
 
 

@@ -1,5 +1,5 @@
 """
-test_services.py: File, containing tests for showroom.services.
+test_services.py: File, containing unit tests for showroom.services.
 """
 
 

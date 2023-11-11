@@ -29,9 +29,16 @@ repos:
         types: [python]
         pass_filenames: false
 
-      - id: unit_tests
+      - id: ut
         name: unit tests
         entry: bash -c "cd src && pipenv run pytest tests/unit/"
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: it
+        name: integration tests
+        entry: bash -c "make itests"
         language: system
         types: [python]
         pass_filenames: false

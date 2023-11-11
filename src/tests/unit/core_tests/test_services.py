@@ -1,5 +1,5 @@
 """
-test_services.py: File, containing tests for core.services.
+test_services.py: File, containing unit tests for core.services.
 """
 
 
