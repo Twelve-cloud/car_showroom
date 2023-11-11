@@ -55,7 +55,7 @@ COMPOSE_TESTS_ENV := \
 	--env-file=.env \
 	--env-file=env/tests/.env.tests.compose \
 
-itests:
+itests: docker-compose.yaml
 	./test.sh
 
 
