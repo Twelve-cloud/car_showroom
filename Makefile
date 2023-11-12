@@ -71,6 +71,9 @@ itests: docker-compose.yaml
         sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
     fi                                                                                      \
 
+test:
+    ./test.sh
+
 # ------------------------------------- DOCS -------------------------------------------
 
 docs:
