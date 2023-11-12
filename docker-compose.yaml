@@ -55,7 +55,11 @@ services:
     links:
       - celery
       - beat
-
+    depends_on:
+      celery:
+        condition: service_healthy
+      beat:
+        condition: service_healthy
 
   sphinx:
     extends:

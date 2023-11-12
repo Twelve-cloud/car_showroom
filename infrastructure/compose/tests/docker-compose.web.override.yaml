@@ -18,7 +18,11 @@ services:
     links:
       - celery
       - beat
-
+    depends_on:
+      celery:
+        condition: service_healthy
+      beat:
+        condition: service_healthy
     restart: always
 
   celery:
