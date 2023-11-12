@@ -62,4 +62,4 @@ jobs:
           echo "${{ secrets.ENV_FILE_REDIS }}" > ./env/tests/.env.tests.redis
 
       - name: run integration tests
-        run: make test
+        run: make itests
