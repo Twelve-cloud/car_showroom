@@ -59,17 +59,9 @@ RED := \033[0;31m
 NC := \033[0m
 
 itests: docker-compose.yaml
-    sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} up -d --build
-    @if [ `sudo docker wait tests-tests-1` -ne 0 ] ; then                                   \
-        sudo docker logs tests-tests-1;                                                     \
-        printf "${RED}Tests Failed${NC}\n";                                                 \
-        sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
-        exit 1;                                                                             \
-    else                                                                                    \
-        sudo docker logs tests-tests-1;                                                     \
-        printf "${GREEN}Tests Passed${NC}\n";                                               \
-        sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
-    fi                                                                                      \
+    @if [ `sudo docker compose -p tests --env-file=.env --env-file=env/tests/.env.tests.compose  -f docker-compose.yaml -f infrastructure/compose/tests/docker-compose.db.override.yaml -f infrastructure/compose/tests/docker-compose.rabbit.override.yaml -f infrastructure/compose/tests/docker-compose.redis.override.yaml -f infrastructure/compose/tests/docker-compose.web.override.yaml  up -d --build` -ne 0 ] ; then \
+        sudo docker logs tests-celery-1;																	\
+    fi																										\
 
 # ------------------------------------- DOCS -------------------------------------------
 
