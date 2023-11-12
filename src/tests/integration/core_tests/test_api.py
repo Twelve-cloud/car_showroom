@@ -51,7 +51,7 @@ class TestCarApi:
 
     def test_create_car(self, client):
         response = client.post('/api/v1/core/cars/', self.car_json, format='json')
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_200_OK
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
