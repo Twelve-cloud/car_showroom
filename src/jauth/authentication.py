@@ -54,10 +54,12 @@ class JWTAuthentication(authentication.BaseAuthentication):
         if header is None:
             return None
 
-        token_type, access_token = self.get_token(header)
+        result: Optional[tuple[str, str]] = self.get_token(header)
 
-        if token_type is None or access_token is None:
+        if result is None:
             raise AuthenticationFailed('Token structure is not correct.')
+
+        token_type, access_token = result
 
         is_correct: bool = self.check_if_token_type_is_correct(token_type)
 
@@ -72,8 +74,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
             if token.expired:
                 raise AuthenticationFailed('Token is expired.')
 
-            if token.invalid:
-                raise AuthenticationFailed('Token is invalid.')
+            raise AuthenticationFailed('Token is invalid.')
 
         user: Optional[User] = token.get_user_by_token()
 
@@ -109,7 +110,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         header: str = request.META.get(settings.JWT_TOKEN['HEADER_NAME'], None)
         return header
 
-    def get_token(self, header: str) -> tuple[Optional[str], Optional[str]]:
+    def get_token(self, header: str) -> Optional[tuple[str, str]]:
         """
         get_token: Returns access token type and access token value.
 
@@ -124,7 +125,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
             token_type, access_token = header.split()
             return token_type, access_token
         except Exception:
-            return None, None
+            return None
 
     def check_if_token_type_is_correct(self, token_type: str) -> bool:
         """
