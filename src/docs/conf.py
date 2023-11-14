@@ -1,31 +1,21 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+"""
+conf.py: File, containing settings for a sphinx docs for a project.
+"""
 
 
 import os
 import sys
+import django
 
 
 sys.path.insert(0, os.path.abspath('..'))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
+django.setup()
 
-project = 'Car Salon'
-copyright = '2023, IS'
-author = 'IS'
-release = '0.1.0'
-
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
-
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
-html_theme = 'sphinx_material'
+project: str = 'Car Salon'
+copyright: str = '2023, IS'
+author: str = 'IS'
+release: str = '0.1.0'
+extensions: list[str] = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon']
+exclude_patterns: list[str] = ['_build', 'Thumbs.db', '.DS_Store', '*test*']
+html_theme: str = 'sphinx_material'

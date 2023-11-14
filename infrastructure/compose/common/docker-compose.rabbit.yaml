@@ -8,7 +8,7 @@ services:
       - 15672:${MANAGEMENT_RABBITMQ_PORT}
       - 5672:${RABBITMQ_PORT}
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q check_port_connectivity"]
       interval: 10s
       timeout: 5s
       retries: 10

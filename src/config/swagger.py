@@ -1,3 +1,8 @@
+"""
+swagger.py: File, containg swagger settings for a project.
+"""
+
+
 from rest_framework import serializers
 from drf_spectacular.utils import inline_serializer
 

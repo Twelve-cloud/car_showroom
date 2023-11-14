@@ -14,6 +14,7 @@ COPY Pipfile Pipfile.lock ./
 
 # 4 layer
 RUN pipenv install --system --deploy --ignore-pipfile
+RUN pip install typing-extensions
 
 # 5 layer
 COPY . ./
