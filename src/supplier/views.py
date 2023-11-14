@@ -94,6 +94,10 @@ class SupplierViewSet(viewsets.ModelViewSet):
         'creation_year',
     ]
 
+    ordering: ClassVar[list] = [
+        '-created_at',
+    ]
+
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         destroy: Instead of deleting from database this method set suppliers's is_active to False.

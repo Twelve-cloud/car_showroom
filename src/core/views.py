@@ -84,6 +84,10 @@ class CarViewSet(
         'creation_year',
     ]
 
+    ordering: ClassVar[list] = [
+        '-created_at',
+    ]
+
     def destroy(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         destroy: Instead of deleting from database this method set car's is_active field to False.

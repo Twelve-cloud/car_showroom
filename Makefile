@@ -68,9 +68,10 @@ itests: docker-compose.yaml
     else                                                                                    \
         sudo docker logs tests-tests-1;                                                     \
         printf "${GREEN}Tests Passed${NC}\n";                                               \
-        sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
     fi                                                                                      \
 
+stop:
+    sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
 # ------------------------------------- DOCS -------------------------------------------
 
 docs:

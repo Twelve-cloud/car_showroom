@@ -65,131 +65,171 @@ class TestUserApi:
         }
 
     def test_create_user(self, client):
-        response = client.post('/auth/users/', self.user_json_3, format='json')
+        response = client.post('/api/v1/auth/users/', self.user_json_3, format='json')
         user = User.objects.filter(username=self.user_json_3.get('username')).first()
         assert user is not None
         assert response.status_code == status.HTTP_201_CREATED
 
-        response = client.post('/auth/users/', self.user_json_3, format='json')
+        response = client.post('/api/v1/auth/users/', self.user_json_3, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         user_token = TokenBackend.generate_token(type='access', user_id=user.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.post('/auth/users/', self.user_json_3, format='json')
+        response = client.post('/api/v1/auth/users/', self.user_json_3, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
         user.is_staff = True
         user.save(update_fields=['is_staff'])
-        response = client.post('/auth/users/', self.user_json_4, format='json')
+        response = client.post('/api/v1/auth/users/', self.user_json_4, format='json')
         assert response.status_code == status.HTTP_201_CREATED
 
     def test_update_user(self, client):
-        response = client.put(f'/auth/users/{self.user_1.id}/', self.user_json_3, format='json')
+        response = client.put(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.user_json_3,
+            format='json',
+        )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.put(f'/auth/users/{self.user_1.id}/', self.user_json_3, format='json')
+        response = client.put(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.user_json_3,
+            format='json',
+        )
         assert response.status_code == status.HTTP_200_OK
 
-        response = client.put(f'/auth/users/{self.user_2.id}/', self.user_json_4, format='json')
+        response = client.put(
+            f'/api/v1/auth/users/{self.user_2.id}/',
+            self.user_json_4,
+            format='json',
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-        response = client.put(f'/auth/users/{self.user_1.id}/', self.u_part_json, format='json')
+        response = client.put(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.u_part_json,
+            format='json',
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        response = client.put(f'/auth/users/{self.user_1.id}/', self.user_json_2, format='json')
+        response = client.put(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.user_json_2,
+            format='json',
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_partial_update_user(self, client):
-        response = client.patch(f'/auth/users/{self.user_1.id}/', self.user_json_3, format='json')
+        response = client.patch(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.user_json_3,
+            format='json',
+        )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.patch(f'/auth/users/{self.user_1.id}/', self.user_json_3, format='json')
+        response = client.patch(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.user_json_3,
+            format='json',
+        )
         assert response.status_code == status.HTTP_200_OK
 
-        response = client.patch(f'/auth/users/{self.user_2.id}/', self.user_json_4, format='json')
+        response = client.patch(
+            f'/api/v1/auth/users/{self.user_2.id}/',
+            self.user_json_4,
+            format='json',
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-        response = client.patch(f'/auth/users/{self.user_1.id}/', self.u_part_json, format='json')
+        response = client.patch(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.u_part_json,
+            format='json',
+        )
         assert response.status_code == status.HTTP_200_OK
 
-        response = client.patch(f'/auth/users/{self.user_1.id}/', self.user_json_2, format='json')
+        response = client.patch(
+            f'/api/v1/auth/users/{self.user_1.id}/',
+            self.user_json_2,
+            format='json',
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_list_users(self, client):
-        response = client.get('/auth/users/', format='json')
+        response = client.get('/api/v1/auth/users/', format='json')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.get('/auth/users/', format='json')
+        response = client.get('/api/v1/auth/users/', format='json')
         assert response.status_code == status.HTTP_200_OK
 
     def test_retrieve_user(self, client):
-        response = client.get(f'/auth/users/{self.user_1.id}/', format='json')
+        response = client.get(f'/api/v1/auth/users/{self.user_1.id}/', format='json')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.get(f'/auth/users/{self.user_1.id}/', format='json')
+        response = client.get(f'/api/v1/auth/users/{self.user_1.id}/', format='json')
         assert response.status_code == status.HTTP_200_OK
 
-        response = client.get(f'/auth/users/{self.user_2.id}/', format='json')
+        response = client.get(f'/api/v1/auth/users/{self.user_2.id}/', format='json')
         assert response.status_code == status.HTTP_200_OK
 
     def test_destroy_user(self, client):
-        response = client.delete(f'/auth/users/{self.user_1.id}/', format='json')
+        response = client.delete(f'/api/v1/auth/users/{self.user_1.id}/', format='json')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.delete(f'/auth/users/{self.user_2.id}/', format='json')
+        response = client.delete(f'/api/v1/auth/users/{self.user_2.id}/', format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-        response = client.delete(f'/auth/users/{self.user_1.id}/', format='json')
+        response = client.delete(f'/api/v1/auth/users/{self.user_1.id}/', format='json')
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
         self.user_1.is_staff = True
         self.user_1.save(update_fields=['is_staff'])
-        response = client.delete(f'/auth/users/{self.user_2.id}/', format='json')
+        response = client.delete(f'/api/v1/auth/users/{self.user_2.id}/', format='json')
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
     def test_confirm_email(self, client):
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
 
-        response = client.get(f'/auth/users/confirm_email/{user_token}/', format='json')
+        response = client.get(f'/api/v1/auth/users/confirm_email/{user_token}/', format='json')
         assert response.status_code == status.HTTP_200_OK
 
-        response = client.get('/auth/users/confirm_email/bad_token/', format='json')
+        response = client.get('/api/v1/auth/users/confirm_email/bad_token/', format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.get(f'/auth/users/confirm_email/{user_token}/', format='json')
+        response = client.get(f'/api/v1/auth/users/confirm_email/{user_token}/', format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_reset_password(self, client):
         request_body = {'email': self.user_1.email}
-        response = client.post('/auth/users/reset_password/', request_body, format='json')
+        response = client.post('/api/v1/auth/users/reset_password/', request_body, format='json')
         assert response.status_code == status.HTTP_200_OK
 
         request_body = {'email': 'invalid_email'}
-        response = client.post('/auth/users/reset_password/', request_body, format='json')
+        response = client.post('/api/v1/auth/users/reset_password/', request_body, format='json')
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.user_1.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.post('/auth/users/reset_password/', request_body, format='json')
+        response = client.post('/api/v1/auth/users/reset_password/', request_body, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_reset_password_confirm(self, client):
@@ -197,14 +237,14 @@ class TestUserApi:
         request_body = {'password': '12341234'}
 
         response = client.patch(
-            f'/auth/users/reset_password_confirm/{user_token}/',
+            f'/api/v1/auth/users/reset_password_confirm/{user_token}/',
             request_body,
             format='json',
         )
         assert response.status_code == status.HTTP_200_OK
 
         response = client.patch(
-            '/auth/users/reset_password_confirm/bad_token/',
+            '/api/v1/auth/users/reset_password_confirm/bad_token/',
             request_body,
             format='json',
         )
@@ -213,7 +253,7 @@ class TestUserApi:
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
         response = client.patch(
-            f'/auth/users/reset_password_confirm/{user_token}/',
+            f'/api/v1/auth/users/reset_password_confirm/{user_token}/',
             request_body,
             format='json',
         )
@@ -270,53 +310,61 @@ class TestTokenApi:
         settings.JWT_TOKEN['REFRESH_TOKEN_LIFETIME_DAYS'] = old_access_token_lifetime
 
     def test_create_token(self, client):
-        response = client.post('/auth/token/', self.invalid_creds, format='json')
+        response = client.post('/api/v1/auth/token/', self.invalid_creds, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        response = client.post('/auth/token/', self.invalid_password, format='json')
+        response = client.post('/api/v1/auth/token/', self.invalid_password, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        response = client.post('/auth/token/', self.unverified_creds, format='json')
+        response = client.post('/api/v1/auth/token/', self.unverified_creds, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        response = client.post('/auth/token/', self.credentials, format='json')
+        response = client.post('/api/v1/auth/token/', self.credentials, format='json')
         assert response.status_code == status.HTTP_200_OK
 
         self.verified_user.is_active = True
         self.verified_user.save(update_fields=['is_active'])
 
-        response = client.post('/auth/token/', self.credentials, format='json')
+        response = client.post('/api/v1/auth/token/', self.credentials, format='json')
         assert response.status_code == status.HTTP_200_OK
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.verified_user.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.post('/auth/token/', self.credentials, format='json')
+        response = client.post('/api/v1/auth/token/', self.credentials, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_refresh_token(self, client, expired_token):
-        response = client.post('/auth/token/refresh/', {'refresh': 'invalid' * 10}, format='json')
+        response = client.post(
+            '/api/v1/auth/token/refresh/',
+            {'refresh': 'invalid' * 10},
+            format='json',
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        response = client.post('/auth/token/refresh/', {'refresh': self.expired}, format='json')
+        response = client.post(
+            '/api/v1/auth/token/refresh/',
+            {'refresh': self.expired},
+            format='json',
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         refresh = {
             'refresh': TokenBackend.generate_token(type='refresh', user_id=1000),
         }
 
-        response = client.post('/auth/token/refresh/', refresh, format='json')
+        response = client.post('/api/v1/auth/token/refresh/', refresh, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         refresh = {
             'refresh': TokenBackend.generate_token(type='refresh', user_id=self.verified_user.id),
         }
 
-        response = client.post('/auth/token/refresh/', refresh, format='json')
+        response = client.post('/api/v1/auth/token/refresh/', refresh, format='json')
         assert response.status_code == status.HTTP_200_OK
 
         user_token = TokenBackend.generate_token(type='access', user_id=self.verified_user.id)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {user_token}')
 
-        response = client.post('/auth/token/refresh/', refresh, format='json')
+        response = client.post('/api/v1/auth/token/refresh/', refresh, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN

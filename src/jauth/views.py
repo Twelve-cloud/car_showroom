@@ -94,6 +94,10 @@ class UserViewSet(viewsets.ModelViewSet):
         'last_name',
     ]
 
+    ordering: ClassVar[list] = [
+        '-date_joined',
+    ]
+
     permission_map: ClassVar[dict] = {
         'create': [
             ~IsAuthenticated | IsAdminUser,

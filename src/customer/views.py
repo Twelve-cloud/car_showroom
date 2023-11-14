@@ -7,10 +7,12 @@ from typing import ClassVar
 from rest_framework import status, viewsets
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models.query import QuerySet
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 from customer.models import CustomerModel, CustomerOffer
 from customer.swagger import (
     customer_list_schema_extension,
@@ -64,6 +66,28 @@ class CustomerViewSet(viewsets.ModelViewSet):
     queryset: ClassVar[QuerySet[CustomerModel]] = CustomerModel.objects.all()
 
     service: ClassVar[CustomerService] = CustomerService()
+
+    filter_backends: ClassVar[list] = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields: ClassVar[list] = [
+        'balance',
+    ]
+
+    search_fields: ClassVar[list] = [
+        'balance',
+    ]
+
+    ordering_fields: ClassVar[list] = [
+        'balance',
+    ]
+
+    ordering: ClassVar[list] = [
+        '-created_at',
+    ]
 
     permission_map: ClassVar[dict] = {
         'create': [

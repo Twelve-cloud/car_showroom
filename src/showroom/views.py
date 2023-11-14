@@ -94,6 +94,10 @@ class ShowroomViewSet(viewsets.ModelViewSet):
         'creation_year',
     ]
 
+    ordering: ClassVar[list] = [
+        '-created_at',
+    ]
+
     def create(self, request: Request, *args: tuple, **kwargs: dict) -> Response:
         """
         create: Creates showroom, finds appropriates cars and suppliers for showroom.
