@@ -21,14 +21,14 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 
 urlpatterns: list = [
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/', SpectacularAPIView.as_view(api_version='v1'), name='schema'),
     path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('api/v1/auth/', include('jauth.urls', namespace='v1-auth')),
-    path('api/v1/core/', include('core.urls', namespace='v1-core')),
-    path('api/v1/customer/', include('customer.urls', namespace='v1-customer')),
-    path('api/v1/showroom/', include('showroom.urls', namespace='v1-showroom')),
-    path('api/v1/supplier/', include('supplier.urls', namespace='v1-supplier')),
+    path('api/v1/auth/', include(('jauth.urls', 'auth'), namespace='v1')),
+    path('api/v1/core/', include(('core.urls', 'core'), namespace='v1')),
+    path('api/v1/customer/', include(('customer.urls', 'customer'), namespace='v1')),
+    path('api/v1/showroom/', include(('showroom.urls', 'showroom'), namespace='v1')),
+    path('api/v1/supplier/', include(('supplier.urls', 'supplier'), namespace='v1')),
 ]
 
 

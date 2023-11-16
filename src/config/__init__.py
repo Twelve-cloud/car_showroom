@@ -8,8 +8,10 @@ Because of that, we import "app" here, because __init__ files perform always to 
 
 
 from .celery import app as celery_app
+from .schema import JWTTokenAuthenticationScheme
 
 
 __all__: list = [
     'celery_app',
+    'JWTTokenAuthenticationScheme',
 ]

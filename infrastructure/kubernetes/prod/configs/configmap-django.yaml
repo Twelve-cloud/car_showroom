@@ -9,4 +9,5 @@ data:
   WORKER_LOG_LEVEL: "ERROR"
   BEAT_LOG_LEVEL: "ERROR"
   FLOWER_LOG_LEVEL: "ERROR"
+  KUBERNETES: "True"
   DB_ENGINE: "django.db.backends.postgresql"

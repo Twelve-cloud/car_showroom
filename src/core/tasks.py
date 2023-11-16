@@ -6,6 +6,7 @@ tasks.py: File, containing celery tasks for a core application.
 from typing import Optional
 from datetime import datetime
 from celery import group, shared_task
+from django.db import transaction
 from django.db.models import Max, Count
 from django.db.models.query import QuerySet
 from core.models import CarModel
@@ -89,7 +90,12 @@ def find_suppliers(showroom_id: int) -> None:
         showroom (ShowroomModel): Showroom instance.
     """
 
-    showroom = ShowroomModel.objects.prefetch_related('appropriate_cars').get(pk=showroom_id)
+    showroom = (
+        ShowroomModel.objects.prefetch_related('appropriate_cars').filter(pk=showroom_id).first()
+    )
+
+    if showroom is None:
+        return
 
     showroom.current_suppliers.clear()
 
@@ -253,26 +259,27 @@ def buy_supplier_cars() -> None:
                 chosen_supplier = car_with_max_discount.supplier
 
             if showroom.balance > price:
-                showroom_car: ShowroomCar = ShowroomCar.objects.create(
-                    car=chosen_car.car,
-                    price=price,
-                    showroom=showroom,
-                    user=None,
-                )
-                showroom.cars.add(showroom_car)
-                showroom.balance -= price
-                showroom.save()
+                with transaction.atomic():
+                    showroom_car: ShowroomCar = ShowroomCar.objects.create(
+                        car=chosen_car.car,
+                        price=price,
+                        showroom=showroom,
+                        user=None,
+                    )
+                    showroom.cars.add(showroom_car)
+                    showroom.balance -= price
+                    showroom.save()
 
-                chosen_car.is_active = False
-                chosen_car.save()
+                    chosen_car.is_active = False
+                    chosen_car.save()
 
-                history: SupplierHistory = SupplierHistory.objects.create(
-                    supplier=chosen_supplier,
-                    car=car,
-                    sale_price=price,
-                    showroom=showroom,
-                )
-                showroom.supplier_history.add(history)
+                    history: SupplierHistory = SupplierHistory.objects.create(
+                        supplier=chosen_supplier,
+                        car=car,
+                        sale_price=price,
+                        showroom=showroom,
+                    )
+                    showroom.supplier_history.add(history)
 
 
 def get_unique_customer_discount(customer: CustomerModel, showroom: ShowroomModel) -> float:
@@ -358,24 +365,25 @@ def make_customer_offer(offer_id: int) -> None:
     customer = offer.customer
 
     if offer.max_price > price:
-        customer.cars.add(chosen_car)
-        customer.balance -= price
-        customer.save()
+        with transaction.atomic():
+            customer.cars.add(chosen_car)
+            customer.balance -= price
+            customer.save()
 
-        chosen_car.is_active = False
-        chosen_car.save()
+            chosen_car.is_active = False
+            chosen_car.save()
 
-        history: ShowroomHistory = ShowroomHistory.objects.create(
-            showroom=chosen_showroom,
-            car=chosen_car.car,
-            sale_price=price,
-            customer=customer,
-        )
-        customer.showroom_history.add(history)
+            history: ShowroomHistory = ShowroomHistory.objects.create(
+                showroom=chosen_showroom,
+                car=chosen_car.car,
+                sale_price=price,
+                customer=customer,
+            )
+            customer.showroom_history.add(history)
 
-        CustomerHistory.objects.create(
-            customer=customer,
-            car=chosen_car.car,
-            purchase_price=price,
-            showroom=chosen_showroom.name,
-        )
+            CustomerHistory.objects.create(
+                customer=customer,
+                car=chosen_car.car,
+                purchase_price=price,
+                showroom=chosen_showroom.name,
+            )

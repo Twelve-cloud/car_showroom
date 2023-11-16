@@ -26,7 +26,7 @@ ForbiddenSerializer = inline_serializer(
 )
 
 IncorrectTokenSerializer = inline_serializer(
-    name='Token is not correct.',
+    name='IncorrectToken',
     fields={
         'Error': serializers.CharField(
             default='Bad link.',

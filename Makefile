@@ -92,9 +92,13 @@ clusterinit:
     while ! kubectl get serviceaccount service-account-production -n production &> /dev/null; do                       \
     echo "Waiting for service account. CTRL-C to exit."; sleep 1; done                                                 \
 
-    kubectl create -f ${KA8_CLUSTER_PROD_SECRET}
-    while ! kubectl get secret secret-production -n production &> /dev/null; do                                        \
-    echo "Waiting for secret-production. CTRL-C to exit."; sleep 1; done                                               \
+    kubectl create -f ${KA8_CLUSTER_PROD_SECRET_DJANGO}
+    while ! kubectl get secret secret-django-production -n production &> /dev/null; do                                 \
+    echo "Waiting for secret-django-production. CTRL-C to exit."; sleep 1; done                                        \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SECRET_DB}
+    while ! kubectl get secret secret-database-production -n production &> /dev/null; do                               \
+    echo "Waiting for secret-database-production. CTRL-C to exit."; sleep 1; done                                      \
 
 # create quota
 
@@ -136,6 +140,9 @@ clusterrun:
     kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_PUBLIC}
     while ! kubectl get service service-database-public -n production &> /dev/null; do      \
     echo "Waiting for service-database-public. CTRL-C to exit."; sleep 1; done              \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_STATEFULSET_DATABASE}
+    kubectl rollout status statefulset statefulset-database -n production
 
 clusterpause:
     minikube pause

@@ -34,6 +34,8 @@ SECRET_KEY: Optional[str] = os.getenv('SECRET_KEY')
 
 DEBUG: bool = os.getenv('DEBUG') == 'True'
 
+KUBERNETES: bool = os.getenv('KUBERNETES') == 'True'
+
 ALLOWED_HOSTS: Optional[list] = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 DEFAULT_CHARSET: str = 'utf8'
@@ -368,6 +370,37 @@ if DEBUG:
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ]
+
+# ------------------------- KUBERNETES SETTINGS --------------------------------
+
+if KUBERNETES:
+    from dns.resolver import Answer, query
+
+    srv_records: Answer = query('service-database-headless.production.svc.cluster.local', 'SRV')
+    master_host: str = srv_records[0].target
+
+    DATABASES = {
+        'master': {
+            'ENGINE': os.getenv('DB_ENGINE'),
+            'NAME': os.getenv('DB_NAME'),
+            'HOST': master_host,
+            'PORT': os.getenv('DB_PORT'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'CONN_MAX_AGE': 0,
+        },
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE'),
+            'NAME': os.getenv('DB_NAME'),
+            'HOST': os.getenv('SERVICE_DATABASE_PUBLIC_SERVICE_HOST'),
+            'PORT': os.getenv('SERVICE_DATABASE_PUBLIC_SERVICE_PORT'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'CONN_MAX_AGE': 0,
+        },
+    }
+
+    DATABASE_ROUTERS = ['config.dbrouters.KubernetesRouter']
 
 # -------------------------- OTHER SETTINGS ------------------------------------
 

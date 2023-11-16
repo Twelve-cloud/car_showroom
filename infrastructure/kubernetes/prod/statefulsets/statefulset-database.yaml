@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset-database
+  namespace: production
+spec:
+  serviceName: service-database-headless
+  replicas: 3
+  revisionHistoryLimit: 10
+  minReadySeconds: 10
+  selector:
+    matchLabels:
+      app: database-postgres
+  template:
+    metadata:
+      name: pod-database
+      labels:
+        app: database-postgres
+    spec:
+      serviceAccountName: service-account-production
+      containers:
+      - image: postgres:14.4-alpine
+        imagePullPolicy: Always
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: secret-database-production
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - exec pg_isready -U Twelve -h 127.0.0.1 -p 5432
+          failureThreshold: 6
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U Twelve -h 127.0.0.1 -p 5432
+          failureThreshold: 6
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        # resources:
+        #   requests:
+        #     cpu: 400m
+        #     memory: 100Mi
+        #   limits:
+        #     cpu: 600m
+        #     memory: 200Mi
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      resources:
+        requests:
+          storage: 1Gi
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ""
