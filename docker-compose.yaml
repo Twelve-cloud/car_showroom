@@ -16,17 +16,27 @@ services:
       file: ${COMPOSE_COMMON_REDIS}
       service: redis
 
+  migrations:
+    extends:
+      file: ${COMPOSE_COMMON_WEB}
+      service: migrations
+    links:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   celery:
     extends:
       file: ${COMPOSE_COMMON_WEB}
       service: celery
     links:
-      - postgres
+      - migrations
       - rabbitmq
       - redis
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
       redis:
@@ -37,12 +47,12 @@ services:
       file: ${COMPOSE_COMMON_WEB}
       service: beat
     links:
-      - postgres
+      - migrations
       - rabbitmq
       - redis
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
       redis:

@@ -8,4 +8,4 @@ services:
       - ./src/data/prod/rabbitmq:/var/lib/rabbitmq
     networks:
       back-prod:
-        ipv4_address: 172.168.10.9
+        ipv4_address: 172.168.10.10

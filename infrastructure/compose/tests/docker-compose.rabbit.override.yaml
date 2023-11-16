@@ -6,4 +6,4 @@ services:
       - ./env/tests/.env.tests.rabbitmq
     networks:
       back-tests:
-        ipv4_address: 182.168.10.8
+        ipv4_address: 182.168.10.9

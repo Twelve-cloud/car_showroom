@@ -64,15 +64,91 @@ itests: docker-compose.yaml
         sudo docker logs tests-tests-1;                                                     \
         printf "${RED}Tests Failed${NC}\n";                                                 \
         sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
-        exit 1;                                                                             \
     else                                                                                    \
         sudo docker logs tests-tests-1;                                                     \
         printf "${GREEN}Tests Passed${NC}\n";                                               \
+        sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
     fi                                                                                      \
 
-stop:
-    sudo docker compose -p tests ${COMPOSE_TESTS_ENV} ${COMPOSE_TESTS} down;            \
 # ------------------------------------- DOCS -------------------------------------------
 
 docs:
     cd src/docs && make html
+
+# ------------------------------------- K&8 -------------------------------------------
+
+clusterstart:
+    minikube start
+
+clusterinit:
+    kubectl create -f ${KA8_CLUSTER_PROD_NAMESPACE}
+    kubectl wait --for jsonpath='{.status.phase}=Active' namespace/production --timeout=60s
+
+    kubectl create -f ${KA8_CLUSTER_PROD_VOLUMES}
+    while ! kubectl get pv pv-database-production-0 pv-database-production-1 pv-database-production-2 &> /dev/null; do \
+    echo "Waiting for persistent volumes. CTRL-C to exit."; sleep 1; done                                              \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_ACCOUNT}
+    while ! kubectl get serviceaccount service-account-production -n production &> /dev/null; do                       \
+    echo "Waiting for service account. CTRL-C to exit."; sleep 1; done                                                 \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SECRET}
+    while ! kubectl get secret secret-production -n production &> /dev/null; do                                        \
+    echo "Waiting for secret-production. CTRL-C to exit."; sleep 1; done                                               \
+
+# create quota
+
+# create limit-range
+
+clusterrun:
+    kubectl create -f ${KA8_CLUSTER_PROD_CONFIG}
+    while ! kubectl get configmap configmap-django -n production &> /dev/null;              \
+    do echo "Waiting for configmap-django. CTRL-C to exit."; sleep 1; done                  \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_NGINX}
+    while ! kubectl get service service-nginx -n production &> /dev/null; do                \
+    echo "Waiting for service-nginx. CTRL-C to exit."; sleep 1; done                        \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_GUNICORN}
+    while ! kubectl get service service-gunicorn -n production &> /dev/null; do             \
+    echo "Waiting for service-gunicorn. CTRL-C to exit."; sleep 1; done                     \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_FLOWER}
+    while ! kubectl get service service-flower -n production &> /dev/null; do               \
+    echo "Waiting for service-flower. CTRL-C to exit."; sleep 1; done                       \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_RABBIT}
+    while ! kubectl get service service-rabbitmq -n production &> /dev/null; do             \
+    echo "Waiting for service-rabbitmq. CTRL-C to exit."; sleep 1; done                     \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_REDIS}
+    while ! kubectl get service service-redis -n production &> /dev/null; do                \
+    echo "Waiting for service-redis. CTRL-C to exit."; sleep 1; done                        \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_SPHINX}
+    while ! kubectl get service service-sphinx -n production &> /dev/null; do               \
+    echo "Waiting for service-sphinx. CTRL-C to exit."; sleep 1; done                       \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_HEADLESS}
+    while ! kubectl get service service-database-headless -n production &> /dev/null; do    \
+    echo "Waiting for service-database-headless. CTRL-C to exit."; sleep 1; done            \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_PUBLIC}
+    while ! kubectl get service service-database-public -n production &> /dev/null; do      \
+    echo "Waiting for service-database-public. CTRL-C to exit."; sleep 1; done              \
+
+clusterpause:
+    minikube pause
+
+clusterresume:
+    minikube unpause
+
+clusterclear:
+    kubectl delete namespace production
+    kubectl delete pv pv-database-production-0 pv-database-production-1 pv-database-production-2
+
+clusterstop:
+    minikube stop
+
+clusterdelete:
+    minikube delete

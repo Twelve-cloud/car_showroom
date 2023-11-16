@@ -8,4 +8,4 @@ services:
       - ./src/data/prod/redis:/root/redis
     networks:
       back-prod:
-        ipv4_address: 172.168.10.8
+        ipv4_address: 172.168.10.9

@@ -19,5 +19,5 @@ RUN pipenv install --categories=dev-packages --system --deploy --ignore-pipfile
 COPY . ./
 
 # 6 layer
-RUN chmod +x django-entrypoint.sh && chmod +x celery-entrypoint.sh && chmod +x beat-entrypoint.sh && chmod +x flower-entrypoint.sh
+RUN chmod +x django-entrypoint.sh && chmod +x celery-entrypoint.sh && chmod +x beat-entrypoint.sh && chmod +x flower-entrypoint.sh && chmod +x migrations-entrypoint.sh
 EXPOSE 5000

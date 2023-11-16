@@ -18,6 +18,8 @@ class Token:
     Token: Custom JWT token class, that provides actions with jwt token.
     """
 
+    __slots__: ClassVar[list[str]] = ['token', 'type', 'expired', 'invalid', '_payload']
+
     backend_class: ClassVar[type[TokenBackend]] = TokenBackend
 
     def __init__(self, *, token: str, type: str) -> None:

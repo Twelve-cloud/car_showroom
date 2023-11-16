@@ -6,6 +6,7 @@ models.py: File, containing basic models for whole project.
 from typing import ClassVar
 from django.db import models
 from django.core import validators
+from core.enums.enums import Brands, TransmissionTypes
 
 
 class BaseModel(models.Model):
@@ -42,29 +43,6 @@ class CarModel(BaseModel):
     Args:
         BaseModel (_type_): Base model for every model in the project.
     """
-
-    class Brands(models.TextChoices):
-        """
-        Brands: Brand choices.
-
-        Args:
-            models.TextChoices (_type_): Buildin superclass for Brands model.
-        """
-
-        AUDI: tuple[str, str] = 'audi', 'Audi'
-        BMW: tuple[str, str] = 'bmw', 'BMW'
-        TESLA: tuple[str, str] = 'tesla', 'Tesla'
-
-    class TransmissionTypes(models.TextChoices):
-        """
-        TransmissionTypes: Transmission types choices.
-
-        Args:
-            models.TextChoices (_type_): Buildin superclass for TransmissionTypes model.
-        """
-
-        MANUAL: tuple[str, str] = 'manual', 'Manual'
-        AUTO: tuple[str, str] = 'auto', 'Automatic'
 
     brand = models.CharField(
         max_length=50,

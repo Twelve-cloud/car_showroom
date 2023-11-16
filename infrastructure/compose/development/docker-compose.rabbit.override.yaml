@@ -8,4 +8,4 @@ services:
       - ./src/data/dev/rabbitmq:/var/lib/rabbitmq
     networks:
       back-dev:
-        ipv4_address: 192.168.10.8
+        ipv4_address: 192.168.10.9

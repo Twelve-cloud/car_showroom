@@ -61,6 +61,17 @@ services:
         condition: service_healthy
     restart: always
 
+  migrations:
+    <<: *default-env
+    build:
+      context: ./src
+      dockerfile: Dockerfile-prod
+    entrypoint:
+      - ./migrations-entrypoint.sh
+    networks:
+      back-prod:
+        ipv4_address: 172.168.10.4
+
   celery:
     <<: *default-env
     build:
@@ -70,7 +81,7 @@ services:
       - ./celery-entrypoint.sh
     networks:
       back-prod:
-        ipv4_address: 172.168.10.4
+        ipv4_address: 172.168.10.5
 
   beat:
     <<: *default-env
@@ -81,7 +92,7 @@ services:
       - ./beat-entrypoint.sh
     networks:
       back-prod:
-        ipv4_address: 172.168.10.5
+        ipv4_address: 172.168.10.6
 
   flower:
     <<: *default-env
@@ -92,7 +103,7 @@ services:
       - ./flower-entrypoint.sh
     networks:
       back-prod:
-        ipv4_address: 172.168.10.6
+        ipv4_address: 172.168.10.7
 
   sphinx:
     build:
@@ -100,4 +111,4 @@ services:
       dockerfile: Dockerfile-sphinx
     networks:
       back-prod:
-        ipv4_address: 172.168.10.7
+        ipv4_address: 172.168.10.8

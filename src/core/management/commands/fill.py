@@ -10,6 +10,7 @@ from django.db.models import Max, Min
 from django.core.management.base import BaseCommand
 from core.models import CarModel
 from supplier.models import SupplierCar, SupplierModel, SupplierCarDiscount
+from core.enums.enums import Brands, TransmissionTypes
 
 
 class Command(BaseCommand):
@@ -37,8 +38,8 @@ class Command(BaseCommand):
 
         for i in range(1, 10):
             CarModel.objects.get_or_create(
-                brand=choice(CarModel.Brands.choices)[0],
-                transmission_type=choice(CarModel.TransmissionTypes.choices)[0],
+                brand=choice(Brands.choices)[0],
+                transmission_type=choice(TransmissionTypes.choices)[0],
                 creation_year=randint(1900, datetime.now().year),
                 miliage=randint(1000, 200000),
             )

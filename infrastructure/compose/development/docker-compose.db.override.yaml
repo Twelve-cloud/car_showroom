@@ -8,4 +8,4 @@ services:
       - ./src/data/dev/postgres:/var/lib/postgresql/data
     networks:
       back-dev:
-        ipv4_address: 192.168.10.9
+        ipv4_address: 192.168.10.10

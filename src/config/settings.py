@@ -76,15 +76,6 @@ MIDDLEWARE: list = [
 # ---------------------------- DATABASES --------------------------------------
 
 DATABASES: dict = {
-    'master': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': os.getenv('DB_NAME'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'CONN_MAX_AGE': 0,
-    },
     'default': {
         'ENGINE': os.getenv('DB_ENGINE'),
         'NAME': os.getenv('DB_NAME'),
@@ -207,7 +198,7 @@ LOGGING: dict = {
         },
         'django.db.backends': {
             'handlers': ['console_dev', 'console_prd', 'mail_prd'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False,
         },
         'django.request': {
@@ -311,7 +302,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS: dict = {'visibility_timeout': 3600}
 
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP: bool = True
 
-BROKER_CONNECTION_TIMEOUT: int = 30
+CELERY_BROKER_CONNECTION_TIMEOUT: int = 30
 
 CELERY_BROKER_HEARTBEAT: int = 60
 

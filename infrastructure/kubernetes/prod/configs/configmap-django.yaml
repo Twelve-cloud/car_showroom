@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-django
+  namespace: production
+data:
+  DEBUG: "False"
+  EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
+  WORKER_LOG_LEVEL: "ERROR"
+  BEAT_LOG_LEVEL: "ERROR"
+  FLOWER_LOG_LEVEL: "ERROR"
+  DB_ENGINE: "django.db.backends.postgresql"

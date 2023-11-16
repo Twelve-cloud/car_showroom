@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-database-production-0
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /k8s/car_salon/postgres/database1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-database-production-1
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /k8s/car_salon/postgres/database2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-database-production-2
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /k8s/car_salon/postgres/database3

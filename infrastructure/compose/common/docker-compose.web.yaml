@@ -1,6 +1,10 @@
 version: '3.7'
 
 services:
+  migrations:
+    hostname: migrations
+    restart: no
+
   celery:
     hostname: celery
     healthcheck:
