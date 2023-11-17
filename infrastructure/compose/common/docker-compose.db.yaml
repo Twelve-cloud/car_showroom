@@ -3,6 +3,20 @@ version: '3.7'
 services:
   postgres:
     image: postgres:14.4-alpine
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=4GB"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "wal_writer_delay=400ms"
+      - "-c"
+      - "synchronous_commit=off"
+      - "-c"
+      - "autovacuum_naptime=5min"
+      - "-c"
+      - "autovacuum_max_workers=8"
     hostname: postgres
     ports:
       - 5432:${POSTGRES_PORT}
