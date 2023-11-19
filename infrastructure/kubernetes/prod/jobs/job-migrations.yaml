@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-migrations
+  namespace: production
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      name: migrations-pod
+      labels:
+        app: migrations-django
+        rel: stable
+    spec:
+      serviceAccountName: service-account-production
+      containers:
+      - name: migrations
+        image: twelvecloud/car.showroom:django-production
+        command: ["./migrations-entrypoint.sh"]
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: secret-django-production
+        - configMapRef:
+            name: configmap-django
+      restartPolicy: Never

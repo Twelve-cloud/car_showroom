@@ -92,6 +92,10 @@ clusterinit:
     while ! kubectl get serviceaccount service-account-production -n production &> /dev/null; do                       \
     echo "Waiting for service account. CTRL-C to exit."; sleep 1; done                                                 \
 
+# create limit-range
+
+# create quota
+
     kubectl create -f ${KA8_CLUSTER_PROD_SECRET_DJANGO}
     while ! kubectl get secret secret-django-production -n production &> /dev/null; do                                 \
     echo "Waiting for secret-django-production. CTRL-C to exit."; sleep 1; done                                        \
@@ -100,30 +104,37 @@ clusterinit:
     while ! kubectl get secret secret-database-production -n production &> /dev/null; do                               \
     echo "Waiting for secret-database-production. CTRL-C to exit."; sleep 1; done                                      \
 
-# create quota
+    kubectl create -f ${KA8_CLUSTER_PROD_SECRET_RABBIT}
+    while ! kubectl get secret secret-rabbit-production -n production &> /dev/null; do                                 \
+    echo "Waiting for secret-rabbit-production. CTRL-C to exit."; sleep 1; done                                        \
 
-# create limit-range
+    kubectl create -f ${KA8_CLUSTER_PROD_SECRET_REDIS}
+    while ! kubectl get secret secret-redis-production -n production &> /dev/null; do                                  \
+    echo "Waiting for secret-redis-production. CTRL-C to exit."; sleep 1; done                                         \
+
+    kubectl create secret generic certificate-https                                                                    \
+    --from-file=certs/localhost-prod.crt --from-file=certs/localhost-prod.key -n production                            \
 
 clusterrun:
     kubectl create -f ${KA8_CLUSTER_PROD_CONFIG}
     while ! kubectl get configmap configmap-django -n production &> /dev/null;              \
     do echo "Waiting for configmap-django. CTRL-C to exit."; sleep 1; done                  \
 
-    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_NGINX}
-    while ! kubectl get service service-nginx -n production &> /dev/null; do                \
-    echo "Waiting for service-nginx. CTRL-C to exit."; sleep 1; done                        \
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_PUBLIC}
+    while ! kubectl get service service-database-public -n production &> /dev/null; do      \
+    echo "Waiting for service-database-public. CTRL-C to exit."; sleep 1; done              \
 
-    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_GUNICORN}
-    while ! kubectl get service service-gunicorn -n production &> /dev/null; do             \
-    echo "Waiting for service-gunicorn. CTRL-C to exit."; sleep 1; done                     \
-
-    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_FLOWER}
-    while ! kubectl get service service-flower -n production &> /dev/null; do               \
-    echo "Waiting for service-flower. CTRL-C to exit."; sleep 1; done                       \
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_HEADLESS}
+    while ! kubectl get service service-database-headless -n production &> /dev/null; do    \
+    echo "Waiting for service-database-headless. CTRL-C to exit."; sleep 1; done            \
 
     kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_RABBIT}
     while ! kubectl get service service-rabbitmq -n production &> /dev/null; do             \
     echo "Waiting for service-rabbitmq. CTRL-C to exit."; sleep 1; done                     \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_RABBIT_MANAGEMENT}
+    while ! kubectl get service service-rabbitmq-management -n production &> /dev/null; do  \
+    echo "Waiting for service-rabbitmq-management. CTRL-C to exit."; sleep 1; done          \
 
     kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_REDIS}
     while ! kubectl get service service-redis -n production &> /dev/null; do                \
@@ -133,16 +144,50 @@ clusterrun:
     while ! kubectl get service service-sphinx -n production &> /dev/null; do               \
     echo "Waiting for service-sphinx. CTRL-C to exit."; sleep 1; done                       \
 
-    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_HEADLESS}
-    while ! kubectl get service service-database-headless -n production &> /dev/null; do    \
-    echo "Waiting for service-database-headless. CTRL-C to exit."; sleep 1; done            \
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_FLOWER}
+    while ! kubectl get service service-flower -n production &> /dev/null; do               \
+    echo "Waiting for service-flower. CTRL-C to exit."; sleep 1; done                       \
 
-    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_DB_PUBLIC}
-    while ! kubectl get service service-database-public -n production &> /dev/null; do      \
-    echo "Waiting for service-database-public. CTRL-C to exit."; sleep 1; done              \
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_GUNICORN}
+    while ! kubectl get service service-gunicorn -n production &> /dev/null; do             \
+    echo "Waiting for service-gunicorn. CTRL-C to exit."; sleep 1; done                     \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_SERVICE_NGINX}
+    while ! kubectl get service service-nginx -n production &> /dev/null; do                \
+    echo "Waiting for service-nginx. CTRL-C to exit."; sleep 1; done                        \
 
     kubectl create -f ${KA8_CLUSTER_PROD_STATEFULSET_DATABASE}
     kubectl rollout status statefulset statefulset-database -n production
+
+    kubectl create -f ${KA8_CLUSTER_PROD_JOB_MIGRATIONS}
+    kubectl wait --for=condition=complete job/job-migrations --timeout=-30s -n production
+
+    chmod +x ${KA8_CLUSTER_PROD_DATABASE_REPLICATION_SCRIPT}
+    ./${KA8_CLUSTER_PROD_DATABASE_REPLICATION_SCRIPT}
+
+    kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_RABBIT}
+    kubectl rollout status deployment deployment-rabbitmq -n production
+
+    kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_REDIS}
+    kubectl rollout status deployment deployment-redis -n production
+
+    kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_SPHINX}
+    kubectl rollout status deployment deployment-sphinx -n production
+
+    kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_CELERY}
+    kubectl rollout status deployment deployment-celery -n production
+
+    kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_GUNICORN}
+    kubectl rollout status deployment deployment-gunicorn -n production
+
+# nginx
+
+    minikube addons enable metrics-server
+    kubectl rollout status deployment metrics-server -n kube-system
+    while ! kubectl top pod --all-namespaces &> /dev/null; do                               \
+    echo "Waiting for collecting metrics. CTRL-C to exit."; sleep 1; done                   \
+
+# hpas
 
 clusterpause:
     minikube pause

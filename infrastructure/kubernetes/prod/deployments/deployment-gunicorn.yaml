@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-gunicorn
+  namespace: production
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  minReadySeconds: 10
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: gunicorn
+      rel: stable
+  template:
+    metadata:
+      name: gunicorn-pod
+      labels:
+        app: gunicorn
+        rel: stable
+    spec:
+      serviceAccountName: service-account-production
+      containers:
+      - name: gunicorn
+        image: twelvecloud/car.showroom:django-production
+        command: ["./gunicorn-entrypoint.sh"]
+        imagePullPolicy: Always
+        ports:
+        - name: https
+          containerPort: 443
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: secret-django-production
+        - configMapRef:
+            name: configmap-django
+        volumeMounts:
+        - name: certificate
+          mountPath: /code/certs/
+          readOnly: true
+        startupProbe:
+          httpGet:
+            path: /api/schema/swagger/
+            scheme: HTTPS
+            port: 443
+          initialDelaySeconds: 3
+          successThreshold: 1
+          failureThreshold: 18
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /api/schema/swagger/
+            scheme: HTTPS
+            port: 443
+          initialDelaySeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/schema/swagger/
+            scheme: HTTPS
+            port: 443
+          initialDelaySeconds: 30
+          successThreshold: 1
+          failureThreshold: 6
+          periodSeconds: 10
+          timeoutSeconds: 5
+      volumes:
+      - name: certificate
+        secret:
+          secretName: certificate-https
+      restartPolicy: Always

@@ -402,6 +402,23 @@ if KUBERNETES:
 
     DATABASE_ROUTERS = ['config.dbrouters.KubernetesRouter']
 
+    CELERY_BROKER_URL = (
+        f"{RABBITMQ['PROTOCOL']}://"
+        f"{RABBITMQ['USER']}:"
+        f"{RABBITMQ['PASS']}@"
+        f"{os.getenv('SERVICE_RABBITMQ_SERVICE_HOST')}:"
+        f"{os.getenv('SERVICE_RABBITMQ_SERVICE_PORT')}"
+    )
+
+    CELERY_RESULT_BACKEND = (
+        f"{REDIS['PROTOCOL']}://"
+        ":"
+        f"{REDIS['PASS']}@"
+        f"{os.getenv('SERVICE_REDIS_SERVICE_HOST')}:"
+        f"{os.getenv('SERVICE_REDIS_SERVICE_PORT')}/"
+        f"{REDIS['DATABASE_NUMBER']}"
+    )
+
 # -------------------------- OTHER SETTINGS ------------------------------------
 
 WSGI_APPLICATION: str = 'config.wsgi.application'

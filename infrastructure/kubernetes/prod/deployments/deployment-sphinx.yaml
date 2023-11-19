@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-sphinx
+  namespace: production
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: sphinx
+      rel: stable
+  template:
+    metadata:
+      name: sphinx-pod
+      labels:
+        app: sphinx
+        rel: stable
+    spec:
+      serviceAccountName: service-account-production
+      containers:
+      - name: sphinx
+        image: twelvecloud/car.showroom:sphinx-production
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          successThreshold: 1
+          failureThreshold: 18
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          successThreshold: 1
+          failureThreshold: 6
+          periodSeconds: 10
+          timeoutSeconds: 5
+      restartPolicy: Always

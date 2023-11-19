@@ -1,57 +1,50 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: statefulset-database
+  name: deployment-rabbitmq
   namespace: production
 spec:
-  serviceName: service-database-headless
-  replicas: 3
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   revisionHistoryLimit: 10
-  minReadySeconds: 10
   selector:
     matchLabels:
-      app: database-postgres
+      app: rabbitmq
       rel: stable
   template:
     metadata:
-      name: pod-database
+      name: rabbitmq-pod
       labels:
-        app: database-postgres
+        app: rabbitmq
         rel: stable
     spec:
       serviceAccountName: service-account-production
       containers:
-      - name: postgres
-        image: postgres:14.4-alpine
-        args:
-          - -c
-          - shared_buffers=4GB
-          - -c
-          - wal_level=logical
-          - -c
-          - wal_writer_delay=400ms
-          - -c
-          - synchronous_commit=off
-          - -c
-          - autovacuum_naptime=5min
-          - -c
-          - autovacuum_max_workers=8
+      - name: rabbitmq
+        image: rabbitmq:3.10.7-management-alpine
         imagePullPolicy: Always
         ports:
-        - containerPort: 5432
+        - name: amqp
+          containerPort: 5672
+          protocol: TCP
+        - name: management
+          containerPort: 15672
           protocol: TCP
         envFrom:
-        - secretRef:
-            name: secret-database-production
+          - secretRef:
+              name: secret-rabbit-production
         volumeMounts:
         - name: data
-          mountPath: /var/lib/postgresql/data
+          mountPath: /var/lib/rabbitmq
         startupProbe:
           exec:
             command:
             - /bin/sh
             - -c
-            - exec pg_isready -U Twelve -h 127.0.0.1 -p 5432
+            - exec rabbitmq-diagnostics -q check_port_connectivity
           initialDelaySeconds: 3
           successThreshold: 1
           failureThreshold: 18
@@ -62,7 +55,7 @@ spec:
             command:
             - /bin/sh
             - -c
-            - exec pg_isready -U Twelve -h 127.0.0.1 -p 5432
+            - exec rabbitmq-diagnostics -q check_port_connectivity
           initialDelaySeconds: 5
           successThreshold: 1
           failureThreshold: 6
@@ -73,19 +66,14 @@ spec:
             command:
             - /bin/sh
             - -c
-            - exec pg_isready -U Twelve -h 127.0.0.1 -p 5432
+            - exec rabbitmq-diagnostics -q check_port_connectivity
           initialDelaySeconds: 30
           successThreshold: 1
           failureThreshold: 6
           periodSeconds: 10
           timeoutSeconds: 5
+      volumes:
+      - name: data
+        hostPath:
+          path: /k8s/data/prod/rabbitmq
       restartPolicy: Always
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      resources:
-        requests:
-          storage: 1Gi
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: ""

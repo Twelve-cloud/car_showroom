@@ -9,5 +9,5 @@ spec:
   - port: 5555
     targetPort: 5555
   selector:
-    app: flower
+    app: celery
     rel: stable
