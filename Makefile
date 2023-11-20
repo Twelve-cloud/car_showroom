@@ -180,7 +180,8 @@ clusterrun:
     kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_GUNICORN}
     kubectl rollout status deployment deployment-gunicorn -n production
 
-# nginx
+    kubectl create -f ${KA8_CLUSTER_PROD_DEPLOYMENT_NGINX}
+    kubectl rollout status deployment deployment-nginx -n production
 
     minikube addons enable metrics-server
     kubectl rollout status deployment metrics-server -n kube-system

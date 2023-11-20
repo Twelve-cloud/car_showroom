@@ -11,7 +11,7 @@ CMD [                                   \
     "/bin/sh" ,                         \
     "-c" ,                              \
     "envsubst                           \
-    '$DJANGO_GUNICORN_SERVICE $DJANGO_GUNICORN_PORT $DJANGO_NGINX_PORT'   \
+    '$SERVICE_GUNICORN_SERVICE_HOST $SERVICE_GUNICORN_SERVICE_PORT $DJANGO_NGINX_PORT'   \
      < /nginx.conf >                    \
      /etc/nginx/conf.d/nginx.conf &&    \
      exec nginx -g 'daemon off;'"       \
