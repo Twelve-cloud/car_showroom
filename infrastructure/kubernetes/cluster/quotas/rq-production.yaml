@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resource-quota-production
+  namespace: production
+spec:
+  hard:
+    pods: 20
+    replicationcontrollers: 10
+    secrets: 10
+    configmaps: 10
+    services: 20
+    services.loadbalancers: 5
+    services.nodeports: 5
+    resourcequotas: 1
+    persistentvolumeclaims: 6

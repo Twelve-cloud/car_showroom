@@ -78,7 +78,7 @@ docs:
 # ------------------------------------- K&8 -------------------------------------------
 
 clusterstart:
-    minikube start
+    minikube start --memory 8192 --cpus 4
 
 clusterinit:
     kubectl create -f ${KA8_CLUSTER_PROD_NAMESPACE}
@@ -92,9 +92,13 @@ clusterinit:
     while ! kubectl get serviceaccount service-account-production -n production &> /dev/null; do                       \
     echo "Waiting for service account. CTRL-C to exit."; sleep 1; done                                                 \
 
-# create limit-range
+    kubectl create -f ${KA8_CLUSTER_PROD_RESOURCE_QUOTA}
+    while ! kubectl get quota resource-quota-production -n production &> /dev/null; do                                 \
+    echo "Waiting for resource qouta. CTRL-C to exit."; sleep 1; done                                                  \
 
-# create quota
+    kubectl create -f ${KA8_CLUSTER_PROD_LIMIT_RANGE}
+    while ! kubectl get limits limit-range-production -n production &> /dev/null; do                                   \
+    echo "Waiting for limit range. CTRL-C to exit."; sleep 1; done                                                     \
 
     kubectl create -f ${KA8_CLUSTER_PROD_SECRET_DJANGO}
     while ! kubectl get secret secret-django-production -n production &> /dev/null; do                                 \
@@ -188,7 +192,24 @@ clusterrun:
     while ! kubectl top pod --all-namespaces &> /dev/null; do                               \
     echo "Waiting for collecting metrics. CTRL-C to exit."; sleep 1; done                   \
 
-# hpas
+    kubectl create -f ${KA8_CLUSTER_PROD_HPA_CELERY}
+    while ! kubectl get hpa hpa-celery -n production &> /dev/null; do                       \
+    echo "Waiting for hpa-celery. CTRL-C to exit."; sleep 1; done                           \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_HPA_GUNICORN}
+    while ! kubectl get hpa hpa-gunicorn -n production &> /dev/null; do                     \
+    echo "Waiting for hpa-gunicorn. CTRL-C to exit."; sleep 1; done                         \
+
+    kubectl create -f ${KA8_CLUSTER_PROD_HPA_NGINX}
+    while ! kubectl get hpa hpa-nginx -n production &> /dev/null; do                        \
+    echo "Waiting for hpa-nginx. CTRL-C to exit."; sleep 1; done                            \
+
+    minikube addons enable ingress
+    kubectl rollout status deployment ingress-nginx-controller -n ingress-nginx
+
+    kubectl create -f ${KA8_CLUSTER_PROD_INGRESS}
+    while ! kubectl get ingress ingress -n production &> /dev/null; do                      \
+    echo "Waiting for ingeress. CTRL-C to exit."; sleep 1; done                             \
 
 clusterpause:
     minikube pause

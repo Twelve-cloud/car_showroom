@@ -39,23 +39,12 @@ spec:
             - /bin/sh
             - -c
             - exec celery -A config inspect ping --destination worker1@$HOSTNAME
-          initialDelaySeconds: 3
+          initialDelaySeconds: 10
           successThreshold: 1
           failureThreshold: 18
           periodSeconds: 10
-          timeoutSeconds: 5
+          timeoutSeconds: 30
         readinessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - exec celery -A config inspect ping --destination worker1@$HOSTNAME
-          initialDelaySeconds: 5
-          successThreshold: 1
-          failureThreshold: 6
-          periodSeconds: 10
-          timeoutSeconds: 5
-        livenessProbe:
           exec:
             command:
             - /bin/sh
@@ -65,7 +54,25 @@ spec:
           successThreshold: 1
           failureThreshold: 6
           periodSeconds: 10
-          timeoutSeconds: 5
+          timeoutSeconds: 30
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec celery -A config inspect ping --destination worker1@$HOSTNAME
+          initialDelaySeconds: 60
+          successThreshold: 1
+          failureThreshold: 6
+          periodSeconds: 10
+          timeoutSeconds: 30
+        resources:
+          requests:
+            cpu: 700m
+            memory: 900Mi
+          limits:
+            cpu: 700m
+            memory: 900Mi
       - name: beat
         image: twelvecloud/car.showroom:django-production
         command: ["./beat-entrypoint.sh"]
@@ -81,7 +88,7 @@ spec:
             - /bin/sh
             - -c
             - exec pgrep celery
-          initialDelaySeconds: 3
+          initialDelaySeconds: 10
           successThreshold: 1
           failureThreshold: 18
           periodSeconds: 10
@@ -92,7 +99,7 @@ spec:
             - /bin/sh
             - -c
             - exec pgrep celery
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
           successThreshold: 1
           failureThreshold: 6
           periodSeconds: 10
@@ -103,11 +110,18 @@ spec:
             - /bin/sh
             - -c
             - exec pgrep celery
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           successThreshold: 1
           failureThreshold: 6
           periodSeconds: 10
           timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: 200m
+            memory: 300Mi
+          limits:
+            cpu: 200m
+            memory: 500Mi
       - name: flower
         image: twelvecloud/car.showroom:django-production
         command: ["./flower-entrypoint.sh"]
@@ -124,27 +138,34 @@ spec:
           httpGet:
             path: /
             port: 5555
-          initialDelaySeconds: 3
+          initialDelaySeconds: 20
           successThreshold: 1
           failureThreshold: 18
           periodSeconds: 10
-          timeoutSeconds: 5
+          timeoutSeconds: 30
         readinessProbe:
           httpGet:
             path: /
             port: 5555
-          initialDelaySeconds: 5
+          initialDelaySeconds: 60
           successThreshold: 1
           failureThreshold: 6
           periodSeconds: 10
-          timeoutSeconds: 5
+          timeoutSeconds: 30
         livenessProbe:
           httpGet:
             path: /
             port: 5555
-          initialDelaySeconds: 30
+          initialDelaySeconds: 120
           successThreshold: 1
           failureThreshold: 6
           periodSeconds: 10
-          timeoutSeconds: 5
+          timeoutSeconds: 30
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
       restartPolicy: Always
