@@ -14,7 +14,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from supplier.models import SupplierModel
-from supplier.swagger import (
+from supplier.services import SupplierService
+from supplier.api.v1.swagger import (
     supplier_list_schema_extension,
     supplier_create_schema_extension,
     supplier_update_schema_extension,
@@ -26,8 +27,7 @@ from supplier.swagger import (
     supplier_get_statistics_schema_extension,
     supplier_partial_update_schema_extension,
 )
-from supplier.services import SupplierService
-from supplier.serializers import (
+from supplier.api.v1.serializers import (
     SupplierSerializer,
     SupplierCarSerializer,
     SupplierHistorySerializer,

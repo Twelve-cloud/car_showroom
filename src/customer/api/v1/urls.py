@@ -4,7 +4,7 @@ urls.py: File, containing routes for a customer application.
 
 
 from rest_framework.routers import SimpleRouter
-from customer import views
+from customer.api.v1 import views
 
 
 app_name: str = 'customer'

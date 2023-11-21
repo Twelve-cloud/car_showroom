@@ -4,7 +4,7 @@ urls.py: File, containing routes for a showroom application.
 
 
 from rest_framework.routers import SimpleRouter
-from showroom import views
+from showroom.api.v1 import views
 
 
 app_name: str = 'showroom'

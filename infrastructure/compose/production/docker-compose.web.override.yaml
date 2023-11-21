@@ -15,7 +15,7 @@ services:
     ports:
       - 1337:${DJANGO_NGINX_PORT}
     healthcheck:
-      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_NGINX_PORT}/api/v1/auth/users/"]
+      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_NGINX_PORT}/api/v1/schema/swagger/"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -42,7 +42,7 @@ services:
     expose:
       - ${DJANGO_GUNICORN_PORT}
     healthcheck:
-      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_GUNICORN_PORT}/api/v1/auth/users/"]
+      test: ["CMD-SHELL", "curl -k https://localhost:${DJANGO_GUNICORN_PORT}/api/v1/schema/swagger/"]
       interval: 10s
       timeout: 5s
       retries: 10

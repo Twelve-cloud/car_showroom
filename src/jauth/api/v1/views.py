@@ -14,7 +14,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from jauth.models import User
-from jauth.swagger import (
+from jauth.services import UserService
+from jauth.api.v1.swagger import (
     user_list_schema_extension,
     user_create_schema_extension,
     user_update_schema_extension,
@@ -27,9 +28,8 @@ from jauth.swagger import (
     user_reset_password_schema_extension,
     user_reset_password_confirm_schema_extension,
 )
-from jauth.services import UserService
-from jauth.permissions import IsUserOwner
-from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
+from jauth.api.v1.permissions import IsUserOwner
+from jauth.api.v1.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
 
 @extend_schema(tags=['User'])

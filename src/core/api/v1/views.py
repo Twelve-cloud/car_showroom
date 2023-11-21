@@ -13,14 +13,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import CarModel
-from core.swagger import (
+from core.services import CarService
+from core.api.v1.swagger import (
     car_list_schema_extension,
     car_create_schema_extension,
     car_destroy_schema_extension,
     car_retrieve_schema_extension,
 )
-from core.services import CarService
-from core.serializers import CarSerializer
+from core.api.v1.serializers import CarSerializer
 
 
 @extend_schema(tags=['Car'])

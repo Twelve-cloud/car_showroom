@@ -11,7 +11,7 @@ from jauth.models import User
 
 
 if TYPE_CHECKING:
-    from jauth.views import UserViewSet
+    from jauth.api.v1.views import UserViewSet
 
 
 class IsUserOwner(permissions.BasePermission):

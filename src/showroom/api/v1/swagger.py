@@ -1,4 +1,4 @@
-"""
+"""Showroom
 swagger.py: File, containg schema extensions for extend schema decorator.
 """
 
@@ -6,146 +6,146 @@ swagger.py: File, containg schema extensions for extend schema decorator.
 from rest_framework import status
 from drf_spectacular.utils import OpenApiResponse
 from config.swagger import ForbiddenSerializer, UnauthorizedSerializer
-from supplier.serializers import (
-    SupplierSerializer,
-    SupplierCarSerializer,
-    SupplierHistorySerializer,
-    SupplierCarDiscountSerializer,
+from showroom.api.v1.serializers import (
+    ShowroomSerializer,
+    ShowroomCarSerializer,
+    ShowroomHistorySerializer,
+    ShowroomCarDiscountSerializer,
 )
 
 
-supplier_create_schema_extension: dict = {
-    'summary': 'New supplier creating',
+showroom_create_schema_extension: dict = {
+    'summary': 'New showroom creating',
     'description': """
-      Creates new supplier.
+      Creates new showroom.
     """,
-    'request': SupplierSerializer,
+    'request': ShowroomSerializer,
     'responses': {
-        status.HTTP_201_CREATED: SupplierSerializer,
+        status.HTTP_201_CREATED: ShowroomSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response=SupplierSerializer,
+            response=ShowroomSerializer,
             description='Fields, that (are not correct)/exists',
         ),
     },
 }
 
-supplier_update_schema_extension: dict = {
-    'summary': 'Existing supplier updating (all fields)',
+showroom_update_schema_extension: dict = {
+    'summary': 'Existing showroom updating (all fields)',
     'description': """
-      Updates existing supplier (fully).
+      Updates existing showroom (fully).
     """,
-    'request': SupplierSerializer,
+    'request': ShowroomSerializer,
     'responses': {
-        status.HTTP_200_OK: SupplierSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response=SupplierSerializer,
+            response=ShowroomSerializer,
             description='Fields, that (are not correct)/exists',
         ),
     },
 }
 
-supplier_partial_update_schema_extension: dict = {
-    'summary': 'Existing supplier updating (not all fields)',
+showroom_partial_update_schema_extension: dict = {
+    'summary': 'Existing showroom updating (not all fields)',
     'description': """
-      Updates existing supplier (partially).
+      Updates existing showroom (partially).
     """,
-    'request': SupplierSerializer,
+    'request': ShowroomSerializer,
     'responses': {
-        status.HTTP_200_OK: SupplierSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response=SupplierSerializer,
+            response=ShowroomSerializer,
             description='Fields, that (are not correct)/exists',
         ),
     },
 }
 
-supplier_list_schema_extension: dict = {
-    'summary': 'Showing all suppliers',
+showroom_list_schema_extension: dict = {
+    'summary': 'Showing all showrooms',
     'description': """
-      Shows all suppliers.
+      Shows all showrooms.
     """,
     'responses': {
-        status.HTTP_200_OK: SupplierSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
-supplier_retrieve_schema_extension: dict = {
-    'summary': 'Showing concrete supplier',
+showroom_retrieve_schema_extension: dict = {
+    'summary': 'Showing concrete showroom',
     'description': """
-      Shows information about concrete supplier.
+      Shows information about concrete showroom.
     """,
     'responses': {
-        status.HTTP_200_OK: SupplierSerializer,
+        status.HTTP_200_OK: ShowroomSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
-supplier_destroy_schema_extension: dict = {
-    'summary': 'Deactivating supplier',
+showroom_destroy_schema_extension: dict = {
+    'summary': 'Deactivating showroom',
     'description': """
-      Deactivates supplier. Marks supplier as inactive insted of deleting it from database.
+      Deactivates showroom. Marks showroom as inactive insted of deleting it from database.
     """,
     'responses': {
         status.HTTP_204_NO_CONTENT: OpenApiResponse(
             response=None,
-            description='Supplier is deactivated.',
+            description='Showroom is deactivated.',
         ),
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
-supplier_make_discount_schema_extension: dict = {
-    'summary': 'Making discount for cars of the suppliers.',
+showroom_make_discount_schema_extension: dict = {
+    'summary': 'Making discount for cars of the showrooms.',
     'description': """
-      Makes discount for cars of the suppliers.
+      Makes discount for cars of the showrooms.
       When discount is finished then discount will be deleted.
     """,
     'responses': {
-        status.HTTP_200_OK: SupplierCarDiscountSerializer,
+        status.HTTP_200_OK: ShowroomCarDiscountSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
-supplier_get_discounts_schema_extension: dict = {
-    'summary': 'Gettings discounts for cars of the supplier',
+showroom_get_discounts_schema_extension: dict = {
+    'summary': 'Gettings discounts for cars of the showroom',
     'description': """
-      Returns discounts for cars of the supplier.
+      Returns discounts for cars of the showroom.
     """,
     'responses': {
-        status.HTTP_200_OK: SupplierCarDiscountSerializer,
+        status.HTTP_200_OK: ShowroomCarDiscountSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
-supplier_get_statistics_schema_extension: dict = {
-    'summary': 'Gettings statistics for supplier',
+showroom_get_statistics_schema_extension: dict = {
+    'summary': 'Gettings statistics for showroom',
     'description': """
-      Returns statistics for supplier. Includes info about deals with showrooms and suppliers.
+      Returns statistics for showroom. Includes info about deals with showrooms and suppliers.
     """,
     'responses': {
-        status.HTTP_200_OK: SupplierHistorySerializer,
+        status.HTTP_200_OK: ShowroomHistorySerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },
 }
 
-supplier_get_cars_schema_extension: dict = {
-    'summary': 'Gettings cars for supplier',
+showroom_get_cars_schema_extension: dict = {
+    'summary': 'Gettings cars for showroom',
     'description': """
-      Returns cars of the supplier.
+      Returns cars of the showroom.
     """,
     'responses': {
-        status.HTTP_200_OK: SupplierCarSerializer,
+        status.HTTP_200_OK: ShowroomCarSerializer,
         status.HTTP_401_UNAUTHORIZED: UnauthorizedSerializer,
         status.HTTP_403_FORBIDDEN: ForbiddenSerializer,
     },

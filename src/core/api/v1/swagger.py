@@ -6,7 +6,7 @@ swagger.py: File, containg schema extensions for extend schema decorator.
 from rest_framework import status
 from drf_spectacular.utils import OpenApiResponse
 from config.swagger import ForbiddenSerializer, UnauthorizedSerializer
-from core.serializers import CarSerializer
+from core.api.v1.serializers import CarSerializer
 
 
 car_create_schema_extension: dict = {

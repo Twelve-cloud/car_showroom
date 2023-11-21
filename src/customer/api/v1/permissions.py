@@ -11,7 +11,7 @@ from customer.models import CustomerModel
 
 
 if TYPE_CHECKING:
-    from customer.views import CustomerViewSet
+    from customer.api.v1.views import CustomerViewSet
 
 
 class IsUserHasNotCustomer(permissions.BasePermission):

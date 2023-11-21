@@ -14,7 +14,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from showroom.models import ShowroomModel
-from showroom.swagger import (
+from showroom.services import ShowroomService
+from showroom.api.v1.swagger import (
     showroom_list_schema_extension,
     showroom_create_schema_extension,
     showroom_update_schema_extension,
@@ -26,8 +27,7 @@ from showroom.swagger import (
     showroom_get_statistics_schema_extension,
     showroom_partial_update_schema_extension,
 )
-from showroom.services import ShowroomService
-from showroom.serializers import (
+from showroom.api.v1.serializers import (
     ShowroomSerializer,
     ShowroomCarSerializer,
     ShowroomHistorySerializer,

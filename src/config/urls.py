@@ -17,18 +17,27 @@ Including another URLconf
 
 from django.conf import settings
 from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView as schema
+from drf_spectacular.views import SpectacularRedocView as redoc
+from drf_spectacular.views import SpectacularSwaggerView as swagger
 
+
+api_v1_urls: tuple = (
+    [
+        path('auth/', include('jauth.api.v1.urls')),
+        path('core/', include('core.api.v1.urls')),
+        path('customer/', include('customer.api.v1.urls')),
+        path('showroom/', include('showroom.api.v1.urls')),
+        path('supplier/', include('supplier.api.v1.urls')),
+    ],
+    'v1',
+)
 
 urlpatterns: list = [
-    path('api/schema/', SpectacularAPIView.as_view(api_version='v1'), name='schema'),
-    path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('api/v1/auth/', include(('jauth.urls', 'auth'), namespace='v1')),
-    path('api/v1/core/', include(('core.urls', 'core'), namespace='v1')),
-    path('api/v1/customer/', include(('customer.urls', 'customer'), namespace='v1')),
-    path('api/v1/showroom/', include(('showroom.urls', 'showroom'), namespace='v1')),
-    path('api/v1/supplier/', include(('supplier.urls', 'supplier'), namespace='v1')),
+    path('api/v1/schema/', schema.as_view(api_version='v1'), name='schema'),
+    path('api/v1/schema/swagger/', swagger.as_view(url_name='schema'), name='swagger'),
+    path('api/v1/schema/redoc/', redoc.as_view(url_name='schema'), name='redoc'),
+    path('api/v1/', include(api_v1_urls, namespace='v1')),
 ]
 
 

@@ -14,7 +14,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from customer.models import CustomerModel, CustomerOffer
-from customer.swagger import (
+from customer.services import CustomerService
+from customer.api.v1.swagger import (
     customer_list_schema_extension,
     customer_create_schema_extension,
     customer_update_schema_extension,
@@ -24,9 +25,8 @@ from customer.swagger import (
     customer_get_statistics_schema_extension,
     customer_partial_update_schema_extension,
 )
-from customer.services import CustomerService
-from customer.permissions import IsCustomerOwner, IsUserHasNotCustomer
-from customer.serializers import (
+from customer.api.v1.permissions import IsCustomerOwner, IsUserHasNotCustomer
+from customer.api.v1.serializers import (
     CustomerSerializer,
     CustomerOfferSerializer,
     CustomerHistorySerializer,

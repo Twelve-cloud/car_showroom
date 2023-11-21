@@ -42,7 +42,7 @@ spec:
           readOnly: true
         startupProbe:
           httpGet:
-            path: /api/schema/swagger/
+            path: /api/v1/schema/swagger/
             scheme: HTTPS
             port: 443
           initialDelaySeconds: 20
@@ -52,7 +52,7 @@ spec:
           timeoutSeconds: 30
         readinessProbe:
           httpGet:
-            path: /api/schema/swagger/
+            path: /api/v1/schema/swagger/
             scheme: HTTPS
             port: 443
           initialDelaySeconds: 60
@@ -62,7 +62,7 @@ spec:
           timeoutSeconds: 30
         livenessProbe:
           httpGet:
-            path: /api/schema/swagger/
+            path: /api/v1/schema/swagger/
             scheme: HTTPS
             port: 443
           initialDelaySeconds: 120

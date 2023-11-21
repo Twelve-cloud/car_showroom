@@ -11,7 +11,7 @@ from config.swagger import (
     UnauthorizedSerializer,
     IncorrectTokenSerializer,
 )
-from jauth.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
+from jauth.api.v1.serializers import UserSerializer, AccessTokenSerializer, RefreshTokenSerializer
 
 
 user_create_schema_extension: dict = {
