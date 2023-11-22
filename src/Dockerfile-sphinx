@@ -1,6 +1,6 @@
 # 1 layer
 FROM nginx:alpine
-LABEL author="ilya.savin@pynest.io"
+LABEL author="kana.suzucki@gmail.com"
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

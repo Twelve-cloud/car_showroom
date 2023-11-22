@@ -1,6 +1,6 @@
 # 1 layer
 FROM python:3.10-alpine3.15
-LABEL author="ilya.savin@pynest.io"
+LABEL author="kana.suzucki@gmail.com"
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
